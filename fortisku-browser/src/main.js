@@ -80,7 +80,8 @@ async function handleUpload({ file, sheetName }) {
       rowCount: rows.length,
       schemaVersion: SCHEMA_VERSION,
       sheetName: result.sheetName,
-      skippedRows: result.stats.skippedRows
+      skippedRows: result.stats.skippedRows,
+      priceListLabel: result.coverInfo || null
     };
 
     const storedBytes = estimateSizeBytes(rows, exported);

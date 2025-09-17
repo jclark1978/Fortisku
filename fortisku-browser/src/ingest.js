@@ -38,6 +38,7 @@ export async function ingestWorkbook(file, requestedSheetName) {
 
   const dataRows = rows.slice(headerInfo.index + 1);
   const { normalizedRows, stats } = normalizeRows(dataRows, headerInfo.headerMap);
+  const coverInfo = extractCoverSheetInfo(workbook);
 
   if (!normalizedRows.length) {
     throw new Error("No data rows contained valid SKU and Description #1 values.");
@@ -46,8 +47,36 @@ export async function ingestWorkbook(file, requestedSheetName) {
   return {
     rows: normalizedRows,
     sheetName,
-    stats
+    stats,
+    coverInfo
   };
+}
+
+function extractCoverSheetInfo(workbook) {
+  const sheetNames = workbook.SheetNames || [];
+  const targets = ["cover sheet", "cover", "coversheet"];
+  let sheet = null;
+  for (const name of sheetNames) {
+    const normalized = String(name).trim().toLowerCase();
+    if (targets.includes(normalized)) {
+      sheet = workbook.Sheets[name];
+      break;
+    }
+  }
+
+  if (!sheet) {
+    return null;
+  }
+
+  const rows = sheet.__rows || [];
+  const rowIndex = 6; // C7 -> zero-based row 6
+  const colIndex = 2; // Column C -> zero-based index 2
+  const row = rows[rowIndex];
+  if (!row || row[colIndex] === undefined || row[colIndex] === null) {
+    return null;
+  }
+  const value = String(row[colIndex]).trim();
+  return value || null;
 }
 
 function findHeaderRow(rows) {

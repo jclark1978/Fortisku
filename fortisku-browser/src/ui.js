@@ -24,7 +24,7 @@ export function initUI(handlers) {
   const datasetSheet = document.getElementById("dataset-sheet");
   const datasetRows = document.getElementById("dataset-rows");
   const datasetUpdated = document.getElementById("dataset-updated");
-  const datasetVersion = document.getElementById("dataset-version");
+  const datasetPricelist = document.getElementById("dataset-pricelist");
   const datasetSize = document.getElementById("dataset-size");
 
   let statusTimeoutId = null;
@@ -88,7 +88,7 @@ export function initUI(handlers) {
     datasetSheet.textContent = meta.sheetName || "Unknown";
     datasetRows.textContent = meta.rowCount?.toLocaleString() ?? "0";
     datasetUpdated.textContent = meta.updatedAt ? formatDate(meta.updatedAt) : "—";
-    datasetVersion.textContent = meta.schemaVersion || "—";
+    datasetPricelist.textContent = meta.priceListLabel || "—";
     datasetSize.textContent = formatBytes(storedBytes ?? meta.storedBytes ?? 0);
     exportAllButton.disabled = false;
   }
@@ -98,7 +98,7 @@ export function initUI(handlers) {
     datasetSheet.textContent = "—";
     datasetRows.textContent = "0";
     datasetUpdated.textContent = "—";
-    datasetVersion.textContent = "—";
+    datasetPricelist.textContent = "—";
     datasetSize.textContent = "0 B";
     exportAllButton.disabled = true;
     exportResultsButton.disabled = true;
