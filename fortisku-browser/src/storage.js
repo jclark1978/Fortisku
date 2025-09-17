@@ -1,6 +1,6 @@
 import { get, set, del } from "../vendor/idb-keyval.mjs";
 
-export const SCHEMA_VERSION = "1";
+export const SCHEMA_VERSION = "3";
 
 const KEY_PREFIX = "fortisku-finder";
 const KEY_ROWS = `${KEY_PREFIX}:rows:v${SCHEMA_VERSION}`;

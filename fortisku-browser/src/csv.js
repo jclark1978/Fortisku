@@ -1,19 +1,33 @@
-const HEADERS = ["sku", "description", "price", "family", "model", "bundle", "term", "version_date"];
+const HEADERS = [
+  { key: "sku", label: "sku" },
+  { key: "description", label: "description_1" },
+  { key: "description2", label: "description_2" },
+  { key: "price", label: "price" },
+  { key: "family", label: "family" },
+  { key: "model", label: "model" },
+  { key: "bundle", label: "bundle" },
+  { key: "term", label: "term" },
+  { key: "version_date", label: "version_date" }
+];
 
 export function rowsToCSV(rows) {
-  const headerLine = HEADERS.join(",");
+  const headerLine = HEADERS.map((h) => h.label).join(",");
   const dataLines = rows.map((row) =>
-    HEADERS.map((field) => escapeCsvValue(serializeField(row[field], field))).join(",")
+    HEADERS.map(({ key }) => escapeCsvValue(serializeField(row, key))).join(",")
   );
 
   return [headerLine, ...dataLines].join("\r\n");
 }
 
-function serializeField(value, field) {
+function serializeField(row, key) {
+  const value = row[key];
   if (value === undefined || value === null) {
+    if (key === "price" && row.price_display) {
+      return row.price_display;
+    }
     return "";
   }
-  if (field === "price" && typeof value === "number" && Number.isFinite(value)) {
+  if (key === "price" && typeof value === "number" && Number.isFinite(value)) {
     return value.toFixed(2);
   }
   return String(value);

@@ -99,7 +99,7 @@ export function initUI(handlers) {
       const tr = document.createElement("tr");
       tr.className = "empty-state";
       const td = document.createElement("td");
-      td.colSpan = 8;
+      td.colSpan = 9;
       td.textContent = summary.query ? "No results match your search." : "Upload a workbook to begin.";
       tr.appendChild(td);
       resultsBody.appendChild(tr);
@@ -114,7 +114,8 @@ export function initUI(handlers) {
 
       tr.appendChild(buildSkuCell(row.sku));
       tr.appendChild(buildTextCell(row.description));
-      tr.appendChild(buildPriceCell(row.price));
+      tr.appendChild(buildTextCell(row.description2));
+      tr.appendChild(buildPriceCell(row.price, row.price_display));
       tr.appendChild(buildTextCell(row.family));
       tr.appendChild(buildTextCell(row.model));
       tr.appendChild(buildTextCell(row.bundle));
@@ -151,14 +152,15 @@ export function initUI(handlers) {
     return td;
   }
 
-  function buildPriceCell(price) {
+  function buildPriceCell(price, priceDisplay) {
     const td = document.createElement("td");
     const wrapper = document.createElement("div");
     wrapper.className = "sku-cell";
 
     const formatted = formatPrice(price);
+    const fallback = formatted || (priceDisplay || "");
     const text = document.createElement("span");
-    text.textContent = formatted;
+    text.textContent = fallback;
     wrapper.appendChild(text);
 
     const copyBtn = document.createElement("button");
@@ -166,8 +168,8 @@ export function initUI(handlers) {
     copyBtn.className = "copy-btn";
     copyBtn.textContent = "Copy";
     copyBtn.dataset.copyLabel = "Price";
-    copyBtn.disabled = formatted === "";
-    copyBtn.dataset.copyValue = formatted;
+    copyBtn.disabled = fallback === "";
+    copyBtn.dataset.copyValue = fallback;
 
     wrapper.appendChild(copyBtn);
     td.appendChild(wrapper);

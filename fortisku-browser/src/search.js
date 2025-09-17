@@ -1,7 +1,18 @@
 import MiniSearch from "../vendor/minisearch.min.js";
 
-const SEARCH_FIELDS = ["sku", "description", "family", "model", "bundle", "term"];
-const STORE_FIELDS = ["sku", "description", "price", "family", "model", "bundle", "term", "version_date"];
+const SEARCH_FIELDS = ["description", "description2"];
+const STORE_FIELDS = [
+  "sku",
+  "description",
+  "description2",
+  "price",
+  "price_display",
+  "family",
+  "model",
+  "bundle",
+  "term",
+  "version_date"
+];
 
 export function createSearchIndex(rows) {
   const miniSearch = new MiniSearch({
@@ -53,17 +64,24 @@ export function searchRows(index, rowsById, tokens, limit) {
     .map((result) => {
       const row = rowsById.get(result.id);
       if (!row) return null;
-      const skuStarts = firstToken ? row.sku.toLowerCase().startsWith(firstToken) : false;
+      const primaryStarts = firstToken ? row.description.toLowerCase().startsWith(firstToken) : false;
+      const secondaryStarts = firstToken ? row.description2.toLowerCase().startsWith(firstToken) : false;
+      const descriptionStarts = primaryStarts || secondaryStarts;
       return {
         row,
-        skuStarts,
+        descriptionStarts,
+        primaryStarts,
+        secondaryStarts,
         score: result.score
       };
     })
     .filter(Boolean)
     .sort((a, b) => {
-      if (a.skuStarts !== b.skuStarts) {
-        return a.skuStarts ? -1 : 1;
+      if (a.descriptionStarts !== b.descriptionStarts) {
+        return a.descriptionStarts ? -1 : 1;
+      }
+      if (a.primaryStarts !== b.primaryStarts) {
+        return a.primaryStarts ? -1 : 1;
       }
       if (a.score !== b.score) {
         return b.score - a.score;

@@ -419,7 +419,7 @@
       </div>
 
       <div class="search-controls">
-        <input id="search-input" type="search" placeholder="Search SKU, description, family, model, bundle, term…" aria-label="Search dataset" disabled />
+        <input id="search-input" type="search" placeholder="Search Description #1 or Description #2…" aria-label="Search dataset" disabled />
         <button id="export-results-button" type="button" class="secondary" disabled>Export results CSV</button>
       </div>
 
@@ -428,7 +428,8 @@
           <thead>
             <tr>
               <th scope="col">SKU</th>
-              <th scope="col">Description</th>
+              <th scope="col">Description #1</th>
+              <th scope="col">Description #2</th>
               <th scope="col">Price</th>
               <th scope="col">Family</th>
               <th scope="col">Model</th>
@@ -439,7 +440,7 @@
           </thead>
           <tbody id="results-body">
             <tr class="empty-state">
-              <td colspan="8">Upload a workbook to begin.</td>
+              <td colspan="9">Upload a workbook to begin.</td>
             </tr>
           </tbody>
         </table>

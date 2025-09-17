@@ -4,7 +4,8 @@ const DEFAULT_SHEET_NAME = "DataSet";
 
 const FIELD_MAP = {
   sku: ["sku", "product_sku", "part", "partnumber"],
-  description: ["description", "desc", "itemdescription", "productdescription"],
+  description: ["description", "description#1", "description1", "desc", "itemdescription", "productdescription"],
+  description2: ["description#2", "description2", "desc2", "itemdescription2", "productdescription2", "secondarydescription"],
   price: ["price", "listprice", "unitprice", "msrp", "usdprice"],
   family: ["family"],
   model: ["model", "series", "appliance", "device", "platform"],
@@ -39,13 +40,13 @@ export async function ingestWorkbook(file, requestedSheetName) {
   const headerMap = mapHeaders(headers);
 
   if (!headerMap.includes("sku") || !headerMap.includes("description")) {
-    throw new Error("Required columns (SKU, Description) were not found in the header row.");
+    throw new Error("Required columns (SKU, Description #1) were not found in the header row.");
   }
 
   const { normalizedRows, stats } = normalizeRows(dataRows, headerMap);
 
   if (!normalizedRows.length) {
-    throw new Error("No data rows contained valid SKU and description values.");
+    throw new Error("No data rows contained valid SKU and Description #1 values.");
   }
 
   return {
@@ -69,7 +70,7 @@ function normalizeKey(value) {
   return String(value || "")
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
+    .replace(/[^a-z0-9#]+/g, "");
 }
 
 function mapHeaders(headers) {
@@ -116,7 +117,9 @@ function normalizeRows(rows, headerMap) {
       id: `row-${nextId++}`,
       sku: "",
       description: "",
+      description2: "",
       price: null,
+      price_display: "",
       family: "",
       model: "",
       bundle: "",
@@ -134,10 +137,15 @@ function normalizeRows(rows, headerMap) {
       }
 
       if (field === "price") {
-        record.price = coercePrice(rawValue);
-      } else {
-        record[field] = sanitizeString(rawValue);
+        const numeric = coercePrice(rawValue);
+        if (numeric !== null) {
+          record.price = numeric;
+        }
+        record.price_display = sanitizeString(rawValue);
+        continue;
       }
+
+      record[field] = sanitizeString(rawValue);
     }
 
     if (!record.sku || !record.description) {
@@ -147,6 +155,8 @@ function normalizeRows(rows, headerMap) {
 
     record.sku = record.sku.trim();
     record.description = record.description.trim();
+    record.description2 = record.description2.trim();
+    record.price_display = record.price_display.trim();
 
     normalizedRows.push(record);
   }

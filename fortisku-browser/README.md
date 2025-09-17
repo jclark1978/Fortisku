@@ -5,7 +5,7 @@ FortiSKU Finder is a static, browser-only tool for exploring Fortinet SKU price 
 ## Features
 
 - Excel ingestion (XLSX) with header normalization into a standardized SKU schema
-- Client-side MiniSearch index with AND + prefix search across key fields
+- Client-side MiniSearch index with AND + prefix search across Description #1 and Description #2
 - IndexedDB persistence (via `idb-keyval`) so data survives reloads
 - CSV export for the full dataset or current search results
 - Accessible, lightweight UI with copy helpers for SKU and price fields
@@ -41,9 +41,9 @@ No backend or server-side computation is required.
 ## Usage Notes
 
 1. Upload an Excel workbook (.xlsx). By default, the app targets the `DataSet` sheet; provide an alternative sheet name if needed.
-2. The workbook is parsed entirely in the browser. Rows lacking SKU or Description are skipped.
+2. The workbook is parsed entirely in the browser. Rows lacking SKU or Description #1 are skipped.
 3. After the first upload, the normalized rows, MiniSearch index, and metadata persist in IndexedDB. Reloading the page resumes instantly.
-4. Use the search bar for AND prefix queries (`60F enterprise 3 year`). Results are capped at 200 rows for fast rendering.
+4. Use the search bar for AND prefix queries over Description #1/#2 (`enterprise 3 year`). Results are capped at 200 rows for fast rendering.
 5. Export either the full dataset or the visible search results to CSV at any time.
 6. Copy buttons next to SKU and Price use the Clipboard API for quick sharing.
 
