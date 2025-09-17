@@ -1,5 +1,13 @@
 const STATUS_TIMEOUT_DEFAULT = 4500;
 
+const DISPLAY_HEADERS = [
+  { key: "sku", label: "SKU" },
+  { key: "description", label: "Description #1" },
+  { key: "description2", label: "Description #2" },
+  { key: "price", label: "Price" },
+  { key: "category", label: "Category" }
+];
+
 export function initUI(handlers) {
   const fileInput = document.getElementById("file-input");
   const sheetInput = document.getElementById("sheet-input");
@@ -20,6 +28,7 @@ export function initUI(handlers) {
   const datasetSize = document.getElementById("dataset-size");
 
   let statusTimeoutId = null;
+  let lastRenderedRows = [];
 
   fileInput.addEventListener("change", () => {
     const file = fileInput.files && fileInput.files[0];
@@ -56,12 +65,17 @@ export function initUI(handlers) {
       return;
     }
 
-    const value = button.dataset.copyValue || "";
-    const label = button.dataset.copyLabel || "value";
+    const rowIndex = Number(button.dataset.rowIndex ?? "-1");
+    if (Number.isNaN(rowIndex) || rowIndex < 0 || rowIndex >= lastRenderedRows.length) {
+      showStatus("warn", "Could not determine which row to copy.");
+      return;
+    }
+
+    const copyText = serializeRowWithHeaders(lastRenderedRows[rowIndex]);
 
     try {
-      await copyToClipboard(value);
-      showStatus("success", `${label} copied to clipboard.`, { dismissAfter: 2000 });
+      await copyToClipboard(copyText);
+      showStatus("success", "Row copied to clipboard.", { dismissAfter: 2000 });
     } catch (error) {
       console.warn("Clipboard write failed", error);
       const message = describeClipboardError(error);
@@ -97,6 +111,7 @@ export function initUI(handlers) {
     resultsBody.innerHTML = "";
 
     if (!rows.length) {
+      lastRenderedRows = [];
       const tr = document.createElement("tr");
       tr.className = "empty-state";
       const td = document.createElement("td");
@@ -109,38 +124,39 @@ export function initUI(handlers) {
       return;
     }
 
+    lastRenderedRows = rows.slice();
+
     const fragment = document.createDocumentFragment();
-    for (const row of rows) {
+    rows.forEach((row, index) => {
       const tr = document.createElement("tr");
 
-      tr.appendChild(buildSkuCell(row.sku));
+      tr.appendChild(buildSkuCell(row, index));
       tr.appendChild(buildTextCell(row.description));
       tr.appendChild(buildTextCell(row.description2));
       tr.appendChild(buildPriceCell(row.price, row.price_display));
       tr.appendChild(buildTextCell(row.category));
 
       fragment.appendChild(tr);
-    }
+    });
 
     resultsBody.appendChild(fragment);
     exportResultsButton.disabled = false;
     updateSummary(summary, rows.length);
   }
 
-  function buildSkuCell(sku) {
+  function buildSkuCell(row, index) {
     const td = document.createElement("td");
     const wrapper = document.createElement("div");
     wrapper.className = "sku-cell";
     const text = document.createElement("span");
-    text.textContent = sku || "";
+    text.textContent = row.sku || "";
     wrapper.appendChild(text);
 
-    if (sku) {
+    if (row.sku) {
       const copyBtn = document.createElement("button");
       copyBtn.type = "button";
       copyBtn.className = "copy-btn";
-      copyBtn.dataset.copyValue = sku;
-      copyBtn.dataset.copyLabel = "SKU";
+      copyBtn.dataset.rowIndex = String(index);
       copyBtn.textContent = "Copy";
       wrapper.appendChild(copyBtn);
     }
@@ -151,25 +167,8 @@ export function initUI(handlers) {
 
   function buildPriceCell(price, priceDisplay) {
     const td = document.createElement("td");
-    const wrapper = document.createElement("div");
-    wrapper.className = "sku-cell";
-
-    const formatted = formatPrice(price);
-    const fallback = formatted || (priceDisplay || "");
-    const text = document.createElement("span");
-    text.textContent = fallback;
-    wrapper.appendChild(text);
-
-    const copyBtn = document.createElement("button");
-    copyBtn.type = "button";
-    copyBtn.className = "copy-btn";
-    copyBtn.textContent = "Copy";
-    copyBtn.dataset.copyLabel = "Price";
-    copyBtn.disabled = fallback === "";
-    copyBtn.dataset.copyValue = fallback;
-
-    wrapper.appendChild(copyBtn);
-    td.appendChild(wrapper);
+    const value = formatPrice(price) || priceDisplay || "";
+    td.textContent = value;
     return td;
   }
 
@@ -245,6 +244,22 @@ export function initUI(handlers) {
     showStatus,
     triggerDownload: downloadBlob
   };
+}
+
+function serializeRowWithHeaders(row) {
+  const values = DISPLAY_HEADERS.map(({ key }) => {
+    if (key == "price") {
+      const formatted = formatPrice(row.price);
+      if (formatted) return formatted;
+      if (row.price_display) return row.price_display;
+      return "";
+    }
+    return row[key] ? String(row[key]) : "";
+  });
+  const headerLine = DISPLAY_HEADERS.map((h) => h.label).join("	");
+  const valueLine = values.join("	");
+  return `${headerLine}
+${valueLine}`;
 }
 
 async function copyToClipboard(text) {
