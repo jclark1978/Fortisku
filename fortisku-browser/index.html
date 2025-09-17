@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FortiSKU Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f5f7;
+      color: #1f2933;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      color: #102a43;
+    }
+
+    header p {
+      margin: 0;
+      color: #52606d;
+    }
+
+    .panel {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #d9e2ec;
+      padding: 1.5rem;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 1rem;
+      align-items: baseline;
+      margin-bottom: 1rem;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: #243b53;
+    }
+
+    .dataset-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem 1.5rem;
+      margin: 0 0 1.25rem;
+      padding: 0;
+    }
+
+    .dataset-meta dt {
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #7b8794;
+      margin-bottom: 0.15rem;
+    }
+
+    .dataset-meta dd {
+      margin: 0;
+      font-weight: 600;
+      color: #1f2933;
+      word-break: break-word;
+    }
+
+    .dataset-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #cbd2d9;
+      background: #f5f7fa;
+      color: #243b53;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+    }
+
+    .upload-label:hover {
+      background: #edf2f7;
+      color: #102a43;
+    }
+
+    .upload-label input[type="file"] {
+      display: none;
+    }
+
+    .sheet-input {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+    }
+
+    .sheet-input input {
+      border-radius: 8px;
+      border: 1px solid #d9e2ec;
+      padding: 0.55rem 0.75rem;
+      background: #ffffff;
+      min-width: 200px;
+      font: inherit;
+      color: inherit;
+    }
+
+    .sheet-input input:focus {
+      outline: 2px solid #2680c2;
+      outline-offset: 2px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+      background: #2680c2;
+      color: #ffffff;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      background: #bcccdc;
+      color: #e4ebf5;
+      box-shadow: none;
+      transform: none;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: #334e68;
+      border: 1px solid #bcccdc;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #f0f4f8;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(38, 128, 194, 0.25);
+    }
+
+    .status-message {
+      min-height: 1.25rem;
+      margin: 0.3rem 0 0;
+      font-size: 0.95rem;
+      color: #486581;
+      transition: opacity 200ms ease;
+    }
+
+    .status-message.info {
+      color: #486581;
+    }
+
+    .status-message.success {
+      color: #0c6b58;
+    }
+
+    .status-message.warn {
+      color: #b43403;
+    }
+
+    .status-message.error {
+      color: #c81e1e;
+    }
+
+    .spinner {
+      font-size: 0.95rem;
+      color: #334e68;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .spinner::before {
+      content: "";
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 999px;
+      border: 2px solid #bcccdc;
+      border-top-color: #2680c2;
+      animation: spin 900ms linear infinite;
+      display: inline-block;
+    }
+
+    .search-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .search-controls input[type="search"] {
+      flex: 1;
+      min-width: 200px;
+      border-radius: 999px;
+      border: 1px solid #cbd2d9;
+      padding: 0.6rem 1.1rem;
+      font: inherit;
+      color: inherit;
+      background: #f8fafc;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .search-controls input[type="search"]:focus {
+      outline: none;
+      border-color: #2680c2;
+      box-shadow: 0 0 0 3px rgba(38, 128, 194, 0.2);
+      background: #ffffff;
+    }
+
+    .search-summary {
+      font-size: 0.95rem;
+      color: #52606d;
+      flex: 0 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #d9e2ec;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: #f0f4f8;
+    }
+
+    th, td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid #d9e2ec;
+    }
+
+    th {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #7b8794;
+      font-weight: 600;
+    }
+
+    tbody tr:nth-child(every) {
+      background: #ffffff;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .sku-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .copy-btn {
+      background: #f0f4f8;
+      color: #243b53;
+      border: 1px solid #d9e2ec;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      line-height: 1.2;
+      transition: background-color 120ms ease, color 120ms ease;
+    }
+
+    .copy-btn:hover:not(:disabled) {
+      background: #e1e8f0;
+      color: #102a43;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #7b8794;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #8293a4;
+      text-align: center;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .dataset-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        width: 100%;
+        text-align: center;
+      }
+
+      .panel {
+        padding: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>FortiSKU Finder</h1>
+      <p>Upload a workbook once, search instantly on every visit.</p>
+    </header>
+
+    <section class="panel" aria-labelledby="dataset-heading">
+      <div class="panel-header">
+        <h2 id="dataset-heading">Dataset</h2>
+        <span id="dataset-spinner" class="spinner" hidden>Processing workbook…</span>
+      </div>
+
+      <dl class="dataset-meta">
+        <div>
+          <dt>Store</dt>
+          <dd id="dataset-store">IndexedDB</dd>
+        </div>
+        <div>
+          <dt>State</dt>
+          <dd id="dataset-state">Empty</dd>
+        </div>
+        <div>
+          <dt>Sheet</dt>
+          <dd id="dataset-sheet">—</dd>
+        </div>
+        <div>
+          <dt>Rows</dt>
+          <dd id="dataset-rows">0</dd>
+        </div>
+        <div>
+          <dt>Last Updated</dt>
+          <dd id="dataset-updated">—</dd>
+        </div>
+        <div>
+          <dt>Schema</dt>
+          <dd id="dataset-version">—</dd>
+        </div>
+        <div>
+          <dt>Approx Size</dt>
+          <dd id="dataset-size">0 B</dd>
+        </div>
+      </dl>
+
+      <div class="dataset-actions">
+        <label class="upload-label">
+          <span>Upload workbook (.xlsx)</span>
+          <input id="file-input" type="file" accept=".xlsx" />
+        </label>
+
+        <label class="sheet-input">
+          <span>Sheet name (optional)</span>
+          <input id="sheet-input" type="text" placeholder="DataSet" aria-label="Sheet name" />
+        </label>
+
+        <button id="export-all-button" type="button" class="secondary" disabled>Export all CSV</button>
+        <button id="clear-button" type="button" class="secondary">Clear stored data</button>
+      </div>
+
+      <p id="dataset-status" class="status-message info" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="search-heading">
+      <div class="panel-header">
+        <h2 id="search-heading">Search</h2>
+        <span id="search-summary" class="search-summary"></span>
+      </div>
+
+      <div class="search-controls">
+        <input id="search-input" type="search" placeholder="Search SKU, description, family, model, bundle, term…" aria-label="Search dataset" disabled />
+        <button id="export-results-button" type="button" class="secondary" disabled>Export results CSV</button>
+      </div>
+
+      <div class="results-wrapper">
+        <table id="results-table" aria-live="polite">
+          <thead>
+            <tr>
+              <th scope="col">SKU</th>
+              <th scope="col">Description</th>
+              <th scope="col">Price</th>
+              <th scope="col">Family</th>
+              <th scope="col">Model</th>
+              <th scope="col">Bundle</th>
+              <th scope="col">Term</th>
+              <th scope="col">Version Date</th>
+            </tr>
+          </thead>
+          <tbody id="results-body">
+            <tr class="empty-state">
+              <td colspan="8">Upload a workbook to begin.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      FortiSKU Finder runs entirely in your browser. Data never leaves this device.
+    </footer>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
