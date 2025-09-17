@@ -7,11 +7,7 @@ const STORE_FIELDS = [
   "description2",
   "price",
   "price_display",
-  "family",
-  "model",
-  "bundle",
-  "term",
-  "version_date"
+  "category"
 ];
 
 export function createSearchIndex(rows) {

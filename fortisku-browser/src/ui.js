@@ -99,7 +99,7 @@ export function initUI(handlers) {
       const tr = document.createElement("tr");
       tr.className = "empty-state";
       const td = document.createElement("td");
-      td.colSpan = 9;
+      td.colSpan = 5;
       td.textContent = summary.query ? "No results match your search." : "Upload a workbook to begin.";
       tr.appendChild(td);
       resultsBody.appendChild(tr);
@@ -116,11 +116,7 @@ export function initUI(handlers) {
       tr.appendChild(buildTextCell(row.description));
       tr.appendChild(buildTextCell(row.description2));
       tr.appendChild(buildPriceCell(row.price, row.price_display));
-      tr.appendChild(buildTextCell(row.family));
-      tr.appendChild(buildTextCell(row.model));
-      tr.appendChild(buildTextCell(row.bundle));
-      tr.appendChild(buildTextCell(row.term));
-      tr.appendChild(buildTextCell(row.version_date));
+      tr.appendChild(buildTextCell(row.category));
 
       fragment.appendChild(tr);
     }

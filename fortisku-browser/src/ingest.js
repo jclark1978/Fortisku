@@ -7,11 +7,7 @@ const FIELD_MAP = {
   description: ["description", "description#1", "description1", "desc", "itemdescription", "productdescription"],
   description2: ["description#2", "description2", "desc2", "itemdescription2", "productdescription2", "secondarydescription"],
   price: ["price", "listprice", "unitprice", "msrp", "usdprice"],
-  family: ["family"],
-  model: ["model", "series", "appliance", "device", "platform"],
-  bundle: ["bundle", "subscription", "license", "servicebundle", "package"],
-  term: ["term", "duration", "years", "supportterm", "period"],
-  version_date: ["versiondate", "effectivedate", "pricedate", "releasedate"]
+  category: ["category", "productcategory", "family", "productfamily", "familyname", "productline", "bundle", "solution", "segment", "portfolio"]
 };
 
 const HEADER_FIELDS = Object.keys(FIELD_MAP);
@@ -120,11 +116,7 @@ function normalizeRows(rows, headerMap) {
       description2: "",
       price: null,
       price_display: "",
-      family: "",
-      model: "",
-      bundle: "",
-      term: "",
-      version_date: ""
+      category: ""
     };
 
     for (let colIndex = 0; colIndex < headerMap.length; colIndex++) {
@@ -157,6 +149,7 @@ function normalizeRows(rows, headerMap) {
     record.description = record.description.trim();
     record.description2 = record.description2.trim();
     record.price_display = record.price_display.trim();
+    record.category = record.category.trim();
 
     normalizedRows.push(record);
   }

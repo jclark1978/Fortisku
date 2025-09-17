@@ -9,6 +9,7 @@ FortiSKU Finder is a static, browser-only tool for exploring Fortinet SKU price 
 - IndexedDB persistence (via `idb-keyval`) so data survives reloads
 - CSV export for the full dataset or current search results
 - Accessible, lightweight UI with copy helpers for SKU and price fields
+- Search results show SKU, Description #1/#2, Price, and Category columns for quick scans
 - Optional service worker to cache the app shell and vendor bundles for offline use
 
 ## Getting Started
