@@ -24,7 +24,7 @@
     .app {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 1.5rem 1.5rem 3rem;
+      padding: 1.5rem 1.5rem 4.5rem;
     }
 
     header {
@@ -128,28 +128,6 @@
       display: none;
     }
 
-    .sheet-input {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      font-size: 0.9rem;
-    }
-
-    .sheet-input input {
-      border-radius: 8px;
-      border: 1px solid #d9e2ec;
-      padding: 0.55rem 0.75rem;
-      background: #ffffff;
-      min-width: 200px;
-      font: inherit;
-      color: inherit;
-    }
-
-    .sheet-input input:focus {
-      outline: 2px solid #2680c2;
-      outline-offset: 2px;
-    }
-
     button {
       border: none;
       border-radius: 8px;
@@ -236,39 +214,6 @@
       margin-bottom: 0.85rem;
     }
 
-    .search-tip {
-      margin: -0.35rem 0 1rem;
-      color: #7b8794;
-      font-size: 0.85rem;
-    }
-
-
-    .comment-indicator {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 1.1rem;
-      height: 1.1rem;
-      border-radius: 999px;
-      background: #f0b429;
-      color: #102a43;
-      font-size: 0.7rem;
-      margin-left: 0.3rem;
-      font-weight: 700;
-      cursor: help;
-    }
-
-    .comment-indicator:hover {
-      background: #f7c948;
-    }
-    .search-tip code {
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      background: #edf2f7;
-      padding: 0.1rem 0.35rem;
-      border-radius: 4px;
-      color: #243b53;
-    }
-
     .search-controls input[type="search"] {
       flex: 1;
       min-width: 200px;
@@ -332,7 +277,7 @@
     .sku-cell {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
       flex-wrap: wrap;
     }
 
@@ -352,17 +297,276 @@
       color: #102a43;
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 2.5rem 1rem;
+    .comment-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.1rem;
+      height: 1.1rem;
+      border-radius: 999px;
+      background: #f0b429;
+      color: #102a43;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: help;
+      margin-left: 0.3rem;
+    }
+
+    .comment-indicator:hover {
+      background: #f7c948;
+    }
+
+    .search-tip {
+      margin: -0.35rem 0 1rem;
+      color: #7b8794;
+      font-size: 0.85rem;
+    }
+
+    .search-tip code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background: #edf2f7;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      color: #243b53;
+    }
+
+    .bom-toggle {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 30;
+      border-radius: 999px;
+      padding: 0.65rem 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #334e68;
+      color: #f0f4f8;
+      font-size: 0.95rem;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+    }
+
+    .bom-count {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 0.1rem 0.55rem;
+      font-weight: 600;
+    }
+
+    .bom-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(500px, 90vw);
+      height: 100vh;
+      background: #ffffff;
+      border-left: 1px solid #cbd2d9;
+      box-shadow: -12px 0 24px rgba(15, 23, 42, 0.15);
+      transform: translateX(100%);
+      transition: transform 220ms ease;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bom-drawer.open {
+      transform: translateX(0);
+    }
+
+    .bom-drawer header {
+      padding: 1.25rem 1.5rem 1rem;
+      border-bottom: 1px solid #e4ebf5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .bom-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.5rem 2rem;
+    }
+
+    .bom-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .bom-table th,
+    .bom-table td {
+      padding: 0.5rem 0.35rem;
+      border-bottom: 1px solid #e4ebf5;
+      font-size: 0.9rem;
+    }
+
+    .bom-table th {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
       color: #7b8794;
     }
 
-    footer {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #8293a4;
+    .bom-footer {
+      border-top: 1px solid #e4ebf5;
+      padding: 1rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .bom-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.5rem 1rem;
+      font-size: 0.95rem;
+    }
+
+    .bom-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .bom-actions button {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .quantity-input {
+      width: 70px;
+      border-radius: 6px;
+      border: 1px solid #cbd2d9;
+      padding: 0.35rem 0.5rem;
+      font: inherit;
+      text-align: right;
+    }
+
+    .discount-display {
+      font-variant-numeric: tabular-nums;
+      color: #52606d;
+    }
+
+    .bom-empty {
       text-align: center;
+      padding: 2.5rem 1rem;
+      color: #8293a4;
+    }
+
+    .drawer-close {
+      background: transparent;
+      border: none;
+      color: #334e68;
+      font-size: 1.3rem;
+      padding: 0.25rem;
+      cursor: pointer;
+    }
+
+    .bom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.25);
+      z-index: 35;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+
+    .bom-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .bom-modal {
+      position: fixed;
+      inset: 5% 8%;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 28px 48px rgba(15, 23, 42, 0.35);
+      z-index: 45;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(16px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 200ms ease, opacity 200ms ease;
+    }
+
+    .bom-modal.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .bom-modal header,
+    .bom-modal footer {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #e4ebf5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .bom-modal footer {
+      border-top: 1px solid #e4ebf5;
+      border-bottom: none;
+    }
+
+    .bom-modal main {
+      padding: 1rem 1.5rem 2rem;
+      overflow: auto;
+      flex: 1;
+    }
+
+    .discount-input {
+      width: 70px;
+      border-radius: 6px;
+      border: 1px solid #cbd2d9;
+      padding: 0.35rem 0.5rem;
+      font: inherit;
+      text-align: right;
+    }
+
+    .icon-button {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      line-height: 1;
+      background: #e0e8f9;
+      color: #243b53;
+      border: 1px solid #bcccdc;
+    }
+
+    .icon-button:hover:not(:disabled) {
+      background: #d9e2ec;
+      color: #102a43;
+    }
+
+    .icon-button.remove {
+      background: #f5b7b1;
+      border-color: #f1948a;
+      color: #781111;
+    }
+
+    .trash-button {
+      width: 1.8rem;
+      height: 1.8rem;
+      background: transparent;
+      border: none;
+      color: #9aa5b1;
+      cursor: pointer;
+    }
+
+    .trash-button:hover {
+      color: #c81e1e;
     }
 
     @keyframes spin {
@@ -382,7 +586,8 @@
         align-items: stretch;
       }
 
-      button {
+      button,
+      .bom-actions button {
         width: 100%;
         text-align: center;
       }
@@ -476,6 +681,83 @@
 
     <footer>
       FortiSKU Finder runs entirely in your browser. Data never leaves this device.
+    </footer>
+  </div>
+
+  <button id="bom-toggle" class="bom-toggle" aria-expanded="false" aria-controls="bom-drawer" hidden>
+    <span>List</span>
+    <span class="bom-count" id="bom-count">0</span>
+  </button>
+
+  <div id="bom-overlay" class="bom-overlay"></div>
+
+  <aside id="bom-drawer" class="bom-drawer" aria-hidden="true">
+    <header>
+      <div>
+        <h3 style="margin:0;font-size:1.1rem;color:#243b53;">Bill of Materials</h3>
+        <p style="margin:0;color:#7b8794;font-size:0.9rem;">Manage selected SKUs and export pricing.</p>
+      </div>
+      <button id="bom-close" class="drawer-close" aria-label="Close list">×</button>
+    </header>
+    <div class="bom-body">
+      <div id="bom-empty" class="bom-empty" hidden>No items added yet. Use the “+” buttons to build your list.</div>
+      <table class="bom-table" id="bom-table" hidden>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Disc %</th>
+            <th>Unit</th>
+            <th>Total</th>
+            <th>Disc Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="bom-rows"></tbody>
+      </table>
+    </div>
+    <div class="bom-footer">
+      <div class="bom-summary" id="bom-summary"></div>
+      <div class="bom-actions">
+        <button id="bom-open" type="button" class="secondary">Open full view</button>
+        <button id="bom-export" type="button">Export XLSX</button>
+        <button id="bom-clear" type="button" class="secondary">Clear list</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="bom-modal" class="bom-modal" role="dialog" aria-modal="true" aria-labelledby="bom-modal-title">
+    <header>
+      <div>
+        <h3 id="bom-modal-title" style="margin:0;color:#243b53;">Bill of Materials</h3>
+        <p style="margin:0;color:#7b8794;font-size:0.9rem;">Adjust discounts, then export.</p>
+      </div>
+      <button id="bom-modal-close" class="drawer-close" aria-label="Close full view">×</button>
+    </header>
+    <main>
+      <table class="bom-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Discount %</th>
+            <th>Unit</th>
+            <th>Total</th>
+            <th>Disc Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="bom-modal-rows"></tbody>
+      </table>
+    </main>
+    <footer>
+      <div class="bom-summary" id="bom-modal-summary"></div>
+      <div class="bom-actions">
+        <button id="bom-modal-export" type="button">Export XLSX</button>
+        <button id="bom-modal-clear" type="button" class="secondary">Clear list</button>
+      </div>
     </footer>
   </div>
 

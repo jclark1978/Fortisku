@@ -1,4 +1,4 @@
-const CACHE_NAME = "fortisku-cache-v2";
+const CACHE_NAME = "fortisku-cache-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,6 +8,8 @@ const APP_SHELL = [
   "./src/storage.js",
   "./src/ui.js",
   "./src/csv.js",
+  "./src/bom.js",
+  "./src/bomExport.js",
   "./vendor/minisearch.min.js",
   "./vendor/idb-keyval.mjs",
   "./vendor/xlsx.mjs",

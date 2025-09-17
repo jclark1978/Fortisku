@@ -9,6 +9,15 @@ import {
 } from "./storage.js";
 import { initUI } from "./ui.js";
 import { rowsToCSV } from "./csv.js";
+import {
+  initBOM,
+  subscribe as subscribeBOM,
+  addOrIncrement as bomAdd,
+  updateItem as bomUpdate,
+  removeItem as bomRemove,
+  clearBOM
+} from "./bom.js";
+import { exportBomToXlsx } from "./bomExport.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -17,13 +26,20 @@ let rowsById = new Map();
 let miniSearch = null;
 let meta = null;
 let currentResults = [];
+let bomState = { items: [], totals: { itemCount: 0, totalQuantity: 0, listTotal: 0, discountedTotal: 0 } };
 
 const ui = initUI({
   onUpload: handleUpload,
   onClear: handleClear,
   onSearch: handleSearch,
   onExportAll: handleExportAll,
-  onExportResults: handleExportResults
+  onExportResults: handleExportResults,
+  onAddToBom: handleAddToBom,
+  onRemoveFromBom: handleRemoveFromBom,
+  onBomQuantityChange: handleBomQuantityChange,
+  onBomDiscountChange: handleBomDiscountChange,
+  onExportBom: handleExportBom,
+  onClearBom: handleClearBom
 });
 
 bootstrap();
@@ -56,6 +72,18 @@ async function bootstrap() {
     console.error(error);
     ui.renderDatasetEmpty();
     ui.showStatus("error", `IndexedDB is unavailable: ${error.message}`);
+  }
+
+  try {
+    const initialBom = await initBOM();
+    bomState = initialBom;
+    ui.setBomState(initialBom);
+    subscribeBOM((state) => {
+      bomState = state;
+      ui.setBomState(state);
+    });
+  } catch (error) {
+    console.error("Failed to initialize BOM", error);
   }
 
   registerServiceWorker();
@@ -192,5 +220,47 @@ function registerServiceWorker() {
     navigator.serviceWorker
       .register("./sw.js")
       .catch((error) => console.warn("Service worker registration failed:", error));
+  }
+}
+
+async function handleAddToBom(rowId, quantity) {
+  const row = rowsById.get(rowId);
+  if (!row) {
+    ui.showStatus("warn", "Item is no longer available in the dataset.");
+    return;
+  }
+  await bomAdd(row, { quantity });
+  ui.showStatus("success", `Added ${row.sku} × ${quantity} to list.`, { dismissAfter: 2500 });
+}
+
+async function handleRemoveFromBom(rowId) {
+  const row = rowsById.get(rowId);
+  await bomRemove(rowId);
+  ui.showStatus("success", `Removed ${row?.sku ?? "item"} from list.`, { dismissAfter: 2500 });
+}
+
+async function handleBomQuantityChange(rowId, quantity) {
+  await bomUpdate(rowId, { quantity });
+}
+
+async function handleBomDiscountChange(rowId, discountPercent) {
+  await bomUpdate(rowId, { discountPercent });
+}
+
+async function handleClearBom() {
+  await clearBOM();
+  ui.showStatus("success", "Cleared BOM list.", { dismissAfter: 2500 });
+}
+
+async function handleExportBom() {
+  if (!bomState.items.length) {
+    ui.showStatus("info", "Add items to the list before exporting.");
+    return;
+  }
+  try {
+    exportBomToXlsx(bomState);
+  } catch (error) {
+    console.error("Failed to export BOM", error);
+    ui.showStatus("error", "Unable to export the list. Try again.");
   }
 }
