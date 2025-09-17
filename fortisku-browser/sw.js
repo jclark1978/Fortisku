@@ -1,4 +1,4 @@
-const CACHE_NAME = "fortisku-cache-v1";
+const CACHE_NAME = "fortisku-cache-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -51,7 +51,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.startsWith("/vendor/") || url.pathname.startsWith("/src/")) {
+  if (url.pathname.startsWith("/src/")) {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
+  if (url.pathname.startsWith("/vendor/")) {
     event.respondWith(cacheFirst(event.request));
     return;
   }
