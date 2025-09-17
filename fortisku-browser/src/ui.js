@@ -630,7 +630,8 @@ export function initUI(handlers) {
     setLoading,
     showStatus,
     triggerDownload: downloadBlob,
-    setBomState
+    setBomState,
+    openBomDrawer: () => openDrawer()
   };
 }
 

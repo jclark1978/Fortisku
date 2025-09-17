@@ -229,7 +229,11 @@ async function handleAddToBom(rowId, quantity) {
     ui.showStatus("warn", "Item is no longer available in the dataset.");
     return;
   }
+  const wasEmpty = bomState.items.length === 0;
   await bomAdd(row, { quantity });
+  if (wasEmpty) {
+    ui.openBomDrawer();
+  }
   ui.showStatus("success", `Added ${row.sku} × ${quantity} to list.`, { dismissAfter: 2500 });
 }
 
