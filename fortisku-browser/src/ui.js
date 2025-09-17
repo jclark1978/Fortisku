@@ -24,7 +24,7 @@ export function initUI(handlers) {
   const datasetSheet = document.getElementById("dataset-sheet");
   const datasetRows = document.getElementById("dataset-rows");
   const datasetUpdated = document.getElementById("dataset-updated");
-  const datasetPricelist = document.getElementById("dataset-pricelist");
+  const datasetPricelist = document.getElementById("dataset-pricelist") || document.getElementById("dataset-version");
   const datasetSize = document.getElementById("dataset-size");
 
   let statusTimeoutId = null;
