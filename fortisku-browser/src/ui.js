@@ -142,17 +142,34 @@ export function initUI(handlers) {
     const td = document.createElement("td");
     const wrapper = document.createElement("div");
     wrapper.className = "sku-cell";
-    const text = document.createElement("span");
-    text.textContent = row.sku || "";
-    wrapper.appendChild(text);
 
+    const textSpan = document.createElement("span");
+    textSpan.textContent = row.sku || "";
+    wrapper.appendChild(textSpan);
+
+    let copyBtn = null;
     if (row.sku) {
-      const copyBtn = document.createElement("button");
+      copyBtn = document.createElement("button");
       copyBtn.type = "button";
       copyBtn.className = "copy-btn";
       copyBtn.dataset.rowIndex = String(index);
       copyBtn.textContent = "Copy";
       wrapper.appendChild(copyBtn);
+    }
+
+    const commentText = (row.comments || "").trim();
+    if (commentText) {
+      const badge = document.createElement("span");
+      badge.className = "comment-indicator";
+      badge.textContent = "!";
+      badge.setAttribute("role", "note");
+      badge.setAttribute("aria-label", "Comments available");
+      badge.title = commentText;
+      if (copyBtn) {
+        copyBtn.insertAdjacentElement('afterend', badge);
+      } else {
+        wrapper.appendChild(badge);
+      }
     }
 
     td.appendChild(wrapper);

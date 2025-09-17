@@ -7,7 +7,8 @@ const STORE_FIELDS = [
   "description2",
   "price",
   "price_display",
-  "category"
+  "category",
+  "comments"
 ];
 
 export function createSearchIndex(rows) {

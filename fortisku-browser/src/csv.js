@@ -3,7 +3,8 @@ const HEADERS = [
   { key: "description", label: "description_1" },
   { key: "description2", label: "description_2" },
   { key: "price", label: "price" },
-  { key: "category", label: "category" }
+  { key: "category", label: "category" },
+  { key: "comments", label: "comments" }
 ];
 
 export function rowsToCSV(rows) {

@@ -7,7 +7,8 @@ const FIELD_MAP = {
   description: ["description", "description#1", "description1", "desc", "itemdescription", "productdescription"],
   description2: ["description#2", "description2", "desc2", "itemdescription2", "productdescription2", "secondarydescription"],
   price: ["price", "listprice", "unitprice", "msrp", "usdprice"],
-  category: ["category", "productcategory", "family", "productfamily", "familyname", "productline", "bundle", "solution", "segment", "portfolio"]
+  category: ["category", "productcategory", "family", "productfamily", "familyname", "productline", "bundle", "solution", "segment", "portfolio"],
+  comments: ["comments", "comment", "notes", "note"]
 };
 
 const HEADER_FIELDS = Object.keys(FIELD_MAP);
@@ -157,7 +158,8 @@ function normalizeRows(rows, headerMap) {
       description2: "",
       price: null,
       price_display: "",
-      category: ""
+      category: "",
+      comments: ""
     };
 
     for (let colIndex = 0; colIndex < headerMap.length; colIndex++) {
@@ -191,6 +193,7 @@ function normalizeRows(rows, headerMap) {
     record.description2 = record.description2.trim();
     record.price_display = record.price_display.trim();
     record.category = record.category.trim();
+    record.comments = record.comments.trim();
 
     normalizedRows.push(record);
   }
