@@ -60,11 +60,12 @@ export function initUI(handlers) {
     const label = button.dataset.copyLabel || "value";
 
     try {
-      await navigator.clipboard.writeText(value);
+      await copyToClipboard(value);
       showStatus("success", `${label} copied to clipboard.`, { dismissAfter: 2000 });
     } catch (error) {
       console.warn("Clipboard write failed", error);
-      showStatus("warn", "Unable to access the clipboard. Copy manually.", { dismissAfter: 2500 });
+      const message = describeClipboardError(error);
+      showStatus("warn", message, { dismissAfter: 4000 });
     }
   });
 
@@ -244,6 +245,93 @@ export function initUI(handlers) {
     showStatus,
     triggerDownload: downloadBlob
   };
+}
+
+async function copyToClipboard(text) {
+  let nativeError = null;
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch (error) {
+      nativeError = error;
+    }
+  }
+
+  if (tryExecCommandCopy(text)) {
+    return;
+  }
+
+  if (!window.isSecureContext) {
+    throw createClipboardError("insecure-context");
+  }
+
+  if (!navigator.clipboard) {
+    throw createClipboardError("unsupported");
+  }
+
+  if (nativeError && (nativeError.name === "NotAllowedError" || nativeError.name === "SecurityError")) {
+    throw createClipboardError("permission-denied", nativeError);
+  }
+
+  throw createClipboardError("unknown", nativeError);
+}
+
+function tryExecCommandCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "absolute";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "-9999px";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+
+  const selection = document.getSelection();
+  const previousRange = selection && selection.rangeCount ? selection.getRangeAt(0) : null;
+
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch (error) {
+    copied = false;
+  }
+
+  document.body.removeChild(textarea);
+
+  if (previousRange && selection) {
+    selection.removeAllRanges();
+    selection.addRange(previousRange);
+  }
+
+  return copied;
+}
+
+function describeClipboardError(error) {
+  if (error?.code === "insecure-context") {
+    return "Clipboard copy requires serving the app over http://localhost or HTTPS. Start it with `python -m http.server 5173` and reload.";
+  }
+  if (error?.code === "unsupported") {
+    return "This browser does not support programmatic clipboard copy. Use a modern Chrome, Edge, or Safari release.";
+  }
+  if (error?.code === "permission-denied") {
+    return "Clipboard access was blocked. On macOS Safari, open Settings › Websites › Clipboard and set this site to Allow, then retry.";
+  }
+  return "Unable to access the clipboard. Copy manually.";
+}
+
+function createClipboardError(code, cause) {
+  const error = new Error("Clipboard copy failed");
+  error.name = "ClipboardAccessError";
+  error.code = code;
+  if (cause) {
+    error.cause = cause;
+  }
+  return error;
 }
 
 function formatPrice(price) {
