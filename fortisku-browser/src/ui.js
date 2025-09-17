@@ -10,7 +10,6 @@ const DISPLAY_HEADERS = [
 
 export function initUI(handlers) {
   const fileInput = document.getElementById("file-input");
-  const sheetInput = document.getElementById("sheet-input");
   const clearButton = document.getElementById("clear-button");
   const exportAllButton = document.getElementById("export-all-button");
   const exportResultsButton = document.getElementById("export-results-button");
@@ -21,7 +20,6 @@ export function initUI(handlers) {
   const statusEl = document.getElementById("dataset-status");
 
   const datasetState = document.getElementById("dataset-state");
-  const datasetSheet = document.getElementById("dataset-sheet");
   const datasetRows = document.getElementById("dataset-rows");
   const datasetUpdated = document.getElementById("dataset-updated");
   const datasetPricelist = document.getElementById("dataset-pricelist") || document.getElementById("dataset-version");
@@ -32,11 +30,9 @@ export function initUI(handlers) {
 
   fileInput.addEventListener("change", () => {
     const file = fileInput.files && fileInput.files[0];
-    const sheetName = sheetInput.value.trim();
     if (file) {
       handlers.onUpload({
-        file,
-        sheetName: sheetName || undefined
+        file
       });
     }
     fileInput.value = "";
@@ -85,7 +81,6 @@ export function initUI(handlers) {
 
   function renderDatasetReady(meta, storedBytes) {
     datasetState.textContent = "Ready";
-    datasetSheet.textContent = meta.sheetName || "Unknown";
     datasetRows.textContent = meta.rowCount?.toLocaleString() ?? "0";
     datasetUpdated.textContent = meta.updatedAt ? formatDate(meta.updatedAt) : "—";
     datasetPricelist.textContent = meta.priceListLabel || "—";
@@ -95,7 +90,6 @@ export function initUI(handlers) {
 
   function renderDatasetEmpty() {
     datasetState.textContent = "Empty";
-    datasetSheet.textContent = "—";
     datasetRows.textContent = "0";
     datasetUpdated.textContent = "—";
     datasetPricelist.textContent = "—";
@@ -206,7 +200,6 @@ export function initUI(handlers) {
     spinner.hidden = !isLoading;
     spinner.textContent = message || "Processing workbook…";
     fileInput.disabled = isLoading;
-    sheetInput.disabled = isLoading;
     clearButton.disabled = isLoading;
     exportAllButton.disabled = isLoading;
   }

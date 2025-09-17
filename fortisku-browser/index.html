@@ -72,6 +72,16 @@
       padding: 0;
     }
 
+    .dataset-meta .pricelist {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 720px) {
+      .dataset-meta .pricelist {
+        grid-column: span 1;
+      }
+    }
+
     .dataset-meta dt {
       font-size: 0.8rem;
       letter-spacing: 0.06em;
@@ -378,17 +388,13 @@
       </div>
 
       <dl class="dataset-meta">
-        <div>
-          <dt>Store</dt>
-          <dd id="dataset-store">IndexedDB</dd>
+        <div class="pricelist">
+          <dt>Pricelist</dt>
+          <dd id="dataset-pricelist">—</dd>
         </div>
         <div>
           <dt>State</dt>
           <dd id="dataset-state">Empty</dd>
-        </div>
-        <div>
-          <dt>Sheet</dt>
-          <dd id="dataset-sheet">—</dd>
         </div>
         <div>
           <dt>Rows</dt>
@@ -397,10 +403,6 @@
         <div>
           <dt>Last Updated</dt>
           <dd id="dataset-updated">—</dd>
-        </div>
-        <div>
-          <dt>Pricelist</dt>
-          <dd id="dataset-pricelist">—</dd>
         </div>
         <div>
           <dt>Approx Size</dt>
@@ -412,11 +414,6 @@
         <label class="upload-label">
           <span>Upload workbook (.xlsx)</span>
           <input id="file-input" type="file" accept=".xlsx" />
-        </label>
-
-        <label class="sheet-input">
-          <span>Sheet name (optional)</span>
-          <input id="sheet-input" type="text" placeholder="DataSet" aria-label="Sheet name" />
         </label>
 
         <button id="export-all-button" type="button" class="secondary" disabled>Export all CSV</button>
