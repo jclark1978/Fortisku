@@ -1,5 +1,5 @@
 import { ingestWorkbook } from "./ingest.js";
-import { createSearchIndex, loadSearchIndex, searchRows, tokenizeQuery } from "./search.js";
+import { createSearchIndex, loadSearchIndex, searchRows, parseQuery } from "./search.js";
 import {
   loadPersisted,
   savePersisted,
@@ -139,8 +139,8 @@ function handleSearch(query) {
     return;
   }
 
-  const tokens = tokenizeQuery(query);
-  if (!tokens.length) {
+  const parsed = parseQuery(query);
+  if (!parsed.groups.length) {
     currentResults = rows.slice(0, MAX_RENDERED_ROWS);
     ui.renderResults(currentResults, {
       total: rows.length,
@@ -150,7 +150,7 @@ function handleSearch(query) {
     return;
   }
 
-  const { hits, total } = searchRows(miniSearch, rowsById, tokens, MAX_RENDERED_ROWS);
+  const { hits, total } = searchRows(miniSearch, rowsById, parsed, MAX_RENDERED_ROWS);
   currentResults = hits;
   ui.renderResults(hits, {
     total,

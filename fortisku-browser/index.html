@@ -226,6 +226,20 @@
       margin-bottom: 0.85rem;
     }
 
+    .search-tip {
+      margin: -0.35rem 0 1rem;
+      color: #7b8794;
+      font-size: 0.85rem;
+    }
+
+    .search-tip code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background: #edf2f7;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      color: #243b53;
+    }
+
     .search-controls input[type="search"] {
       flex: 1;
       min-width: 200px;
@@ -419,9 +433,10 @@
       </div>
 
       <div class="search-controls">
-        <input id="search-input" type="search" placeholder="Search Description #1 or Description #2…" aria-label="Search dataset" disabled />
+        <input id="search-input" type="search" placeholder="FortiGate 90G Enterprise bdl" aria-label="Search dataset" disabled />
         <button id="export-results-button" type="button" class="secondary" disabled>Export results CSV</button>
       </div>
+      <p class="search-tip">Use spaces for AND and <code>OR</code> (or <code>|</code>) for choices, e.g. <code>FortiGate 90G Enterprise bdl</code> or <code>FortiGate (90G OR 70F) Enterprise bdl</code>.</p>
 
       <div class="results-wrapper">
         <table id="results-table" aria-live="polite">
