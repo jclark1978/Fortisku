@@ -17,7 +17,7 @@ import {
   removeItem as bomRemove,
   clearBOM
 } from "./bom.js";
-import { exportBomToXlsx } from "./bomExport.js";
+import { exportBomToCsv } from "./bomExport.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -262,7 +262,7 @@ async function handleExportBom() {
     return;
   }
   try {
-    exportBomToXlsx(bomState);
+    exportBomToCsv(bomState);
   } catch (error) {
     console.error("Failed to export BOM", error);
     ui.showStatus("error", "Unable to export the list. Try again.");
