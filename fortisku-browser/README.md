@@ -42,7 +42,7 @@ No backend or server-side computation is required.
 ## Usage Notes
 
 1. Upload an Excel workbook (.xlsx). By default, the app targets the `DataSet` sheet; provide an alternative sheet name if needed.
-2. The workbook is parsed entirely in the browser. Rows lacking SKU or Description #1 are skipped.
+2. The workbook is parsed entirely in the browser. FortiSKU Finder auto-detects the first row containing SKU/Description headers (so banner rows can stay) and skips rows lacking SKU or Description #1.
 3. After the first upload, the normalized rows, MiniSearch index, and metadata persist in IndexedDB. Reloading the page resumes instantly.
 4. Use spaces for AND searches across Description #1/#2 (e.g. `FortiGate 90G Enterprise bdl`). Add `OR` (or `|`) for alternatives, such as `FortiGate (90G OR 70F) Enterprise bdl`. Results are capped at 200 rows for fast rendering.
 5. Export either the full dataset or the visible search results to CSV at any time.

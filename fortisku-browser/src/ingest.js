@@ -31,15 +31,13 @@ export async function ingestWorkbook(file, requestedSheetName) {
     throw new Error(`Sheet “${sheetName}” is empty.`);
   }
 
-  const headers = rows[0];
-  const dataRows = rows.slice(1);
-  const headerMap = mapHeaders(headers);
-
-  if (!headerMap.includes("sku") || !headerMap.includes("description")) {
-    throw new Error("Required columns (SKU, Description #1) were not found in the header row.");
+  const headerInfo = findHeaderRow(rows);
+  if (!headerInfo) {
+    throw new Error("Could not locate a header row containing SKU and Description #1 columns.");
   }
 
-  const { normalizedRows, stats } = normalizeRows(dataRows, headerMap);
+  const dataRows = rows.slice(headerInfo.index + 1);
+  const { normalizedRows, stats } = normalizeRows(dataRows, headerInfo.headerMap);
 
   if (!normalizedRows.length) {
     throw new Error("No data rows contained valid SKU and Description #1 values.");
@@ -50,6 +48,20 @@ export async function ingestWorkbook(file, requestedSheetName) {
     sheetName,
     stats
   };
+}
+
+function findHeaderRow(rows) {
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    if (!row || !row.length) {
+      continue;
+    }
+    const headerMap = mapHeaders(row);
+    if (headerMap.includes("sku") && headerMap.includes("description")) {
+      return { index, headerMap };
+    }
+  }
+  return null;
 }
 
 function resolveSheetName(workbook, requested) {
