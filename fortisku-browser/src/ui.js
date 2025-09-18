@@ -220,6 +220,7 @@ export function initUI(handlers) {
   });
 
   function renderDatasetReady(meta, storedBytes) {
+    spinner.hidden = true;
     datasetState.textContent = "Ready";
     datasetRows.textContent = meta.rowCount?.toLocaleString() ?? "0";
     datasetUpdated.textContent = meta.updatedAt ? formatDate(meta.updatedAt) : "—";
@@ -232,6 +233,7 @@ export function initUI(handlers) {
   }
 
   function renderDatasetEmpty() {
+    spinner.hidden = true;
     datasetState.textContent = "Empty";
     datasetRows.textContent = "0";
     datasetUpdated.textContent = "—";
