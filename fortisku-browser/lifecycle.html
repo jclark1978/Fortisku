@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FortiSKU LifeCycle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f5f7;
+      color: #1f2933;
+    }
+
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: clamp(2rem, 3vw, 2.7rem);
+      color: #102a43;
+    }
+
+    header p {
+      margin: 0;
+      color: #52606d;
+    }
+
+    .top-nav {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .top-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid #cbd2d9;
+      background: #f5f7fa;
+      color: #334e68;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+
+    .top-nav a:hover {
+      background: #edf2f7;
+      color: #102a43;
+      transform: translateY(-1px);
+    }
+
+    .top-nav a[aria-current="page"] {
+      background: #2680c2;
+      border-color: #2680c2;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(38, 128, 194, 0.25);
+    }
+
+    main {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    section {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #d9e2ec;
+      padding: 1.5rem;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 1rem;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.35rem;
+      color: #243b53;
+    }
+
+    section p {
+      margin: 0 0 0.85rem;
+      color: #52606d;
+    }
+
+    .dataset-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem 1.5rem;
+      margin: 1rem 0 1.25rem;
+      padding: 0;
+    }
+
+    .dataset-meta dt {
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #7b8794;
+      margin-bottom: 0.15rem;
+    }
+
+    .dataset-meta dd {
+      margin: 0;
+      font-weight: 600;
+      color: #1f2933;
+      word-break: break-word;
+    }
+
+    .dataset-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #cbd2d9;
+      background: #f5f7fa;
+      color: #243b53;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+    }
+
+    .upload-label:hover {
+      background: #edf2f7;
+      color: #102a43;
+    }
+
+    .upload-label input[type="file"] {
+      display: none;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+      background: #2680c2;
+      color: #ffffff;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      background: #bcccdc;
+      color: #e4ebf5;
+      box-shadow: none;
+      transform: none;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: #334e68;
+      border: 1px solid #bcccdc;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #f0f4f8;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(38, 128, 194, 0.25);
+    }
+
+    .status-message {
+      min-height: 1.25rem;
+      margin: 0.3rem 0 0;
+      font-size: 0.95rem;
+      color: #486581;
+      transition: opacity 200ms ease;
+    }
+
+    .status-message.info {
+      color: #486581;
+    }
+
+    .status-message.success {
+      color: #0c6b58;
+    }
+
+    .status-message.warn {
+      color: #b43403;
+    }
+
+    .status-message.error {
+      color: #c81e1e;
+    }
+
+    .spinner {
+      font-size: 0.95rem;
+      color: #334e68;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .spinner::before {
+      content: "";
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 999px;
+      border: 2px solid #bcccdc;
+      border-top-color: #2680c2;
+      animation: spin 900ms linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .search-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .search-controls input[type="search"] {
+      flex: 1;
+      min-width: 200px;
+      border-radius: 999px;
+      border: 1px solid #cbd2d9;
+      padding: 0.6rem 1.1rem;
+      font: inherit;
+      color: inherit;
+      background: #f8fafc;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .search-controls input[type="search"]:focus {
+      outline: none;
+      border-color: #2680c2;
+      box-shadow: 0 0 0 3px rgba(38, 128, 194, 0.2);
+      background: #ffffff;
+    }
+
+    .search-summary {
+      font-size: 0.95rem;
+      color: #52606d;
+      flex: 0 0 auto;
+    }
+
+    .results-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #d9e2ec;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: #f0f4f8;
+    }
+
+    th,
+    td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid #d9e2ec;
+    }
+
+    th {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #7b8794;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #8293a4;
+      font-style: italic;
+    }
+
+    .stage-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 1.25rem;
+    }
+
+    .stage-card {
+      border: 1px solid #d9e2ec;
+      border-radius: 12px;
+      padding: 1rem;
+      background: #f8fafc;
+    }
+
+    .stage-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      color: #102a43;
+    }
+
+    .stage-card p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #52606d;
+    }
+
+    .timeline {
+      border-radius: 12px;
+      border: 1px dashed #cbd2d9;
+      padding: 1.25rem;
+      background: #f5f7fa;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .timeline-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .timeline-step span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      background: #334e68;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .timeline-step div {
+      flex: 1;
+    }
+
+    .timeline-step h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1.05rem;
+      color: #243b53;
+    }
+
+    .timeline-step p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #52606d;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #8293a4;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 720px) {
+      .dataset-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        width: 100%;
+        text-align: center;
+      }
+
+      .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .timeline-step {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .timeline-step span {
+        width: 1.8rem;
+        height: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Product LifeCycle</h1>
+      <p>Track Fortinet hardware and subscription milestones so you can plan ahead for customers.</p>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="./index.html">Finder</a>
+        <a href="./lifecycle.html" aria-current="page">LifeCycle</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel" aria-labelledby="dataset-heading">
+        <div class="panel-header">
+          <h2 id="dataset-heading">LifeCycle workbook</h2>
+          <span id="lc-dataset-spinner" class="spinner" hidden>Processing workbook…</span>
+        </div>
+        <p>Upload the latest Fortinet LifeCycle export to surface milestone dates alongside product codes.</p>
+
+        <dl class="dataset-meta">
+          <div>
+            <dt>Sheet</dt>
+            <dd id="lc-dataset-sheet">—</dd>
+          </div>
+          <div>
+            <dt>Rows</dt>
+            <dd id="lc-dataset-rows">0</dd>
+          </div>
+          <div>
+            <dt>Last Updated</dt>
+            <dd id="lc-dataset-updated">—</dd>
+          </div>
+          <div>
+            <dt>Approx Size</dt>
+            <dd id="lc-dataset-size">0 B</dd>
+          </div>
+        </dl>
+
+        <div class="dataset-actions">
+          <label class="upload-label">
+            <span>Upload workbook (.xlsx)</span>
+            <input id="lc-file-input" type="file" accept=".xlsx" />
+          </label>
+          <button id="lc-clear-button" type="button" class="secondary">Clear stored data</button>
+        </div>
+
+        <p id="lc-dataset-status" class="status-message info" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="lookup-heading">
+        <div class="panel-header">
+          <h2 id="lookup-heading">Lookup milestones</h2>
+          <span id="lc-search-summary" class="search-summary"></span>
+        </div>
+
+        <div class="search-controls">
+          <input
+            id="lc-search-input"
+            type="search"
+            placeholder="FG-60C-PDC"
+            aria-label="Search product code"
+            disabled
+          />
+        </div>
+
+        <div class="results-wrapper">
+          <table id="lc-results-table" aria-live="polite">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">End of Order Date</th>
+                <th scope="col">Last Service Extension Date</th>
+                <th scope="col">End of Support Date</th>
+              </tr>
+            </thead>
+            <tbody id="lc-results-body">
+              <tr class="empty-state">
+                <td colspan="4">Upload a workbook to enable search.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      FortiSKU LifeCycle guidance is informational. Confirm key milestones with official Fortinet notices.
+    </footer>
+  </div>
+  <script type="module" src="./src/lifecycleMain.js"></script>
+</body>
+</html>

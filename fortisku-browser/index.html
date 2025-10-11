@@ -42,6 +42,41 @@
       color: #52606d;
     }
 
+    .top-nav {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .top-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid #cbd2d9;
+      background: #f5f7fa;
+      color: #334e68;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+
+    .top-nav a:hover {
+      background: #edf2f7;
+      color: #102a43;
+      transform: translateY(-1px);
+    }
+
+    .top-nav a[aria-current="page"] {
+      background: #2680c2;
+      border-color: #2680c2;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(38, 128, 194, 0.25);
+    }
+
     .panel {
       background: #ffffff;
       border-radius: 12px;
@@ -601,8 +636,12 @@
 <body>
   <div class="app">
     <header>
-      <h1>FortiSKU Finder</h1>
+      <h1>FortiBOM</h1>
       <p>Upload a workbook once, search instantly on every visit.</p>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="./index.html" aria-current="page">FortiBOM</a>
+        <a href="./lifecycle.html">LifeCycle</a>
+      </nav>
     </header>
 
     <section class="panel" aria-labelledby="dataset-heading">
