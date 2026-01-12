@@ -21,10 +21,9 @@ No build step or package install is required. All vendor dependencies are vendor
 
 ### 2. Run locally
 
-Serve the `fortisku-browser` directory with any static file server. One simple option:
+Serve the project root with any static file server. One simple option:
 
 ```bash
-cd fortisku-browser
 python -m http.server 5173
 ```
 
@@ -32,7 +31,7 @@ Then open [http://localhost:5173](http://localhost:5173) in a modern browser.
 
 ### 3. Deploy
 
-Upload the contents of `fortisku-browser/` to any static host:
+Upload the contents of this repository to any static host:
 
 - **GitHub Pages:** push the folder to a `gh-pages` branch.
 - **Netlify/Vercel:** drag-and-drop the folder or point the site to it.
