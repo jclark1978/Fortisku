@@ -1,0 +1,14 @@
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET / HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/main.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/ingest.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/search.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/storage.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/ui.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/csv.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/bom.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /src/bomExport.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /vendor/xlsx.mjs HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /vendor/minisearch.min.js HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /vendor/idb-keyval.mjs HTTP/1.1" 200 -
+10.17.100.100 - - [12/Jan/2026 22:14:37] code 404, message File not found
+10.17.100.100 - - [12/Jan/2026 22:14:37] "GET /favicon.ico HTTP/1.1" 404 -
