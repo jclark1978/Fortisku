@@ -1,6 +1,6 @@
 import MiniSearch from "../vendor/minisearch.min.js";
 
-const SEARCH_FIELDS = ["description", "description2"];
+const SEARCH_FIELDS = ["sku", "description", "description2"];
 const STORE_FIELDS = [
   "sku",
   "description",
@@ -96,6 +96,9 @@ export function searchRows(index, rowsById, parsedQuery, limit) {
   const firstTerm = parsedQuery.firstTerm?.toLowerCase() || "";
 
   const aggregated = Array.from(matches.values()).map((entry) => {
+    const skuStarts = firstTerm
+      ? (entry.row.sku || "").toLowerCase().startsWith(firstTerm)
+      : false;
     const primaryStarts = firstTerm
       ? (entry.row.description || "").toLowerCase().startsWith(firstTerm)
       : false;
@@ -106,15 +109,20 @@ export function searchRows(index, rowsById, parsedQuery, limit) {
       row: entry.row,
       score: entry.score,
       groupsMatched: entry.groupsMatched,
+      skuStarts,
       primaryStarts,
       secondaryStarts,
-      descriptionStarts: primaryStarts || secondaryStarts
+      descriptionStarts: primaryStarts || secondaryStarts,
+      anyFieldStarts: skuStarts || primaryStarts || secondaryStarts
     };
   });
 
   aggregated.sort((a, b) => {
-    if (a.descriptionStarts !== b.descriptionStarts) {
-      return a.descriptionStarts ? -1 : 1;
+    if (a.anyFieldStarts !== b.anyFieldStarts) {
+      return a.anyFieldStarts ? -1 : 1;
+    }
+    if (a.skuStarts !== b.skuStarts) {
+      return a.skuStarts ? -1 : 1;
     }
     if (a.primaryStarts !== b.primaryStarts) {
       return a.primaryStarts ? -1 : 1;
