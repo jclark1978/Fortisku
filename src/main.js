@@ -18,6 +18,7 @@ import {
   clearBOM
 } from "./bom.js";
 import { exportBomToCsv } from "./bomExport.js";
+import { initThemeToggle } from "./theme.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -42,6 +43,7 @@ const ui = initUI({
   onClearBom: handleClearBom
 });
 
+initThemeToggle();
 bootstrap();
 
 async function bootstrap() {
@@ -94,7 +96,7 @@ async function handleUpload({ file, sheetName }) {
     return;
   }
 
-  ui.setLoading(true, "Processing workbook…");
+  ui.setLoading(true);
   try {
     const result = await ingestWorkbook(file, sheetName);
     rows = result.rows;

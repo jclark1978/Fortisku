@@ -31,6 +31,79 @@
       margin-bottom: 2rem;
     }
 
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .theme-toggle {
+      border: none;
+      background: transparent;
+      padding: 0;
+      line-height: 1;
+      box-shadow: none;
+      transform: none;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover:not(:disabled) {
+      box-shadow: none;
+      transform: none;
+      background: transparent;
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid #2680c2;
+      outline-offset: 3px;
+      border-radius: 999px;
+    }
+
+    .theme-toggle-track {
+      position: relative;
+      width: 62px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid #9aa5b1;
+      background: linear-gradient(180deg, #eef2f7, #dce3ec);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 9px;
+      transition: background-color 180ms ease, border-color 180ms ease;
+    }
+
+    .theme-icon {
+      font-size: 0.9rem;
+      line-height: 1;
+      transition: opacity 180ms ease, color 180ms ease;
+      user-select: none;
+    }
+
+    .theme-icon-sun {
+      color: #243b53;
+      opacity: 0.95;
+    }
+
+    .theme-icon-moon {
+      color: #52606d;
+      opacity: 0.7;
+    }
+
+    .theme-toggle-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+      transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+    }
+
     header h1 {
       margin: 0 0 0.25rem;
       font-size: clamp(2rem, 3vw, 2.7rem);
@@ -240,6 +313,10 @@
       display: inline-block;
     }
 
+    .spinner[hidden] {
+      display: none !important;
+    }
+
     @keyframes spin {
       0% {
         transform: rotate(0deg);
@@ -402,7 +479,145 @@
       font-size: 0.9rem;
     }
 
+    body.theme-dark {
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    body.theme-dark header h1 {
+      color: #e8f1ff;
+    }
+
+    body.theme-dark header p,
+    body.theme-dark section p,
+    body.theme-dark .search-summary,
+    body.theme-dark footer,
+    body.theme-dark .timeline-step p,
+    body.theme-dark .stage-card p {
+      color: #cbd5e1;
+    }
+
+    body.theme-dark .top-nav a {
+      background: #1e293b;
+      border-color: #334155;
+      color: #dbeafe;
+    }
+
+    body.theme-dark .top-nav a:hover {
+      background: #334155;
+      color: #eff6ff;
+    }
+
+    body.theme-dark .top-nav a[aria-current="page"] {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(29, 78, 216, 0.35);
+    }
+
+    body.theme-dark .theme-toggle-track {
+      background: linear-gradient(180deg, #1f2937, #111827);
+      border-color: #64748b;
+    }
+
+    body.theme-dark .theme-icon-sun {
+      color: #cbd5e1;
+      opacity: 0.55;
+    }
+
+    body.theme-dark .theme-icon-moon {
+      color: #f8fafc;
+      opacity: 1;
+    }
+
+    body.theme-dark .theme-toggle-knob {
+      transform: translateX(30px);
+      background: #e5e7eb;
+      border: 1px solid #94a3b8;
+    }
+
+    body.theme-dark section,
+    body.theme-dark .stage-card,
+    body.theme-dark .timeline {
+      background: #111827;
+      border-color: #334155;
+      color: #e5e7eb;
+    }
+
+    body.theme-dark section h2,
+    body.theme-dark .stage-card h3,
+    body.theme-dark .timeline-step h3,
+    body.theme-dark .timeline-step span {
+      color: #e5e7eb;
+    }
+
+    body.theme-dark .timeline-step span {
+      background: #1d4ed8;
+    }
+
+    body.theme-dark .dataset-meta dd {
+      color: #e5e7eb;
+    }
+
+    body.theme-dark .dataset-meta dt,
+    body.theme-dark th,
+    body.theme-dark .empty-state,
+    body.theme-dark .status-message.info {
+      color: #94a3b8;
+    }
+
+    body.theme-dark table,
+    body.theme-dark th,
+    body.theme-dark td {
+      border-color: #334155;
+    }
+
+    body.theme-dark thead,
+    body.theme-dark tbody tr:hover,
+    body.theme-dark .upload-label,
+    body.theme-dark button.secondary {
+      background: #1f2937;
+    }
+
+    body.theme-dark .upload-label,
+    body.theme-dark button.secondary {
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+
+    body.theme-dark .search-controls input[type="search"] {
+      background: #0b1220;
+      color: #e5e7eb;
+      border-color: #334155;
+    }
+
+    body.theme-dark .search-controls input[type="search"]:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+      background: #111827;
+    }
+
+    body.theme-dark .status-message.success {
+      color: #34d399;
+    }
+
+    body.theme-dark .status-message.warn {
+      color: #f59e0b;
+    }
+
+    body.theme-dark .status-message.error {
+      color: #f87171;
+    }
     @media (max-width: 720px) {
+      .header-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .theme-toggle {
+        width: auto;
+        align-self: flex-start;
+      }
       .dataset-actions {
         flex-direction: column;
         align-items: stretch;
@@ -433,10 +648,21 @@
 <body>
   <div class="app">
     <header>
-      <h1>Product LifeCycle</h1>
-      <p>Track Fortinet hardware and subscription milestones so you can plan ahead for customers.</p>
+      <div class="header-row">
+        <div>
+          <h1>Product LifeCycle</h1>
+          <p>Track Fortinet hardware and subscription milestones so you can plan ahead for customers.</p>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color mode" aria-pressed="false">
+          <span class="theme-toggle-track" aria-hidden="true">
+            <span class="theme-icon theme-icon-sun">☀</span>
+            <span class="theme-icon theme-icon-moon">☾</span>
+            <span class="theme-toggle-knob"></span>
+          </span>
+        </button>
+      </div>
       <nav class="top-nav" aria-label="Primary navigation">
-        <a href="./index.html">Finder</a>
+        <a href="./index.html">FortiSKU</a>
         <a href="./lifecycle.html" aria-current="page">LifeCycle</a>
       </nav>
     </header>

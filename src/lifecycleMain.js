@@ -11,6 +11,7 @@ import {
   saveLifecyclePersisted
 } from "./lifecycleStorage.js";
 import { initLifecycleUI } from "./lifecycleUi.js";
+import { initThemeToggle } from "./theme.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -25,6 +26,7 @@ const ui = initLifecycleUI({
   onSearch: handleSearch
 });
 
+initThemeToggle();
 bootstrap();
 
 async function bootstrap() {

@@ -36,7 +36,6 @@ export function initLifecycleUI(handlers) {
 
   let statusTimeoutId = null;
   let datasetLoaded = false;
-  let lastRenderedRows = [];
 
   fileInput.addEventListener("change", () => {
     const file = fileInput.files && fileInput.files[0];
@@ -123,7 +122,6 @@ export function initLifecycleUI(handlers) {
   }
 
   function renderResults(rows, summary) {
-    lastRenderedRows = rows.slice();
     resultsBody.innerHTML = "";
 
     const query = summary?.query?.trim() ?? "";

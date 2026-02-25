@@ -31,6 +31,79 @@
       margin-bottom: 1.5rem;
     }
 
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .theme-toggle {
+      border: none;
+      background: transparent;
+      padding: 0;
+      line-height: 1;
+      box-shadow: none;
+      transform: none;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover:not(:disabled) {
+      box-shadow: none;
+      transform: none;
+      background: transparent;
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid #2680c2;
+      outline-offset: 3px;
+      border-radius: 999px;
+    }
+
+    .theme-toggle-track {
+      position: relative;
+      width: 62px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid #9aa5b1;
+      background: linear-gradient(180deg, #eef2f7, #dce3ec);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 9px;
+      transition: background-color 180ms ease, border-color 180ms ease;
+    }
+
+    .theme-icon {
+      font-size: 0.9rem;
+      line-height: 1;
+      transition: opacity 180ms ease, color 180ms ease;
+      user-select: none;
+    }
+
+    .theme-icon-sun {
+      color: #243b53;
+      opacity: 0.95;
+    }
+
+    .theme-icon-moon {
+      color: #52606d;
+      opacity: 0.7;
+    }
+
+    .theme-toggle-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+      transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+    }
+
     header h1 {
       margin: 0 0 0.25rem;
       font-size: clamp(1.9rem, 3vw, 2.6rem);
@@ -99,6 +172,16 @@
       color: #243b53;
     }
 
+    .dataset-upload-state {
+      font-size: 0.9rem;
+      color: #486581;
+      background: #f0f4f8;
+      border: 1px solid #d9e2ec;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      white-space: nowrap;
+    }
+
     .dataset-meta {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -111,7 +194,167 @@
       grid-column: span 2;
     }
 
+    body.theme-dark {
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    body.theme-dark header h1 {
+      color: #e8f1ff;
+    }
+
+    body.theme-dark header p,
+    body.theme-dark .search-summary,
+    body.theme-dark .dataset-privacy-note,
+    body.theme-dark footer,
+    body.theme-dark .search-tip,
+    body.theme-dark .dataset-upload-state {
+      color: #cbd5e1;
+    }
+
+    body.theme-dark .top-nav a {
+      background: #1e293b;
+      border-color: #334155;
+      color: #dbeafe;
+    }
+
+    body.theme-dark .top-nav a:hover {
+      background: #334155;
+      color: #eff6ff;
+    }
+
+    body.theme-dark .top-nav a[aria-current="page"] {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(29, 78, 216, 0.35);
+    }
+
+    body.theme-dark .theme-toggle-track {
+      background: linear-gradient(180deg, #1f2937, #111827);
+      border-color: #64748b;
+    }
+
+    body.theme-dark .theme-icon-sun {
+      color: #cbd5e1;
+      opacity: 0.55;
+    }
+
+    body.theme-dark .theme-icon-moon {
+      color: #f8fafc;
+      opacity: 1;
+    }
+
+    body.theme-dark .theme-toggle-knob {
+      transform: translateX(30px);
+      background: #e5e7eb;
+      border: 1px solid #94a3b8;
+    }
+
+    body.theme-dark .panel,
+    body.theme-dark .bom-drawer,
+    body.theme-dark .bom-modal {
+      background: #111827;
+      border-color: #334155;
+      color: #e5e7eb;
+    }
+
+    body.theme-dark .panel-header h2,
+    body.theme-dark .dataset-meta dd,
+    body.theme-dark .copy-btn,
+    body.theme-dark .search-tip code,
+    body.theme-dark .icon-button,
+    body.theme-dark .drawer-close {
+      color: #e5e7eb;
+    }
+
+    body.theme-dark .dataset-meta dt,
+    body.theme-dark th,
+    body.theme-dark .bom-table th,
+    body.theme-dark .bom-empty,
+    body.theme-dark .discount-display,
+    body.theme-dark .status-message.info {
+      color: #94a3b8;
+    }
+
+    body.theme-dark table,
+    body.theme-dark th,
+    body.theme-dark td,
+    body.theme-dark .bom-table td,
+    body.theme-dark .bom-table th,
+    body.theme-dark .bom-footer,
+    body.theme-dark .bom-drawer header,
+    body.theme-dark .bom-modal header,
+    body.theme-dark .bom-modal footer,
+    body.theme-dark .quantity-input,
+    body.theme-dark .discount-input {
+      border-color: #334155;
+    }
+
+    body.theme-dark thead,
+    body.theme-dark .copy-btn,
+    body.theme-dark .search-tip code,
+    body.theme-dark .upload-label,
+    body.theme-dark button.secondary,
+    body.theme-dark .dataset-upload-state,
+    body.theme-dark tbody tr:hover,
+    body.theme-dark .icon-button {
+      background: #1f2937;
+    }
+
+    body.theme-dark .upload-label,
+    body.theme-dark button.secondary,
+    body.theme-dark .copy-btn,
+    body.theme-dark .icon-button,
+    body.theme-dark .dataset-upload-state {
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+
+    body.theme-dark .search-controls input[type="search"],
+    body.theme-dark .quantity-input,
+    body.theme-dark .discount-input {
+      background: #0b1220;
+      color: #e5e7eb;
+      border-color: #334155;
+    }
+
+    body.theme-dark .search-controls input[type="search"]:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+      background: #111827;
+    }
+
+    body.theme-dark .bom-toggle {
+      background: #1d4ed8;
+      color: #eff6ff;
+    }
+
+    body.theme-dark .bom-count {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    body.theme-dark .status-message.success {
+      color: #34d399;
+    }
+
+    body.theme-dark .status-message.warn {
+      color: #f59e0b;
+    }
+
+    body.theme-dark .status-message.error {
+      color: #f87171;
+    }
     @media (max-width: 720px) {
+      .header-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .theme-toggle {
+        width: auto;
+        align-self: flex-start;
+      }
       .dataset-meta .pricelist {
         grid-column: span 1;
       }
@@ -161,6 +404,12 @@
 
     .upload-label input[type="file"] {
       display: none;
+    }
+
+    .dataset-privacy-note {
+      margin: 0.1rem 0 0.65rem;
+      font-size: 0.9rem;
+      color: #52667a;
     }
 
     button {
@@ -239,6 +488,10 @@
       border-top-color: #2680c2;
       animation: spin 900ms linear infinite;
       display: inline-block;
+    }
+
+    .spinner[hidden] {
+      display: none !important;
     }
 
     .search-controls {
@@ -636,18 +889,30 @@
 <body>
   <div class="app">
     <header>
-      <h1>FortiSKU</h1>
-      <p>Upload a workbook once, search instantly on every visit.</p>
+      <div class="header-row">
+        <div>
+          <h1>FortiSKU</h1>
+          <p>Upload a workbook once, search instantly on every visit.</p>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color mode" aria-pressed="false">
+          <span class="theme-toggle-track" aria-hidden="true">
+            <span class="theme-icon theme-icon-sun">☀</span>
+            <span class="theme-icon theme-icon-moon">☾</span>
+            <span class="theme-toggle-knob"></span>
+          </span>
+        </button>
+      </div>
       <nav class="top-nav" aria-label="Primary navigation">
         <a href="./index.html" aria-current="page">FortiSKU</a>
-        <a href="./Lifecycle.html">Lifecycle</a>
+        <a href="./lifecycle.html">Lifecycle</a>
       </nav>
     </header>
 
     <section class="panel" aria-labelledby="dataset-heading">
       <div class="panel-header">
         <h2 id="dataset-heading">Dataset</h2>
-        <span id="dataset-spinner" class="spinner" hidden>Processing workbook…</span>
+        <span id="dataset-upload-state" class="dataset-upload-state">No pricelist uploaded</span>
+        <span id="dataset-spinner" class="spinner" hidden aria-label="Uploading pricelist" title="Uploading pricelist"></span>
       </div>
 
       <dl class="dataset-meta">
@@ -682,6 +947,8 @@
         <button id="export-all-button" type="button" class="secondary" disabled>Export all CSV</button>
         <button id="clear-button" type="button" class="secondary">Clear stored data</button>
       </div>
+
+      <p class="dataset-privacy-note">Your pricelist stays on this device in browser storage and is never uploaded to a web server.</p>
 
       <p id="dataset-status" class="status-message info" role="status" aria-live="polite"></p>
     </section>

@@ -37,6 +37,7 @@ export function initUI(handlers) {
   const resultsBody = document.getElementById("results-body");
   const spinner = document.getElementById("dataset-spinner");
   const statusEl = document.getElementById("dataset-status");
+  const datasetUploadState = document.getElementById("dataset-upload-state");
 
   const datasetState = document.getElementById("dataset-state");
   const datasetRows = document.getElementById("dataset-rows");
@@ -221,6 +222,7 @@ export function initUI(handlers) {
 
   function renderDatasetReady(meta, storedBytes) {
     spinner.hidden = true;
+    datasetUploadState.textContent = "Pricelist uploaded";
     datasetState.textContent = "Ready";
     datasetRows.textContent = meta.rowCount?.toLocaleString() ?? "0";
     datasetUpdated.textContent = meta.updatedAt ? formatDate(meta.updatedAt) : "—";
@@ -234,6 +236,7 @@ export function initUI(handlers) {
 
   function renderDatasetEmpty() {
     spinner.hidden = true;
+    datasetUploadState.textContent = "No pricelist uploaded";
     datasetState.textContent = "Empty";
     datasetRows.textContent = "0";
     datasetUpdated.textContent = "—";
@@ -369,9 +372,14 @@ export function initUI(handlers) {
     }
   }
 
-  function setLoading(isLoading, message) {
+  function setLoading(isLoading) {
     spinner.hidden = !isLoading;
-    spinner.textContent = message || "Processing workbook…";
+    spinner.textContent = "";
+    if (isLoading) {
+      datasetUploadState.textContent = "Uploading pricelist…";
+    } else {
+      datasetUploadState.textContent = datasetState.textContent === "Ready" ? "Pricelist uploaded" : "No pricelist uploaded";
+    }
     fileInput.disabled = isLoading;
     clearButton.disabled = isLoading;
     exportAllButton.disabled = isLoading;

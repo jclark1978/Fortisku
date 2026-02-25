@@ -1,12 +1,19 @@
-const CACHE_NAME = "fortisku-cache-v4";
+const CACHE_NAME = "fortisku-cache-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./lifecycle.html",
   "./src/main.js",
+  "./src/lifecycleMain.js",
+  "./src/theme.js",
   "./src/ingest.js",
   "./src/search.js",
   "./src/storage.js",
   "./src/ui.js",
+  "./src/lifecycleIngest.js",
+  "./src/lifecycleSearch.js",
+  "./src/lifecycleStorage.js",
+  "./src/lifecycleUi.js",
   "./src/csv.js",
   "./src/bom.js",
   "./src/bomExport.js",
@@ -18,22 +25,29 @@ const APP_SHELL = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => undefined)
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+      .catch(() => undefined)
   );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-          return undefined;
-        })
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.map((key) => {
+            if (key !== CACHE_NAME) {
+              return caches.delete(key);
+            }
+            return undefined;
+          })
+        )
       )
-    )
+      .then(() => self.clients.claim())
   );
 });
 
