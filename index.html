@@ -4,6 +4,41 @@
   <meta charset="UTF-8" />
   <title>FortiSKU</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    (function () {
+      var key = "fortisku-theme";
+      var theme = "light";
+      try {
+        var stored = window.localStorage.getItem(key);
+        if (stored === "light" || stored === "dark") {
+          theme = stored;
+        } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+      } catch (error) {
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+      }
+
+      document.documentElement.style.colorScheme = theme;
+
+      function apply() {
+        if (!document.body) return false;
+        document.body.classList.toggle("theme-dark", theme === "dark");
+        return true;
+      }
+
+      if (apply()) return;
+
+      var observer = new MutationObserver(function () {
+        if (apply()) {
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    })();
+  </script>
   <style>
     :root {
       color-scheme: light;
@@ -407,8 +442,8 @@
     }
 
     .dataset-privacy-note {
-      margin: 0.1rem 0 0.65rem;
-      font-size: 0.9rem;
+      margin: 0 0 1rem;
+      font-size: 1rem;
       color: #52667a;
     }
 
@@ -524,6 +559,8 @@
     .search-summary {
       font-size: 0.95rem;
       color: #52606d;
+      margin-left: auto;
+      text-align: right;
       flex: 0 0 auto;
     }
 
@@ -904,7 +941,8 @@
       </div>
       <nav class="top-nav" aria-label="Primary navigation">
         <a href="./index.html" aria-current="page">FortiSKU</a>
-        <a href="./lifecycle.html">Lifecycle</a>
+        <a href="./lifecycle.html">LifeCycle</a>
+        <a href="./ordering.html">Ordering Guides</a>
       </nav>
     </header>
 
@@ -914,6 +952,7 @@
         <span id="dataset-upload-state" class="dataset-upload-state">No pricelist uploaded</span>
         <span id="dataset-spinner" class="spinner" hidden aria-label="Uploading pricelist" title="Uploading pricelist"></span>
       </div>
+      <p class="dataset-privacy-note">Your pricelist stays on this device in browser storage and is never uploaded to a web server.</p>
 
       <dl class="dataset-meta">
         <div class="pricelist">
@@ -947,9 +986,6 @@
         <button id="export-all-button" type="button" class="secondary" disabled>Export all CSV</button>
         <button id="clear-button" type="button" class="secondary">Clear stored data</button>
       </div>
-
-      <p class="dataset-privacy-note">Your pricelist stays on this device in browser storage and is never uploaded to a web server.</p>
-
       <p id="dataset-status" class="status-message info" role="status" aria-live="polite"></p>
     </section>
 

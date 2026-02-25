@@ -1,10 +1,13 @@
-const CACHE_NAME = "fortisku-cache-v5";
+const CACHE_NAME = "fortisku-cache-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./lifecycle.html",
+  "./ordering.html",
   "./src/main.js",
   "./src/lifecycleMain.js",
+  "./src/orderingGuideMain.js",
+  "./src/orderingGuideUi.js",
   "./src/theme.js",
   "./src/ingest.js",
   "./src/search.js",

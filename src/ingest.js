@@ -40,6 +40,7 @@ export async function ingestWorkbook(file, requestedSheetName) {
   const dataRows = rows.slice(headerInfo.index + 1);
   const { normalizedRows, stats } = normalizeRows(dataRows, headerInfo.headerMap);
   const coverInfo = extractCoverSheetInfo(workbook);
+  const orderingGuideRows = extractOrderingGuideRows(workbook);
 
   if (!normalizedRows.length) {
     throw new Error("No data rows contained valid SKU and Description #1 values.");
@@ -49,7 +50,8 @@ export async function ingestWorkbook(file, requestedSheetName) {
     rows: normalizedRows,
     sheetName,
     stats,
-    coverInfo
+    coverInfo,
+    orderingGuideRows
   };
 }
 
@@ -224,4 +226,87 @@ function coercePrice(value) {
   if (!cleaned) return null;
   const numeric = parseFloat(cleaned);
   return Number.isFinite(numeric) ? numeric : null;
+}
+
+function extractOrderingGuideRows(workbook) {
+  const sheetName = (workbook.SheetNames || []).find((name) => {
+    const normalized = String(name).trim().toLowerCase();
+    return normalized === "ordering guide" || normalized === "ordering guides" || normalized.includes("ordering guide");
+  });
+  if (!sheetName) {
+    return [];
+  }
+
+  const sheet = workbook.Sheets[sheetName];
+  const grid = utils.sheet_to_json(sheet, { header: 1, defval: "" });
+  const merges = Array.isArray(sheet["!merges"]) ? sheet["!merges"] : [];
+  const skippedRows = new Set();
+
+  for (const merge of merges) {
+    if (!merge || !merge.s || !merge.e) continue;
+    const touchesTargetColumn = merge.s.c <= 2 && merge.e.c >= 1;
+    if (!touchesTargetColumn) continue;
+    for (let rowIndex = merge.s.r; rowIndex <= merge.e.r; rowIndex += 1) {
+      skippedRows.add(rowIndex);
+    }
+  }
+
+  const results = [];
+  const startRow = findOrderingGuideStartRow(grid);
+  for (let rowIndex = startRow; rowIndex < grid.length; rowIndex += 1) {
+    if (skippedRows.has(rowIndex)) {
+      continue;
+    }
+
+    const row = grid[rowIndex] || [];
+    const orderingGuide = sanitizeString(row[1] ?? "");
+    const orderingGuideUrl = sanitizeString(
+      sheet.__links?.get(`${rowIndex}:1`) || extractUrlFromText(orderingGuide)
+    );
+    const relatedProducts = sanitizeString(row[2] ?? "");
+    const relatedProductsUrl = sanitizeString(
+      sheet.__links?.get(`${rowIndex}:2`) || extractUrlFromText(relatedProducts)
+    );
+
+    if (!orderingGuide || !relatedProducts) {
+      continue;
+    }
+
+    results.push({
+      id: `ordering-${results.length + 1}`,
+      orderingGuide,
+      orderingGuideUrl,
+      relatedProducts,
+      relatedProductsUrl
+    });
+  }
+
+  return results;
+}
+
+function findOrderingGuideStartRow(grid) {
+  for (let rowIndex = 0; rowIndex < grid.length; rowIndex += 1) {
+    const row = grid[rowIndex] || [];
+    const colB = sanitizeString(row[1] ?? "").toLowerCase();
+    const colC = sanitizeString(row[2] ?? "").toLowerCase();
+    if (colB === "ordering guide" && colC === "related products") {
+      return rowIndex + 1;
+    }
+  }
+  // Fallback to sheet row 8 semantics when explicit header row is not found.
+  return 7;
+}
+
+function extractUrlFromText(value) {
+  const text = sanitizeString(value);
+  if (!text) return "";
+  const urlMatch = text.match(/https?:\/\/[^\s)]+/i);
+  if (urlMatch) {
+    return urlMatch[0];
+  }
+  const wwwMatch = text.match(/www\.[^\s)]+/i);
+  if (wwwMatch) {
+    return `https://${wwwMatch[0]}`;
+  }
+  return "";
 }

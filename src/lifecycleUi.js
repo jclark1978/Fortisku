@@ -126,6 +126,7 @@ export function initLifecycleUI(handlers) {
 
     const query = summary?.query?.trim() ?? "";
     const total = summary?.total ?? 0;
+    const limited = Boolean(summary?.limited);
 
     if (!rows.length) {
       const tr = document.createElement("tr");
@@ -172,14 +173,22 @@ export function initLifecycleUI(handlers) {
     if (!datasetLoaded) {
       searchSummary.textContent = "";
     } else if (!query) {
-      searchSummary.textContent = rows.length ? `Showing ${rows.length} milestone${rows.length === 1 ? "" : "s"}.` : "";
+      if (!rows.length) {
+        searchSummary.textContent = "";
+      } else if (limited) {
+        searchSummary.textContent = `Showing ${rows.length.toLocaleString()} of ${total.toLocaleString()} lines (limited to 200).`;
+      } else {
+        searchSummary.textContent = `Showing ${rows.length.toLocaleString()} of ${total.toLocaleString()} lines.`;
+      }
     } else if (total === 0) {
-      searchSummary.textContent = "No matches.";
+      searchSummary.textContent = "No matching lines.";
     } else {
       const limitedCount = rows.length;
-      const totalText = `${limitedCount} of ${total}`;
-      searchSummary.textContent =
-        limitedCount === total ? `${limitedCount} match${total === 1 ? "" : "es"}.` : `${totalText} matches.`;
+      if (limitedCount === total) {
+        searchSummary.textContent = `Showing ${limitedCount.toLocaleString()} matching line${total === 1 ? "" : "s"}.`;
+      } else {
+        searchSummary.textContent = `Showing ${limitedCount.toLocaleString()} of ${total.toLocaleString()} matching lines.`;
+      }
     }
   }
 

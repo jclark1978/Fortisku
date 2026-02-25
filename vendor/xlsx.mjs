@@ -402,6 +402,12 @@ function columnIndexFromRef(ref) {
   return index - 1;
 }
 
+function rowIndexFromRef(ref) {
+  const match = ref.match(/\d+$/);
+  if (!match) return 0;
+  return Math.max(parseInt(match[0], 10) - 1, 0);
+}
+
 function encodeColumn(index) {
   let col = "";
   let n = index + 1;
@@ -490,6 +496,61 @@ function parseSheetXml(xml, sharedStrings) {
   return { rows, ref };
 }
 
+function parseRelationships(xml) {
+  if (!xml) return {};
+  const doc = parseXml(xml);
+  const relationships = {};
+  const relNodes = doc.getElementsByTagName("Relationship");
+  for (const rel of relNodes) {
+    relationships[rel.getAttribute("Id")] = rel.getAttribute("Target");
+  }
+  return relationships;
+}
+
+function sheetRelsPath(sheetPath) {
+  const parts = sheetPath.split("/");
+  const fileName = parts.pop();
+  const directory = parts.join("/");
+  return `${directory}/_rels/${fileName}.rels`;
+}
+
+function parseHyperlinkMap(sheetXml, relationshipTargets) {
+  const doc = parseXml(sheetXml);
+  const nodes = doc.getElementsByTagName("hyperlink");
+  const map = new Map();
+
+  for (const node of nodes) {
+    const ref = node.getAttribute("ref");
+    if (!ref) continue;
+
+    const relId = node.getAttribute("r:id");
+    const location = node.getAttribute("location");
+    let target = "";
+
+    if (relId && relationshipTargets[relId]) {
+      target = relationshipTargets[relId];
+    } else if (location) {
+      target = `#${location}`;
+    }
+
+    if (!target) continue;
+
+    const [startRef, endRef] = ref.includes(":") ? ref.split(":") : [ref, ref];
+    const startCol = columnIndexFromRef(startRef);
+    const startRow = rowIndexFromRef(startRef);
+    const endCol = columnIndexFromRef(endRef);
+    const endRow = rowIndexFromRef(endRef);
+
+    for (let row = startRow; row <= endRow; row++) {
+      for (let col = startCol; col <= endCol; col++) {
+        map.set(`${row}:${col}`, target);
+      }
+    }
+  }
+
+  return map;
+}
+
 function trimEmptyRows(rows) {
   const trimmed = [];
   for (const row of rows) {
@@ -552,15 +613,7 @@ export async function read(data, options = {}) {
   const workbookDoc = parseXml(strFromU8(workbookXml));
   const sheets = workbookDoc.getElementsByTagName("sheet");
   const relsXml = files["xl/_rels/workbook.xml.rels"];
-  const relationships = {};
-
-  if (relsXml) {
-    const relsDoc = parseXml(strFromU8(relsXml));
-    const relNodes = relsDoc.getElementsByTagName("Relationship");
-    for (const rel of relNodes) {
-      relationships[rel.getAttribute("Id")] = rel.getAttribute("Target");
-    }
-  }
+  const relationships = parseRelationships(relsXml ? strFromU8(relsXml) : null);
 
   const sharedStringsXml = files["xl/sharedStrings.xml"]
     ? strFromU8(files["xl/sharedStrings.xml"])
@@ -582,12 +635,17 @@ export async function read(data, options = {}) {
       continue;
     }
 
-    const parsed = parseSheetXml(strFromU8(sheetFile), sharedStrings);
+    const sheetXml = strFromU8(sheetFile);
+    const sheetRelationshipFile = files[sheetRelsPath(fullPath)];
+    const sheetRelationships = parseRelationships(sheetRelationshipFile ? strFromU8(sheetRelationshipFile) : null);
+    const hyperlinkMap = parseHyperlinkMap(sheetXml, sheetRelationships);
+    const parsed = parseSheetXml(sheetXml, sharedStrings);
     const normalizedRows = trimEmptyRows(parsed.rows);
     workbook.SheetNames.push(name);
     workbook.Sheets[name] = {
       "!ref": parsed.ref,
-      __rows: normalizedRows
+      __rows: normalizedRows,
+      __links: hyperlinkMap
     };
   }
 
@@ -599,7 +657,8 @@ export async function read(data, options = {}) {
 }
 
 export const utils = {
-  sheet_to_json: sheetToJson
+  sheet_to_json: sheetToJson,
+  encode_cell: ({ r, c }) => encodeCell(r, c)
 };
 
 export default {

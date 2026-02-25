@@ -3,6 +3,7 @@ import { createSearchIndex, loadSearchIndex, searchRows, parseQuery } from "./se
 import {
   loadPersisted,
   savePersisted,
+  saveOrderingGuideRows,
   clearPersisted,
   estimateSizeBytes,
   SCHEMA_VERSION
@@ -117,6 +118,7 @@ async function handleUpload({ file, sheetName }) {
     const storedBytes = estimateSizeBytes(rows, exported);
     meta.storedBytes = storedBytes;
     await savePersisted(rows, exported, meta);
+    await saveOrderingGuideRows(result.orderingGuideRows);
 
     ui.renderDatasetReady(meta, storedBytes);
     ui.enableSearch(true);
@@ -135,6 +137,7 @@ async function handleUpload({ file, sheetName }) {
     if (result.stats.skippedRows) {
       message += ` Skipped ${result.stats.skippedRows} row(s) missing required fields.`;
     }
+    message += ` Ordering Guides rows: ${result.orderingGuideRows.length}.`;
     ui.showStatus("success", message);
     ui.focusSearch();
   } catch (error) {

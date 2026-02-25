@@ -40,7 +40,12 @@ async function bootstrap() {
       const storedBytes = meta?.storedBytes ?? estimateLifecycleSizeBytes(rows, persisted.indexJSON);
       ui.renderDatasetReady(meta, storedBytes);
       ui.enableSearch(true);
-      ui.renderResults([], { total: rows.length, query: "", rowCount: rows.length });
+      ui.renderResults(rows.slice(0, MAX_RENDERED_ROWS), {
+        total: rows.length,
+        limited: rows.length > MAX_RENDERED_ROWS,
+        query: "",
+        rowCount: rows.length
+      });
       ui.showStatus(
         "success",
         `Loaded ${rows.length} row${rows.length === 1 ? "" : "s"} from “${meta.sheetName || "dataset"}”.`,
@@ -89,7 +94,12 @@ async function handleUpload({ file }) {
       { dismissAfter: 4500 }
     );
     ui.focusSearch();
-    ui.renderResults([], { total: rows.length, query: "", rowCount: rows.length });
+    ui.renderResults(rows.slice(0, MAX_RENDERED_ROWS), {
+      total: rows.length,
+      limited: rows.length > MAX_RENDERED_ROWS,
+      query: "",
+      rowCount: rows.length
+    });
   } catch (error) {
     console.error("Failed to ingest LifeCycle workbook", error);
     ui.showStatus("error", error.message || "Failed to process LifeCycle workbook.");
@@ -121,9 +131,21 @@ function handleSearch(query) {
     return;
   }
 
+  const normalized = String(query || "").trim();
+  if (!normalized) {
+    ui.renderResults(rows.slice(0, MAX_RENDERED_ROWS), {
+      total: rows.length,
+      limited: rows.length > MAX_RENDERED_ROWS,
+      query: "",
+      rowCount: rows.length
+    });
+    return;
+  }
+
   const { hits, total } = searchLifecycleRows(miniSearch, rowsById, query, MAX_RENDERED_ROWS);
   ui.renderResults(hits, {
     total,
+    limited: total > MAX_RENDERED_ROWS,
     query,
     rowCount: rows.length
   });

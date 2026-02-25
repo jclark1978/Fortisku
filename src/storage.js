@@ -6,6 +6,7 @@ const KEY_PREFIX = "fortisku-finder";
 const KEY_ROWS = `${KEY_PREFIX}:rows:v${SCHEMA_VERSION}`;
 const KEY_INDEX = `${KEY_PREFIX}:index:v${SCHEMA_VERSION}`;
 const KEY_META = `${KEY_PREFIX}:meta:v${SCHEMA_VERSION}`;
+const KEY_ORDERING_GUIDE = `${KEY_PREFIX}:ordering-guide:v${SCHEMA_VERSION}`;
 
 export async function loadPersisted() {
   const meta = await get(KEY_META);
@@ -45,11 +46,20 @@ export async function savePersisted(rows, indexJSON, meta) {
 }
 
 export async function clearPersisted() {
-  await Promise.all([del(KEY_ROWS), del(KEY_INDEX), del(KEY_META)]);
+  await Promise.all([del(KEY_ROWS), del(KEY_INDEX), del(KEY_META), del(KEY_ORDERING_GUIDE)]);
 }
 
 export function estimateSizeBytes(rows, indexJSON) {
   const rowsBytes = new TextEncoder().encode(JSON.stringify(rows)).length;
   const indexBytes = new TextEncoder().encode(JSON.stringify(indexJSON)).length;
   return rowsBytes + indexBytes;
+}
+
+export async function saveOrderingGuideRows(rows) {
+  await set(KEY_ORDERING_GUIDE, Array.isArray(rows) ? rows : []);
+}
+
+export async function loadOrderingGuideRows() {
+  const rows = await get(KEY_ORDERING_GUIDE);
+  return Array.isArray(rows) ? rows : [];
 }
