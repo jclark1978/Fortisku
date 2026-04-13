@@ -1,4 +1,4 @@
-import MiniSearch from "../vendor/minisearch.min.js";
+import MiniSearch from "../../../vendor/minisearch.min.js";
 
 const SEARCH_FIELDS = ["product"];
 const STORE_FIELDS = [

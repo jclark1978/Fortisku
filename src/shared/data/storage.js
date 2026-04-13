@@ -1,4 +1,4 @@
-import { get, set, del } from "../vendor/idb-keyval.mjs";
+import { get, set, del } from "../../../vendor/idb-keyval.mjs";
 
 export const SCHEMA_VERSION = "4";
 

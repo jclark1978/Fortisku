@@ -1,4 +1,4 @@
-import { read, utils } from "../vendor/xlsx.mjs";
+import { read, utils } from "../../../vendor/xlsx.mjs";
 
 const DEFAULT_SHEET_NAME = "LifeCycle";
 

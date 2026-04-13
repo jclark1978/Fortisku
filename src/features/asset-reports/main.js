@@ -1,6 +1,6 @@
-import { initThemeToggle } from "./theme.js";
-import { buildAssetReportWorkbook, buildOutputFilename, inspectAssetWorkbook } from "./assetReportWorkbook.js";
-import { initAssetReportUI } from "./assetReportUi.js";
+import { initThemeToggle } from "../../shared/ui/theme.js";
+import { buildAssetReportWorkbook, buildOutputFilename, inspectAssetWorkbook } from "./workbook.js";
+import { initAssetReportUI } from "./ui.js";
 
 let inspectedWorkbook = null;
 

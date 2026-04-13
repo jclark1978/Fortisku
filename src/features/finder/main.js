@@ -1,5 +1,5 @@
-import { ingestWorkbook } from "./ingest.js";
-import { createSearchIndex, loadSearchIndex, searchRows, parseQuery } from "./search.js";
+import { ingestWorkbook } from "../../shared/data/ingest.js";
+import { createSearchIndex, loadSearchIndex, searchRows, parseQuery } from "../../shared/data/search.js";
 import {
   loadPersisted,
   savePersisted,
@@ -7,9 +7,9 @@ import {
   clearPersisted,
   estimateSizeBytes,
   SCHEMA_VERSION
-} from "./storage.js";
+} from "../../shared/data/storage.js";
 import { initUI } from "./ui.js";
-import { rowsToCSV } from "./csv.js";
+import { rowsToCSV } from "../../shared/data/csv.js";
 import {
   initBOM,
   subscribe as subscribeBOM,
@@ -19,7 +19,7 @@ import {
   clearBOM
 } from "./bom.js";
 import { exportBomToCsv } from "./bomExport.js";
-import { initThemeToggle } from "./theme.js";
+import { initThemeToggle } from "../../shared/ui/theme.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -223,7 +223,7 @@ function buildCsvFilename(suffix) {
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("./sw.js")
+      .register(new URL("../../../sw.js", import.meta.url))
       .catch((error) => console.warn("Service worker registration failed:", error));
   }
 }

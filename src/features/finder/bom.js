@@ -1,4 +1,4 @@
-import { get, set } from "../vendor/idb-keyval.mjs";
+import { get, set } from "../../../vendor/idb-keyval.mjs";
 
 const STORAGE_KEY = "fortisku-finder:bom:v1";
 

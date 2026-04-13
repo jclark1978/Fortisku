@@ -1,15 +1,17 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `index.html` is the main FortiSKU Finder UI; `lifecycle.html` is the lifecycle lookup UI.
-- `src/` contains all application logic (ingest, search, storage, UI, BOM, lifecycle flows).
+- `index.html` is the main FortiSKU Finder UI.
+- Feature pages live in `lifecycle/`, `ordering-guides/`, `asset-reports/`, and `lab-portal/`.
+- `src/features/` contains per-tool application logic.
+- `src/shared/` contains shared data and UI helpers.
 - `vendor/` holds vendored browser dependencies (MiniSearch, idb-keyval, xlsx).
 - `sw.js` is the optional service worker for offline caching.
 
 ## Build, Test, and Development Commands
 - No build step is required; this is a static, browser-only app.
 - Serve locally with any static server, for example:
-  - `cd fortisku-browser`
+  - `cd Fortisku`
   - `python -m http.server 5173`
 - Then open `http://localhost:5173` (or `http://localhost:5173/lifecycle.html`).
 

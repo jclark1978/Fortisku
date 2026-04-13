@@ -1,17 +1,17 @@
-import { ingestLifecycleWorkbook } from "./lifecycleIngest.js";
+import { ingestLifecycleWorkbook } from "./ingest.js";
 import {
   createLifecycleSearchIndex,
   loadLifecycleSearchIndex,
   searchLifecycleRows
-} from "./lifecycleSearch.js";
+} from "./search.js";
 import {
   clearLifecyclePersisted,
   estimateLifecycleSizeBytes,
   loadLifecyclePersisted,
   saveLifecyclePersisted
-} from "./lifecycleStorage.js";
-import { initLifecycleUI } from "./lifecycleUi.js";
-import { initThemeToggle } from "./theme.js";
+} from "./storage.js";
+import { initLifecycleUI } from "./ui.js";
+import { initThemeToggle } from "../../shared/ui/theme.js";
 
 const MAX_RENDERED_ROWS = 200;
 

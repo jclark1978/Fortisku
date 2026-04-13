@@ -1,5 +1,5 @@
-import { ingestWorkbook } from "./ingest.js";
-import { createSearchIndex } from "./search.js";
+import { ingestWorkbook } from "../../shared/data/ingest.js";
+import { createSearchIndex } from "../../shared/data/search.js";
 import {
   clearPersisted,
   estimateSizeBytes,
@@ -8,9 +8,9 @@ import {
   saveOrderingGuideRows,
   savePersisted,
   SCHEMA_VERSION
-} from "./storage.js";
-import { initOrderingGuideUI } from "./orderingGuideUi.js";
-import { initThemeToggle } from "./theme.js";
+} from "../../shared/data/storage.js";
+import { initOrderingGuideUI } from "./ui.js";
+import { initThemeToggle } from "../../shared/ui/theme.js";
 
 let allRows = [];
 

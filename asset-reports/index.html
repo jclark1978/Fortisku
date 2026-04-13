@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FortiSKU Asset Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    (function () {
+      var key = "fortisku-theme";
+      var theme = "light";
+      try {
+        var stored = window.localStorage.getItem(key);
+        if (stored === "light" || stored === "dark") {
+          theme = stored;
+        } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+      } catch (error) {
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+      }
+
+      document.documentElement.style.colorScheme = theme;
+
+      function apply() {
+        if (!document.body) return false;
+        document.body.classList.toggle("theme-dark", theme === "dark");
+        return true;
+      }
+
+      if (apply()) return;
+
+      var observer = new MutationObserver(function () {
+        if (apply()) {
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      --brand-red: #DA291C;
+      --brand-red-dark: #B42318;
+      --brand-black: #000000;
+      --brand-text: #464646;
+      --brand-text-muted: #646464;
+      --brand-text-soft: #969696;
+      --brand-border: #C8C8C8;
+      --brand-panel: #FFFFFF;
+      --brand-surface: #F0F0F0;
+      --brand-surface-alt: #F7F7F7;
+      --brand-success: #3CB17E;
+      --brand-info: #307FE2;
+      --brand-danger: #DA291C;
+      --brand-warn: #9063CD;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--brand-surface);
+      color: var(--brand-text);
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4.5rem;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .theme-toggle {
+      border: none;
+      background: transparent;
+      padding: 0;
+      line-height: 1;
+      box-shadow: none;
+      transform: none;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover:not(:disabled) {
+      box-shadow: none;
+      transform: none;
+      background: transparent;
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--brand-red);
+      outline-offset: 3px;
+      border-radius: 999px;
+    }
+
+    .theme-toggle-track {
+      position: relative;
+      width: 62px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--brand-border);
+      background: linear-gradient(180deg, #f7f7f7, #e6e6e6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 9px;
+      transition: background-color 180ms ease, border-color 180ms ease;
+    }
+
+    .theme-icon {
+      font-size: 0.9rem;
+      line-height: 1;
+      transition: opacity 180ms ease, color 180ms ease;
+      user-select: none;
+    }
+
+    .theme-icon-sun {
+      color: var(--brand-text);
+      opacity: 0.95;
+    }
+
+    .theme-icon-moon {
+      color: var(--brand-text-muted);
+      opacity: 0.7;
+    }
+
+    .theme-toggle-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid var(--brand-border);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+      transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      color: var(--brand-black);
+    }
+
+    header p {
+      margin: 0;
+      color: var(--brand-text-muted);
+    }
+
+    .top-nav {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .top-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--brand-border);
+      background: #ffffff;
+      color: var(--brand-text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+
+    .top-nav a:hover {
+      background: var(--brand-surface);
+      color: var(--brand-black);
+      transform: translateY(-1px);
+    }
+
+    .top-nav a[aria-current="page"] {
+      background: var(--brand-red);
+      border-color: var(--brand-red);
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(218, 41, 28, 0.25);
+    }
+
+    main {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    section {
+      background: var(--brand-panel);
+      border-radius: 12px;
+      border: 1px solid var(--brand-border);
+      padding: 1.5rem;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 1rem;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--brand-black);
+    }
+
+    .upload-state {
+      font-size: 0.9rem;
+      color: var(--brand-text-muted);
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      white-space: nowrap;
+    }
+
+    .intro {
+      margin: 0 0 1rem;
+      color: var(--brand-text-muted);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.2fr);
+      gap: 1rem 1.25rem;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--brand-text-soft);
+      font-weight: 700;
+    }
+
+    .field input[type="text"] {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 10px;
+      border: 1px solid var(--brand-border);
+      padding: 0.75rem 0.9rem;
+      font: inherit;
+      color: var(--brand-text);
+      background: #ffffff;
+    }
+
+    .field input[type="text"]:focus-visible {
+      outline: 2px solid rgba(218, 41, 28, 0.22);
+      outline-offset: 2px;
+      border-color: var(--brand-red);
+    }
+
+    .upload-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--brand-border);
+      background: #ffffff;
+      color: var(--brand-text);
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .upload-label:hover {
+      border-color: var(--brand-red);
+      color: var(--brand-black);
+    }
+
+    .upload-label input {
+      display: none;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--brand-red);
+      color: #ffffff;
+    }
+
+    .primary:hover:not(:disabled) {
+      background: var(--brand-red-dark);
+    }
+
+    .secondary {
+      background: #ffffff;
+      color: var(--brand-text);
+      border: 1px solid var(--brand-border);
+    }
+
+    .secondary:hover:not(:disabled) {
+      border-color: var(--brand-red);
+      color: var(--brand-black);
+    }
+
+    .status-message {
+      margin: 1rem 0 0;
+      min-height: 1.5rem;
+      font-weight: 600;
+    }
+
+    .status-message.info {
+      color: var(--brand-info);
+    }
+
+    .status-message.success {
+      color: var(--brand-success);
+    }
+
+    .status-message.warn {
+      color: var(--brand-warn);
+    }
+
+    .status-message.error {
+      color: var(--brand-danger);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(48, 127, 226, 0.18);
+      border-top-color: var(--brand-info);
+      animation: spin 700ms linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.9rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .meta-card {
+      border: 1px solid var(--brand-border);
+      border-radius: 12px;
+      padding: 1rem;
+      background: var(--brand-surface-alt);
+    }
+
+    .meta-card dt {
+      margin: 0 0 0.2rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brand-text-soft);
+    }
+
+    .meta-card dd {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--brand-black);
+      word-break: break-word;
+    }
+
+    .meta-card.output-name dd {
+      font-size: 0.92rem;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .preview-panel {
+      border: 1px solid var(--brand-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .preview-panel h3 {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--brand-border);
+      font-size: 1rem;
+      color: var(--brand-black);
+      background: var(--brand-surface-alt);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--brand-border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--brand-text-soft);
+      background: #fafafa;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .empty-row td {
+      color: var(--brand-text-muted);
+      font-style: italic;
+    }
+
+    .note {
+      margin: 1rem 0 0;
+      color: var(--brand-text-muted);
+      font-size: 0.95rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      color: var(--brand-text-soft);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    body.theme-dark {
+      background: #464646;
+      color: #ffffff;
+    }
+
+    body.theme-dark header h1,
+    body.theme-dark .panel-header h2,
+    body.theme-dark .meta-card dd,
+    body.theme-dark .preview-panel h3 {
+      color: #ffffff;
+    }
+
+    body.theme-dark header p,
+    body.theme-dark .intro,
+    body.theme-dark .note,
+    body.theme-dark footer,
+    body.theme-dark .upload-state,
+    body.theme-dark .meta-card dt,
+    body.theme-dark th,
+    body.theme-dark .status-message.info {
+      color: #d0d0d0;
+    }
+
+    body.theme-dark .top-nav a,
+    body.theme-dark section,
+    body.theme-dark .upload-label,
+    body.theme-dark .secondary,
+    body.theme-dark .field input[type="text"],
+    body.theme-dark .preview-panel {
+      background: #565656;
+      border-color: #7a7a7a;
+      color: #ffffff;
+    }
+
+    body.theme-dark .top-nav a:hover,
+    body.theme-dark .secondary:hover:not(:disabled),
+    body.theme-dark .upload-label:hover {
+      background: #616161;
+      color: #ffffff;
+    }
+
+    body.theme-dark .top-nav a[aria-current="page"] {
+      background: var(--brand-red);
+      border-color: var(--brand-red);
+      color: #ffffff;
+    }
+
+    body.theme-dark .upload-state,
+    body.theme-dark .meta-card,
+    body.theme-dark .preview-panel h3,
+    body.theme-dark th {
+      background: #4d4d4d;
+      border-color: #7a7a7a;
+    }
+
+    body.theme-dark td {
+      border-color: #6a6a6a;
+    }
+
+    body.theme-dark .theme-toggle-track {
+      background: linear-gradient(180deg, #5f5f5f, #4d4d4d);
+      border-color: #7a7a7a;
+    }
+
+    body.theme-dark .theme-icon-sun,
+    body.theme-dark .theme-icon-moon {
+      color: #ffffff;
+    }
+
+    body.theme-dark .theme-toggle-knob {
+      background: #000000;
+      border-color: #2c2c2c;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+      transform: translateX(30px);
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        padding: 1rem 1rem 4rem;
+      }
+
+      .header-row,
+      .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-grid,
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-row button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-row">
+        <div>
+          <h1>Asset Reports</h1>
+          <p>Upload a customer asset workbook, apply the standard report format, and download a finished Excel file.</p>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color mode" aria-pressed="false">
+          <span class="theme-toggle-track" aria-hidden="true">
+            <span class="theme-icon theme-icon-sun">☀</span>
+            <span class="theme-icon theme-icon-moon">☾</span>
+            <span class="theme-toggle-knob"></span>
+          </span>
+        </button>
+      </div>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="../">FortiSKU</a>
+        <a href="../lifecycle/">LifeCycle</a>
+        <a href="../ordering-guides/">Ordering Guides</a>
+        <a href="./" aria-current="page">Asset Reports</a>
+        <a href="../lab-portal/">Lab Portal Generator</a>
+      </nav>
+    </header>
+
+    <main>
+      <section aria-labelledby="asset-upload-heading">
+        <div class="panel-header">
+          <h2 id="asset-upload-heading">Build Report</h2>
+          <span id="ar-upload-state" class="upload-state">Waiting for workbook</span>
+        </div>
+        <p class="intro">Use the same source workbook format each time. The row count and data can vary, but the required headers must be present.</p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="ar-customer-name">Customer Name</label>
+            <input id="ar-customer-name" type="text" placeholder="e.g. Acme Corp" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="ar-file-input">Asset Workbook</label>
+            <label class="upload-label" for="ar-file-input">
+              <span>Select .xlsx file</span>
+              <input id="ar-file-input" type="file" accept=".xlsx" />
+            </label>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="ar-build-button" class="primary" type="button" disabled>Generate Asset Report</button>
+          <button id="ar-clear-button" class="secondary" type="button">Clear</button>
+          <span id="ar-spinner" class="spinner" hidden aria-label="Processing workbook"></span>
+        </div>
+
+        <p id="ar-status" class="status-message info" role="status" aria-live="polite"></p>
+      </section>
+
+      <section aria-labelledby="asset-summary-heading">
+        <div class="panel-header">
+          <h2 id="asset-summary-heading">Workbook Summary</h2>
+        </div>
+
+        <dl class="meta-grid">
+          <div class="meta-card">
+            <dt>Source File</dt>
+            <dd id="ar-source-file">—</dd>
+          </div>
+          <div class="meta-card">
+            <dt>Sheet</dt>
+            <dd id="ar-source-sheet">—</dd>
+          </div>
+          <div class="meta-card">
+            <dt>Asset Rows</dt>
+            <dd id="ar-row-count">0</dd>
+          </div>
+          <div class="meta-card">
+            <dt>Unique Models</dt>
+            <dd id="ar-model-count">0</dd>
+          </div>
+          <div class="meta-card">
+            <dt>Renewal Quarters</dt>
+            <dd id="ar-quarter-count">0</dd>
+          </div>
+          <div class="meta-card output-name">
+            <dt>Output File</dt>
+            <dd id="ar-output-name">—</dd>
+          </div>
+        </dl>
+
+        <div class="preview-grid">
+          <div class="preview-panel">
+            <h3>Top Models</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Product Model</th>
+                  <th scope="col">Count</th>
+                </tr>
+              </thead>
+              <tbody id="ar-models-body">
+                <tr class="empty-row"><td colspan="2">Upload a workbook to preview the summary.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="preview-panel">
+            <h3>Renewal Schedule</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Quarter</th>
+                  <th scope="col">Count</th>
+                </tr>
+              </thead>
+              <tbody id="ar-quarters-body">
+                <tr class="empty-row"><td colspan="2">Upload a workbook to preview the summary.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="note">Expected headers: Serial Number, Product Model, Description, Unit Expiration Date, Registration Date.</p>
+      </section>
+    </main>
+
+    <footer>
+      Asset reports are built locally in your browser. Uploaded workbooks are not sent to a server.
+    </footer>
+  </div>
+
+  <script type="module" src="../src/features/asset-reports/main.js"></script>
+</body>
+</html>
