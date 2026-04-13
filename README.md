@@ -42,7 +42,7 @@ No backend or server-side computation is required.
 ## Project Layout
 
 - `index.html` is the main FortiSKU Finder experience.
-- `lifecycle/`, `ordering-guides/`, `asset-reports/`, and `lab-portal/` each contain a dedicated page for a separate workflow.
+- `lifecycle/`, `ordering-guides/`, `asset-reports/`, and `lab-portal/` each contain the canonical page entrypoint for a separate workflow.
 - `src/features/` groups browser logic by product surface:
   - `finder/`
   - `lifecycle/`
@@ -52,7 +52,15 @@ No backend or server-side computation is required.
 - `src/shared/ui/` contains UI helpers shared across pages, such as theme handling.
 - `vendor/` contains vendored browser dependencies.
 
-Legacy top-level page URLs such as `lifecycle.html` and `asset-report.html` are kept as lightweight redirects for backward compatibility.
+Canonical routes are:
+
+- `/`
+- `/lifecycle/`
+- `/ordering-guides/`
+- `/asset-reports/`
+- `/lab-portal/`
+
+Legacy top-level page URLs such as `lifecycle.html` and `asset-report.html` are kept only as lightweight redirects for backward compatibility.
 
 ## Usage Notes
 

@@ -23,15 +23,23 @@ The codebase is now organized by feature instead of keeping every page module fl
 - `index.html`
   - Main FortiSKU Finder page
 - `lifecycle/`
-  - LifeCycle lookup page
+  - Canonical LifeCycle lookup page
 - `ordering-guides/`
-  - Ordering Guides page
+  - Canonical Ordering Guides page
 - `asset-reports/`
-  - Asset Report builder page
+  - Canonical Asset Report builder page
 - `lab-portal/`
-  - Lab Portal Generator page
+  - Canonical Lab Portal Generator page
 
-Legacy page URLs are still present as lightweight redirect files for backward compatibility:
+Canonical browser routes are:
+
+- `/`
+- `/lifecycle/`
+- `/ordering-guides/`
+- `/asset-reports/`
+- `/lab-portal/`
+
+Legacy page URLs are still present only as lightweight redirect files for backward compatibility:
 
 - `lifecycle.html`
 - `ordering.html`
@@ -177,6 +185,8 @@ python3 -m http.server 5173
   - `/ordering-guides/`
   - `/asset-reports/`
   - `/lab-portal/`
+
+- Legacy file-based URLs should not be used for new links or documentation.
 
 ## Recommended Next Steps
 
