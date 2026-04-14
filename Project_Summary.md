@@ -24,7 +24,7 @@ The codebase is now organized by feature instead of keeping every page module fl
   - Main FortiSKU Finder page and current toolbox landing page
 - `fortisku/`
   - Optional compatibility alias for the finder route
-- `lifecycle/`
+- `hardware-lifecycle/`
   - Canonical Hardware LifeCycle lookup page
 - `ordering-guides/`
   - Canonical Ordering Guides page
@@ -36,14 +36,13 @@ The codebase is now organized by feature instead of keeping every page module fl
 Primary browser routes are:
 
 - `/`
-- `/lifecycle/`
+- `/hardware-lifecycle/`
 - `/ordering-guides/`
 - `/asset-reports/`
 - `/lab-portal/`
 
 Legacy page URLs are still present only as lightweight redirect files for backward compatibility:
 
-- `lifecycle.html`
 - `ordering.html`
 - `asset-report.html`
 - `Lab-Portal-Generator.html`
@@ -52,8 +51,8 @@ Legacy page URLs are still present only as lightweight redirect files for backwa
 
 - `src/features/finder/`
   - Main SKU finder logic, UI, BOM support
-- `src/features/lifecycle-rss/`
-  - Hardware LifeCycle RSS parsing, storage, search, UI
+- `src/features/hardware-lifecycle/`
+  - Hardware LifeCycle parsing, storage, search, UI
 - `src/features/ordering-guides/`
   - Ordering Guide page logic and UI
 - `src/features/asset-reports/`
@@ -94,7 +93,7 @@ Key modules:
 
 ### 2. LifeCycle Lookup
 
-Primary page: `lifecycle/index.html`
+Primary page: `hardware-lifecycle/index.html`
 
 Purpose:
 - Refresh hardware lifecycle data from the Fortinet RSS feed
@@ -103,10 +102,10 @@ Purpose:
 - Search lifecycle-specific records through a dedicated UI
 
 Key modules:
-- `src/features/lifecycle-rss/main.js`
-- `src/features/lifecycle-rss/rss.js`
-- `src/features/lifecycle-rss/storage.js`
-- `src/features/lifecycle-rss/ui.js`
+- `src/features/hardware-lifecycle/main.js`
+- `src/features/hardware-lifecycle/rss.js`
+- `src/features/hardware-lifecycle/storage.js`
+- `src/features/hardware-lifecycle/ui.js`
 
 ### 3. Ordering Guides
 
@@ -183,7 +182,7 @@ python3 -m http.server 5173
 
 - Main entry URLs:
   - `/`
-  - `/lifecycle/`
+  - `/hardware-lifecycle/`
   - `/ordering-guides/`
   - `/asset-reports/`
   - `/lab-portal/`

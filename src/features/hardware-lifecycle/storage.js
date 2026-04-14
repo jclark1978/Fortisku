@@ -2,7 +2,7 @@ import { get, set, del } from "../../../vendor/idb-keyval.mjs";
 
 export const LIFECYCLE_RSS_SCHEMA_VERSION = "1";
 
-const KEY_PREFIX = "fortisku-lifecycle-rss";
+const KEY_PREFIX = "fortisku-hardware-lifecycle";
 const KEY_ROWS = `${KEY_PREFIX}:rows:v${LIFECYCLE_RSS_SCHEMA_VERSION}`;
 const KEY_INDEX = `${KEY_PREFIX}:index:v${LIFECYCLE_RSS_SCHEMA_VERSION}`;
 const KEY_META = `${KEY_PREFIX}:meta:v${LIFECYCLE_RSS_SCHEMA_VERSION}`;

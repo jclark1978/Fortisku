@@ -67,7 +67,7 @@ export function initLifecycleRssUI(handlers) {
 
   clearButton.addEventListener("click", () => {
     if (!datasetLoaded) return;
-    const confirmed = window.confirm("Clear the stored LifeCycle RSS dataset?");
+    const confirmed = window.confirm("Clear the stored Hardware LifeCycle data?");
     if (confirmed) {
       onClear();
     }

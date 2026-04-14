@@ -3,7 +3,7 @@ import {
   createLifecycleSearchIndex,
   loadLifecycleSearchIndex,
   searchLifecycleRows
-} from "../lifecycle/search.js";
+} from "./search.js";
 import {
   clearLifecycleRssPersisted,
   estimateLifecycleRssSizeBytes,
@@ -31,7 +31,7 @@ const ui = initLifecycleRssUI({
   onSearch: handleSearch
 });
 
-initToolboxNav({ current: "lifecycle", basePath: "../" });
+initToolboxNav({ current: "hardware-lifecycle", basePath: "../" });
 initThemeToggle();
 bootstrap();
 
@@ -61,9 +61,9 @@ async function bootstrap() {
       ui.renderDatasetEmpty();
     }
   } catch (error) {
-    console.error("Failed to restore LifeCycle RSS data", error);
+    console.error("Failed to restore Hardware LifeCycle data", error);
     ui.renderDatasetEmpty();
-    ui.showStatus("error", error.message || "Failed to load stored LifeCycle RSS data.");
+    ui.showStatus("error", error.message || "Failed to load stored Hardware LifeCycle data.");
   }
 }
 
@@ -88,7 +88,7 @@ async function handleImportText(xmlText) {
       { dismissAfter: 4500 }
     );
   } catch (error) {
-    console.error("Failed to import pasted LifeCycle RSS XML", error);
+    console.error("Failed to import pasted Hardware LifeCycle XML", error);
     ui.showModalStatus("error", error.message || "Failed to import pasted RSS XML.", {
       dismissAfter: 7000
     });
@@ -125,7 +125,7 @@ async function handleImportClipboard() {
         { dismissAfter: 4500 }
       );
     } catch (error) {
-      console.error("Failed to import clipboard LifeCycle RSS XML", error);
+      console.error("Failed to import clipboard Hardware LifeCycle XML", error);
       ui.setPasteInputValue(clipboardText);
       ui.showModalStatus(
         "warn",
@@ -157,7 +157,7 @@ function handleOpenModal() {
 
 async function handleClear() {
   if (!rows.length && !miniSearch) {
-    ui.showStatus("info", "LifeCycle RSS store is already empty.");
+    ui.showStatus("info", "Hardware LifeCycle data is already empty.");
     return;
   }
 
@@ -169,7 +169,7 @@ async function handleClear() {
 
   ui.renderDatasetEmpty();
   ui.enableSearch(false);
-  ui.showStatus("success", "Cleared stored LifeCycle RSS dataset.");
+  ui.showStatus("success", "Cleared stored Hardware LifeCycle data.");
 }
 
 function handleSearch(query) {
