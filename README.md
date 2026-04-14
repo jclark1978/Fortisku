@@ -1,11 +1,11 @@
 # Fortinet SE Toolbox
 
-Fortinet SE Toolbox is a static, browser-only suite of utilities for common Fortinet SE workflows. It currently includes FortiSKU Finder, LifeCycle lookup, Ordering Guides lookup, Asset Reports, and the Lab Portal Generator.
+Fortinet SE Toolbox is a static, browser-only suite of utilities for common Fortinet SE workflows. It currently includes FortiSKU Finder, Hardware LifeCycle lookup, Ordering Guides lookup, Asset Reports, and the Lab Portal Generator.
 
 ## Features
 
 - FortiSKU Finder for pricelist ingestion, search, export, and BOM building
-- LifeCycle lookup for milestone and support-planning searches
+- Hardware LifeCycle lookup for milestone and support-planning searches using the Fortinet RSS feed
 - Ordering Guides lookup for cross-referencing guides and related products
 - Asset Report generation from customer workbook inputs
 - Lab Portal Generator for demo portal handoff workflows
@@ -40,10 +40,10 @@ No backend or server-side computation is required.
 ## Project Layout
 
 - `index.html` is the main FortiSKU Finder experience and current landing page for the toolbox.
-- `lifecycle/`, `ordering-guides/`, `asset-reports/`, and `lab-portal/` each contain the canonical page entrypoint for a separate workflow.
+- `lifecycle/`, `lifecycle-rss/`, `ordering-guides/`, `asset-reports/`, and `lab-portal/` each contain a page entrypoint for a separate workflow.
 - `src/features/` groups browser logic by product surface:
   - `finder/`
-  - `lifecycle/`
+  - `lifecycle-rss/` for the RSS-based flow
   - `ordering-guides/`
   - `asset-reports/`
 - `src/shared/data/` contains workbook/search/storage helpers shared across pages.
@@ -54,6 +54,7 @@ Primary routes are:
 
 - `/`
 - `/lifecycle/`
+- `/lifecycle-rss/`
 - `/ordering-guides/`
 - `/asset-reports/`
 - `/lab-portal/`

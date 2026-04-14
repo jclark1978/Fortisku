@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FortiSKU LifeCycle</title>
+  <title>FortiSKU Hardware LifeCycle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="../src/shared/ui/toolbox-shell.css" />
   <script>
@@ -104,29 +104,6 @@
       margin-bottom: 0.75rem;
     }
 
-    .upload-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.65rem;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--brand-border);
-      background: #ffffff;
-      color: var(--brand-text);
-      cursor: pointer;
-      font-weight: 600;
-      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
-    }
-
-    .upload-label:hover {
-      background: var(--brand-surface);
-      color: var(--brand-black);
-    }
-
-    .upload-label input[type="file"] {
-      display: none;
-    }
-
     button {
       border: none;
       border-radius: 8px;
@@ -155,27 +132,6 @@
 
     button.secondary:hover:not(:disabled) {
       background: var(--brand-surface);
-    }
-
-    .action-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      padding: 0.6rem 1rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      text-decoration: none;
-      background: #fff;
-      color: var(--brand-text);
-      border: 1px solid var(--brand-border);
-      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
-    }
-
-    .action-link:hover {
-      background: var(--brand-surface);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(218, 41, 28, 0.16);
     }
 
     button:hover:not(:disabled) {
@@ -266,6 +222,93 @@
       background: #ffffff;
     }
 
+    .paste-box {
+      width: 100%;
+      min-height: 180px;
+      border-radius: 12px;
+      border: 1px solid var(--brand-border);
+      padding: 0.85rem 1rem;
+      font: 0.9rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: inherit;
+      background: #ffffff;
+      resize: vertical;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .paste-box[hidden] {
+      display: none;
+    }
+
+    .paste-box:focus {
+      outline: none;
+      border-color: var(--brand-red);
+      box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.2);
+    }
+
+    .rss-modal {
+      width: min(760px, calc(100vw - 2rem));
+      border: 1px solid var(--brand-border);
+      border-radius: 16px;
+      padding: 0;
+      background: var(--brand-panel);
+      color: var(--brand-text);
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.28);
+    }
+
+    .rss-modal::backdrop {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+    }
+
+    .rss-modal-content {
+      padding: 1.25rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .rss-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .rss-modal-header h3 {
+      margin: 0;
+      font-size: 1.15rem;
+      color: var(--brand-black);
+    }
+
+    .rss-modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .rss-modal-status {
+      min-height: 1.25rem;
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--brand-text-muted);
+    }
+
+    .rss-modal-status.info {
+      color: var(--brand-text-muted);
+    }
+
+    .rss-modal-status.success {
+      color: #2a7d59;
+    }
+
+    .rss-modal-status.warn {
+      color: #7b5ab3;
+    }
+
+    .rss-modal-status.error {
+      color: var(--brand-danger);
+    }
+
     .search-summary {
       font-size: 0.95rem;
       color: var(--brand-text-muted);
@@ -315,75 +358,6 @@
       color: var(--brand-text-muted);
     }
 
-    .stage-grid {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      margin-top: 1.25rem;
-    }
-
-    .stage-card {
-      border: 1px solid var(--brand-border);
-      border-radius: 12px;
-      padding: 1rem;
-      background: var(--brand-surface-alt);
-    }
-
-    .stage-card h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1.1rem;
-      color: var(--brand-black);
-    }
-
-    .stage-card p {
-      margin: 0;
-      font-size: 0.95rem;
-      color: var(--brand-text-muted);
-    }
-
-    .timeline {
-      border-radius: 12px;
-      border: 1px dashed var(--brand-border);
-      padding: 1.25rem;
-      background: #ffffff;
-      display: grid;
-      gap: 1rem;
-    }
-
-    .timeline-step {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .timeline-step span {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2rem;
-      height: 2rem;
-      border-radius: 999px;
-      background: var(--brand-red);
-      color: #ffffff;
-      font-weight: 600;
-    }
-
-    .timeline-step div {
-      flex: 1;
-    }
-
-    .timeline-step h3 {
-      margin: 0 0 0.35rem;
-      font-size: 1.05rem;
-      color: var(--brand-black);
-    }
-
-    .timeline-step p {
-      margin: 0;
-      font-size: 0.95rem;
-      color: var(--brand-text-muted);
-    }
-
     footer {
       margin-top: 2rem;
       text-align: center;
@@ -403,9 +377,7 @@
     body.theme-dark header p,
     body.theme-dark section p,
     body.theme-dark .search-summary,
-    body.theme-dark footer,
-    body.theme-dark .timeline-step p,
-    body.theme-dark .stage-card p {
+    body.theme-dark footer {
       color: #f0f0f0;
     }
 
@@ -425,12 +397,6 @@
       border-color: var(--brand-red);
       color: #ffffff;
       box-shadow: 0 6px 14px rgba(218, 41, 28, 0.35);
-    }
-
-    body.theme-dark .action-link {
-      background: #646464;
-      color: #ffffff;
-      border-color: #969696;
     }
 
     body.theme-dark .theme-toggle-track {
@@ -454,23 +420,14 @@
       border: 1px solid #c8c8c8;
     }
 
-    body.theme-dark section,
-    body.theme-dark .stage-card,
-    body.theme-dark .timeline {
+    body.theme-dark section {
       background: #464646;
       border-color: #969696;
       color: #ffffff;
     }
 
-    body.theme-dark .panel-header h2,
-    body.theme-dark .stage-card h3,
-    body.theme-dark .timeline-step h3,
-    body.theme-dark .timeline-step span {
+    body.theme-dark .panel-header h2 {
       color: #ffffff;
-    }
-
-    body.theme-dark .timeline-step span {
-      background: var(--brand-red);
     }
 
     body.theme-dark .dataset-meta dd {
@@ -492,12 +449,10 @@
 
     body.theme-dark thead,
     body.theme-dark tbody tr:hover,
-    body.theme-dark .upload-label,
     body.theme-dark button.secondary {
       background: #646464;
     }
 
-    body.theme-dark .upload-label,
     body.theme-dark button.secondary {
       border-color: #969696;
       color: #ffffff;
@@ -509,7 +464,45 @@
       border-color: #969696;
     }
 
+    body.theme-dark .paste-box {
+      background: #3f3f3f;
+      color: #ffffff;
+      border-color: #969696;
+    }
+
+    body.theme-dark .rss-modal {
+      background: #464646;
+      border-color: #969696;
+      color: #ffffff;
+    }
+
+    body.theme-dark .rss-modal-header h3 {
+      color: #ffffff;
+    }
+
+    body.theme-dark .rss-modal-status.info {
+      color: #c8c8c8;
+    }
+
+    body.theme-dark .rss-modal-status.success {
+      color: #7fe3b5;
+    }
+
+    body.theme-dark .rss-modal-status.warn {
+      color: #d5c4f0;
+    }
+
+    body.theme-dark .rss-modal-status.error {
+      color: #ffb0aa;
+    }
+
     body.theme-dark .search-controls input[type="search"]:focus {
+      border-color: var(--brand-red);
+      box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.25);
+      background: #464646;
+    }
+
+    body.theme-dark .paste-box:focus {
       border-color: var(--brand-red);
       box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.25);
       background: #464646;
@@ -526,6 +519,7 @@
     body.theme-dark .status-message.error {
       color: #ffb0aa;
     }
+
     @media (max-width: 720px) {
       .header-row {
         flex-direction: column;
@@ -536,6 +530,7 @@
         width: auto;
         align-self: flex-start;
       }
+
       .dataset-actions {
         flex-direction: column;
         align-items: stretch;
@@ -550,16 +545,6 @@
         flex-direction: column;
         align-items: stretch;
       }
-
-      .timeline-step {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .timeline-step span {
-        width: 1.8rem;
-        height: 1.8rem;
-      }
     }
   </style>
 </head>
@@ -568,8 +553,8 @@
     <header>
       <div class="header-row">
         <div>
-          <h1>Product LifeCycle</h1>
-          <p>Track Fortinet hardware and subscription milestones so you can plan ahead for customers.</p>
+          <h1>Hardware LifeCycle</h1>
+          <p>Refresh Fortinet hardware lifecycle milestone data from the RSS feed and search product codes locally.</p>
         </div>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color mode" aria-pressed="false">
           <span class="theme-toggle-track" aria-hidden="true">
@@ -585,50 +570,47 @@
     <main>
       <section class="panel" aria-labelledby="dataset-heading">
         <div class="panel-header">
-          <h2 id="dataset-heading">LifeCycle workbook</h2>
-          <span id="lc-dataset-spinner" class="spinner" hidden>Processing workbook…</span>
+          <h2 id="dataset-heading">Hardware LifeCycle RSS feed</h2>
+          <span id="lcr-dataset-spinner" class="spinner" hidden>Processing XML…</span>
         </div>
-        <p>Upload the latest Fortinet LifeCycle export to quickly view milestone dates for each product code.</p>
+        <p>Upload an RSS XML file to test product lifecycle lookup without relying on the live Fortinet feed yet.</p>
 
         <dl class="dataset-meta">
           <div>
-            <dt>Sheet</dt>
-            <dd id="lc-dataset-sheet">—</dd>
+            <dt>Feed</dt>
+            <dd id="lcr-dataset-feed">—</dd>
           </div>
           <div>
             <dt>Rows</dt>
-            <dd id="lc-dataset-rows">0</dd>
+            <dd id="lcr-dataset-rows">0</dd>
           </div>
           <div>
-            <dt>Last Updated</dt>
-            <dd id="lc-dataset-updated">—</dd>
+            <dt>RSS Updated</dt>
+            <dd id="lcr-dataset-updated">—</dd>
           </div>
           <div>
             <dt>Approx Size</dt>
-            <dd id="lc-dataset-size">0 B</dd>
+            <dd id="lcr-dataset-size">0 B</dd>
           </div>
         </dl>
 
         <div class="dataset-actions">
-          <label class="upload-label">
-            <span>Upload workbook (.xlsx)</span>
-            <input id="lc-file-input" type="file" accept=".xlsx" />
-          </label>
-          <button id="lc-clear-button" type="button" class="secondary">Clear stored data</button>
+          <button id="lcr-open-modal-button" type="button">Refresh from RSS</button>
+          <button id="lcr-clear-button" type="button" class="secondary">Clear stored data</button>
         </div>
 
-        <p id="lc-dataset-status" class="status-message info" role="status" aria-live="polite"></p>
+        <p id="lcr-dataset-status" class="status-message info" role="status" aria-live="polite"></p>
       </section>
 
       <section class="panel" aria-labelledby="lookup-heading">
         <div class="panel-header">
           <h2 id="lookup-heading">Search</h2>
-          <span id="lc-search-summary" class="search-summary"></span>
+          <span id="lcr-search-summary" class="search-summary"></span>
         </div>
 
         <div class="search-controls">
           <input
-            id="lc-search-input"
+            id="lcr-search-input"
             type="search"
             placeholder="FortiGate 90D"
             aria-label="Search product code"
@@ -637,7 +619,7 @@
         </div>
 
         <div class="results-wrapper">
-          <table id="lc-results-table" aria-live="polite">
+          <table id="lcr-results-table" aria-live="polite">
             <thead>
               <tr>
                 <th scope="col">Product</th>
@@ -646,21 +628,47 @@
                 <th scope="col">End of Support Date</th>
               </tr>
             </thead>
-            <tbody id="lc-results-body">
+            <tbody id="lcr-results-body">
               <tr class="empty-state">
-                <td colspan="4">Upload a workbook to enable search.</td>
+                <td colspan="4">Refresh from RSS to enable search.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
-
     </main>
 
     <footer>
-      FortiSKU LifeCycle guidance is informational. Confirm key milestones with official Fortinet notices.
+      FortiSKU Hardware LifeCycle guidance is informational. Confirm key milestones with official Fortinet notices.
     </footer>
   </div>
-  <script type="module" src="../src/features/lifecycle/main.js"></script>
+
+  <dialog id="lcr-modal" class="rss-modal" aria-labelledby="lcr-modal-title">
+    <div class="rss-modal-content">
+      <div class="rss-modal-header">
+        <h3 id="lcr-modal-title">Refresh from Fortinet RSS</h3>
+        <button id="lcr-close-modal-button" type="button" class="secondary">Close</button>
+      </div>
+
+      <p>Open the Fortinet RSS feed in a new tab, select all, copy the XML, then click Paste from clipboard.</p>
+
+      <div class="rss-modal-actions">
+        <button id="lcr-open-button" type="button">Open Fortinet RSS</button>
+        <button id="lcr-paste-clipboard-button" type="button" class="secondary">Paste from clipboard</button>
+      </div>
+
+      <p id="lcr-modal-status" class="rss-modal-status info" role="status" aria-live="polite"></p>
+
+      <textarea
+        id="lcr-paste-input"
+        class="paste-box"
+        hidden
+        spellcheck="false"
+        placeholder="Paste the Fortinet RSS XML here, then press Ctrl+Enter to import..."
+        aria-label="Paste RSS XML"
+      ></textarea>
+    </div>
+  </dialog>
+  <script type="module" src="../src/features/lifecycle-rss/main.js"></script>
 </body>
 </html>

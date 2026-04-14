@@ -16,38 +16,58 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 
 const BYTES_UNITS = ["B", "KB", "MB", "GB", "TB"];
 
-export function initLifecycleUI(handlers) {
-  const onUpload = handlers.onUpload || (() => {});
+export function initLifecycleRssUI(handlers) {
+  const onImportText = handlers.onImportText || (() => {});
+  const onImportClipboard = handlers.onImportClipboard || (() => {});
+  const onOpenFeed = handlers.onOpenFeed || (() => {});
+  const onOpenModal = handlers.onOpenModal || (() => {});
   const onClear = handlers.onClear || (() => {});
   const onSearch = handlers.onSearch || (() => {});
 
-  const fileInput = document.getElementById("lc-file-input");
-  const clearButton = document.getElementById("lc-clear-button");
-  const searchInput = document.getElementById("lc-search-input");
-  const searchSummary = document.getElementById("lc-search-summary");
-  const resultsBody = document.getElementById("lc-results-body");
-  const spinner = document.getElementById("lc-dataset-spinner");
-  const statusEl = document.getElementById("lc-dataset-status");
+  const openModalButton = document.getElementById("lcr-open-modal-button");
+  const openButton = document.getElementById("lcr-open-button");
+  const pasteClipboardButton = document.getElementById("lcr-paste-clipboard-button");
+  const closeModalButton = document.getElementById("lcr-close-modal-button");
+  const modal = document.getElementById("lcr-modal");
+  const pasteInput = document.getElementById("lcr-paste-input");
+  const modalStatusEl = document.getElementById("lcr-modal-status");
+  const clearButton = document.getElementById("lcr-clear-button");
+  const searchInput = document.getElementById("lcr-search-input");
+  const searchSummary = document.getElementById("lcr-search-summary");
+  const resultsBody = document.getElementById("lcr-results-body");
+  const spinner = document.getElementById("lcr-dataset-spinner");
+  const statusEl = document.getElementById("lcr-dataset-status");
 
-  const datasetSheet = document.getElementById("lc-dataset-sheet");
-  const datasetRows = document.getElementById("lc-dataset-rows");
-  const datasetUpdated = document.getElementById("lc-dataset-updated");
-  const datasetSize = document.getElementById("lc-dataset-size");
+  const datasetFeed = document.getElementById("lcr-dataset-feed");
+  const datasetRows = document.getElementById("lcr-dataset-rows");
+  const datasetUpdated = document.getElementById("lcr-dataset-updated");
+  const datasetSize = document.getElementById("lcr-dataset-size");
 
   let statusTimeoutId = null;
+  let modalStatusTimeoutId = null;
   let datasetLoaded = false;
+  let manualPasteMode = false;
 
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files && fileInput.files[0];
-    if (file) {
-      onUpload({ file });
+  openModalButton.addEventListener("click", () => {
+    openModal();
+    onOpenModal();
+  });
+
+  openButton.addEventListener("click", () => {
+    onOpenFeed();
+  });
+
+  pasteClipboardButton.addEventListener("click", () => {
+    if (manualPasteMode) {
+      onImportText(pasteInput.value);
+      return;
     }
-    fileInput.value = "";
+    onImportClipboard();
   });
 
   clearButton.addEventListener("click", () => {
     if (!datasetLoaded) return;
-    const confirmed = window.confirm("Clear the stored LifeCycle dataset?");
+    const confirmed = window.confirm("Clear the stored LifeCycle RSS dataset?");
     if (confirmed) {
       onClear();
     }
@@ -58,12 +78,27 @@ export function initLifecycleUI(handlers) {
     debouncedSearch(event.target.value);
   });
 
+  pasteInput.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      onImportText(pasteInput.value);
+    }
+  });
+
+  closeModalButton.addEventListener("click", () => {
+    closeModal();
+  });
+
+  modal.addEventListener("cancel", () => {
+    closeModal();
+  });
+
   function renderDatasetReady(meta, storedBytes) {
     datasetLoaded = true;
     spinner.hidden = true;
-    datasetSheet.textContent = meta.sheetName || "—";
+    datasetFeed.textContent = meta.feedTitle || "—";
     datasetRows.textContent = numberFormatter.format(meta.rowCount ?? 0);
-    datasetUpdated.textContent = meta.updatedAt ? formatDate(meta.updatedAt) : "—";
+    datasetUpdated.textContent = meta.feedUpdatedAt ? formatDate(meta.feedUpdatedAt) : "—";
     datasetSize.textContent = formatBytes(storedBytes ?? meta.storedBytes ?? 0);
     clearButton.disabled = false;
   }
@@ -71,7 +106,7 @@ export function initLifecycleUI(handlers) {
   function renderDatasetEmpty() {
     datasetLoaded = false;
     spinner.hidden = true;
-    datasetSheet.textContent = "—";
+    datasetFeed.textContent = "—";
     datasetRows.textContent = "0";
     datasetUpdated.textContent = "—";
     datasetSize.textContent = "0 B";
@@ -96,11 +131,58 @@ export function initLifecycleUI(handlers) {
 
   function setLoading(isLoading, message) {
     spinner.hidden = !isLoading;
-    fileInput.disabled = isLoading;
+    openModalButton.disabled = isLoading;
+    openButton.disabled = isLoading;
+    pasteClipboardButton.disabled = isLoading;
+    pasteInput.disabled = isLoading;
     clearButton.disabled = isLoading || !datasetLoaded;
     if (isLoading && message) {
       showStatus("info", message);
     }
+  }
+
+  function clearPasteInput() {
+    pasteInput.value = "";
+    pasteInput.hidden = true;
+    setClipboardMode();
+  }
+
+  function setPasteInputValue(value) {
+    pasteInput.value = value;
+    pasteInput.hidden = false;
+    setManualPasteMode();
+    pasteInput.focus();
+  }
+
+  function showPasteInput() {
+    pasteInput.hidden = false;
+    setManualPasteMode();
+    pasteInput.focus();
+  }
+
+  function openModal() {
+    if (typeof modal.showModal === "function" && !modal.open) {
+      modal.showModal();
+    }
+    if (pasteInput.hidden) {
+      setClipboardMode();
+    }
+  }
+
+  function closeModal() {
+    if (modal.open) {
+      modal.close();
+    }
+  }
+
+  function setClipboardMode() {
+    manualPasteMode = false;
+    pasteClipboardButton.textContent = "Paste from clipboard";
+  }
+
+  function setManualPasteMode() {
+    manualPasteMode = true;
+    pasteClipboardButton.textContent = "Import pasted XML";
   }
 
   function showStatus(level, message, options = {}) {
@@ -121,6 +203,25 @@ export function initLifecycleUI(handlers) {
     }
   }
 
+  function showModalStatus(level, message, options = {}) {
+    const dismissAfter = options.dismissAfter ?? STATUS_TIMEOUT_DEFAULT;
+    modalStatusEl.textContent = message;
+    modalStatusEl.className = `rss-modal-status ${level}`;
+
+    if (modalStatusTimeoutId) {
+      window.clearTimeout(modalStatusTimeoutId);
+      modalStatusTimeoutId = null;
+    }
+
+    if (dismissAfter > 0) {
+      modalStatusTimeoutId = window.setTimeout(() => {
+        modalStatusEl.textContent = "";
+        modalStatusEl.className = "rss-modal-status info";
+        modalStatusTimeoutId = null;
+      }, dismissAfter);
+    }
+  }
+
   function renderResults(rows, summary) {
     resultsBody.innerHTML = "";
 
@@ -135,7 +236,7 @@ export function initLifecycleUI(handlers) {
       td.colSpan = 4;
 
       if (!datasetLoaded) {
-        td.textContent = "Upload a workbook to enable search.";
+        td.textContent = "Refresh from RSS to enable search.";
       } else if (query) {
         td.textContent = `No matches for “${truncate(query, 80)}”.`;
       } else {
@@ -199,7 +300,12 @@ export function initLifecycleUI(handlers) {
     focusSearch,
     setLoading,
     showStatus,
-    renderResults
+    showModalStatus,
+    renderResults,
+    clearPasteInput,
+    setPasteInputValue,
+    showPasteInput,
+    closeModal
   };
 }
 

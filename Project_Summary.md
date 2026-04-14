@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fortisku is a static, browser-only toolkit for working with Fortinet spreadsheet-based data and lightweight internal workflows. It runs entirely client-side, uses no backend, and can be served from any simple static host.
+Fortisku is a static, browser-only toolkit for working with Fortinet data and lightweight internal workflows. It runs entirely client-side, uses no backend, and can be served from any simple static host.
 
 The project started as a SKU finder and has grown into a small suite of related tools for a Fortinet SE:
 
@@ -25,7 +25,7 @@ The codebase is now organized by feature instead of keeping every page module fl
 - `fortisku/`
   - Optional compatibility alias for the finder route
 - `lifecycle/`
-  - Canonical LifeCycle lookup page
+  - Canonical Hardware LifeCycle lookup page
 - `ordering-guides/`
   - Canonical Ordering Guides page
 - `asset-reports/`
@@ -52,8 +52,8 @@ Legacy page URLs are still present only as lightweight redirect files for backwa
 
 - `src/features/finder/`
   - Main SKU finder logic, UI, BOM support
-- `src/features/lifecycle/`
-  - LifeCycle workbook ingestion, storage, search, UI
+- `src/features/lifecycle-rss/`
+  - Hardware LifeCycle RSS parsing, storage, search, UI
 - `src/features/ordering-guides/`
   - Ordering Guide page logic and UI
 - `src/features/asset-reports/`
@@ -97,16 +97,16 @@ Key modules:
 Primary page: `lifecycle/index.html`
 
 Purpose:
-- Upload a lifecycle workbook
+- Refresh hardware lifecycle data from the Fortinet RSS feed
+- Import RSS XML through a guided modal workflow
 - Store normalized lifecycle rows in IndexedDB
 - Search lifecycle-specific records through a dedicated UI
 
 Key modules:
-- `src/features/lifecycle/main.js`
-- `src/features/lifecycle/ingest.js`
-- `src/features/lifecycle/search.js`
-- `src/features/lifecycle/storage.js`
-- `src/features/lifecycle/ui.js`
+- `src/features/lifecycle-rss/main.js`
+- `src/features/lifecycle-rss/rss.js`
+- `src/features/lifecycle-rss/storage.js`
+- `src/features/lifecycle-rss/ui.js`
 
 ### 3. Ordering Guides
 

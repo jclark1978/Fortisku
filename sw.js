@@ -1,9 +1,10 @@
-const CACHE_NAME = "fortisku-cache-v13";
+const CACHE_NAME = "fortisku-cache-v16";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./fortisku/",
   "./lifecycle/",
+  "./lifecycle-rss/",
   "./ordering-guides/",
   "./asset-reports/",
   "./lab-portal/",
@@ -15,11 +16,10 @@ const APP_SHELL = [
   "./src/features/finder/ui.js",
   "./src/features/finder/bom.js",
   "./src/features/finder/bomExport.js",
-  "./src/features/lifecycle/main.js",
-  "./src/features/lifecycle/ingest.js",
-  "./src/features/lifecycle/search.js",
-  "./src/features/lifecycle/storage.js",
-  "./src/features/lifecycle/ui.js",
+  "./src/features/lifecycle-rss/main.js",
+  "./src/features/lifecycle-rss/rss.js",
+  "./src/features/lifecycle-rss/storage.js",
+  "./src/features/lifecycle-rss/ui.js",
   "./src/features/ordering-guides/main.js",
   "./src/features/ordering-guides/ui.js",
   "./src/features/asset-reports/main.js",

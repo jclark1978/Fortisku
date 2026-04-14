@@ -1,6 +1,6 @@
 const TOOLBOX_LINKS = [
   { key: "finder", label: "FortiSKU Finder", href: "" },
-  { key: "lifecycle", label: "LifeCycle", href: "lifecycle/" },
+  { key: "lifecycle", label: "Hardware LifeCycle", href: "lifecycle/" },
   { key: "ordering-guides", label: "Ordering Guides", href: "ordering-guides/" },
   { key: "asset-reports", label: "Asset Reports", href: "asset-reports/" },
   { key: "lab-portal", label: "Lab Portal Generator", href: "lab-portal/" }
