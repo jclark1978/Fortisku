@@ -4,7 +4,7 @@
 
 Fortisku is a static, browser-only toolkit for working with Fortinet spreadsheet-based data and lightweight internal workflows. It runs entirely client-side, uses no backend, and can be served from any simple static host.
 
-The project started as a SKU finder and has grown into a small suite of related tools:
+The project started as a SKU finder and has grown into a small suite of related tools for a Fortinet SE:
 
 - FortiSKU Finder
 - LifeCycle lookup
@@ -21,7 +21,9 @@ The codebase is now organized by feature instead of keeping every page module fl
 ### Top-level pages
 
 - `index.html`
-  - Main FortiSKU Finder page
+  - Main FortiSKU Finder page and current toolbox landing page
+- `fortisku/`
+  - Optional compatibility alias for the finder route
 - `lifecycle/`
   - Canonical LifeCycle lookup page
 - `ordering-guides/`
@@ -31,7 +33,7 @@ The codebase is now organized by feature instead of keeping every page module fl
 - `lab-portal/`
   - Canonical Lab Portal Generator page
 
-Canonical browser routes are:
+Primary browser routes are:
 
 - `/`
 - `/lifecycle/`
@@ -59,7 +61,7 @@ Legacy page URLs are still present only as lightweight redirect files for backwa
 - `src/shared/data/`
   - Shared ingestion, search, storage, and CSV helpers
 - `src/shared/ui/`
-  - Shared UI helpers like theme handling
+  - Shared UI helpers like theme handling, toolbox navigation, and shared page-shell styling
 - `vendor/`
   - Vendored client-side dependencies:
     - `xlsx`

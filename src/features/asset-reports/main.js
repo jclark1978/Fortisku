@@ -1,4 +1,5 @@
 import { initThemeToggle } from "../../shared/ui/theme.js";
+import { initToolboxNav } from "../../shared/ui/nav.js";
 import { buildAssetReportWorkbook, buildOutputFilename, inspectAssetWorkbook } from "./workbook.js";
 import { initAssetReportUI } from "./ui.js";
 
@@ -12,6 +13,7 @@ const ui = initAssetReportUI({
   getOutputFilename: (customerName) => buildOutputFilename(customerName, inspectedWorkbook?.sourceFilename || "")
 });
 
+initToolboxNav({ current: "asset-reports", basePath: "../" });
 initThemeToggle();
 ui.setReadyState();
 

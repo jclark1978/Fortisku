@@ -20,6 +20,7 @@ import {
 } from "./bom.js";
 import { exportBomToCsv } from "./bomExport.js";
 import { initThemeToggle } from "../../shared/ui/theme.js";
+import { initToolboxNav } from "../../shared/ui/nav.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -44,6 +45,7 @@ const ui = initUI({
   onClearBom: handleClearBom
 });
 
+initToolboxNav({ current: "finder", basePath: "./" });
 initThemeToggle();
 bootstrap();
 

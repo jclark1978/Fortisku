@@ -11,6 +11,7 @@ import {
 } from "../../shared/data/storage.js";
 import { initOrderingGuideUI } from "./ui.js";
 import { initThemeToggle } from "../../shared/ui/theme.js";
+import { initToolboxNav } from "../../shared/ui/nav.js";
 
 let allRows = [];
 
@@ -20,6 +21,7 @@ const ui = initOrderingGuideUI({
   onClear: handleClear
 });
 
+initToolboxNav({ current: "ordering-guides", basePath: "../" });
 initThemeToggle();
 bootstrap();
 

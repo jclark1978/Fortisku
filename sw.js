@@ -1,7 +1,8 @@
-const CACHE_NAME = "fortisku-cache-v9";
+const CACHE_NAME = "fortisku-cache-v13";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./fortisku/",
   "./lifecycle/",
   "./ordering-guides/",
   "./asset-reports/",
@@ -25,6 +26,8 @@ const APP_SHELL = [
   "./src/features/asset-reports/ui.js",
   "./src/features/asset-reports/workbook.js",
   "./src/shared/ui/theme.js",
+  "./src/shared/ui/nav.js",
+  "./src/shared/ui/toolbox-shell.css",
   "./src/shared/data/ingest.js",
   "./src/shared/data/search.js",
   "./src/shared/data/storage.js",

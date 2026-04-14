@@ -12,6 +12,7 @@ import {
 } from "./storage.js";
 import { initLifecycleUI } from "./ui.js";
 import { initThemeToggle } from "../../shared/ui/theme.js";
+import { initToolboxNav } from "../../shared/ui/nav.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -26,6 +27,7 @@ const ui = initLifecycleUI({
   onSearch: handleSearch
 });
 
+initToolboxNav({ current: "lifecycle", basePath: "../" });
 initThemeToggle();
 bootstrap();
 

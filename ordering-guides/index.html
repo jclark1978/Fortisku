@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>FortiSKU Ordering Guides</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../src/shared/ui/toolbox-shell.css" />
   <script>
     (function () {
       var key = "fortisku-theme";
@@ -40,142 +41,6 @@
     })();
   </script>
   <style>
-    :root {
-      color-scheme: light;
-      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-      line-height: 1.5;
-      --brand-red: #DA291C;
-      --brand-red-dark: #B42318;
-      --brand-black: #000000;
-      --brand-text: #464646;
-      --brand-text-muted: #646464;
-      --brand-text-soft: #969696;
-      --brand-border: #C8C8C8;
-      --brand-panel: #FFFFFF;
-      --brand-surface: #F0F0F0;
-      --brand-surface-alt: #F7F7F7;
-      --brand-success: #3CB17E;
-      --brand-info: #307FE2;
-      --brand-danger: #DA291C;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--brand-surface);
-      color: var(--brand-text);
-    }
-
-    .app {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1.5rem 1.5rem 4.5rem;
-    }
-
-    header {
-      margin-bottom: 1.5rem;
-    }
-
-    .header-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .theme-toggle {
-      border: none;
-      background: transparent;
-      padding: 0;
-      line-height: 1;
-      cursor: pointer;
-    }
-
-    .theme-toggle-track {
-      position: relative;
-      width: 62px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid var(--brand-border);
-      background: linear-gradient(180deg, #f7f7f7, #e6e6e6);
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 9px;
-    }
-
-    .theme-icon {
-      font-size: 0.9rem;
-      user-select: none;
-    }
-
-    .theme-toggle-knob {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid var(--brand-border);
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
-      transition: transform 200ms ease;
-    }
-
-    header h1 {
-      margin: 0 0 0.25rem;
-      font-size: clamp(1.9rem, 3vw, 2.6rem);
-      color: var(--brand-black);
-    }
-
-    header p {
-      margin: 0;
-      color: var(--brand-text-muted);
-    }
-
-    .dataset-privacy-note {
-      margin: 0 0 1rem;
-      font-size: 1rem;
-      color: var(--brand-text-muted);
-    }
-
-    .top-nav {
-      margin-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .top-nav a {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.45rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid var(--brand-border);
-      background: #ffffff;
-      color: var(--brand-text);
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-decoration: none;
-      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
-    }
-
-    .top-nav a:hover {
-      background: var(--brand-surface);
-      color: var(--brand-black);
-      transform: translateY(-1px);
-    }
-
-    .top-nav a[aria-current="page"] {
-      background: var(--brand-red);
-      border-color: var(--brand-red);
-      color: #ffffff;
-      box-shadow: 0 6px 14px rgba(218, 41, 28, 0.25);
-    }
-
     .panel {
       background: var(--brand-panel);
       border-radius: 12px;
@@ -537,13 +402,7 @@
           </span>
         </button>
       </div>
-      <nav class="top-nav" aria-label="Primary navigation">
-        <a href="../">FortiSKU</a>
-        <a href="../lifecycle/">LifeCycle</a>
-        <a href="./" aria-current="page">Ordering Guides</a>
-        <a href="../asset-reports/">Asset Reports</a>
-        <a href="../lab-portal/">Lab Portal Generator</a>
-      </nav>
+      <nav id="toolbox-nav" class="top-nav" aria-label="Primary navigation"></nav>
     </header>
 
     <section class="panel" aria-labelledby="dataset-heading">

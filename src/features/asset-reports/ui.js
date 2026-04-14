@@ -5,7 +5,6 @@ export function initAssetReportUI(handlers) {
   const fileInput = document.getElementById("ar-file-input");
   const buildButton = document.getElementById("ar-build-button");
   const clearButton = document.getElementById("ar-clear-button");
-  const spinner = document.getElementById("ar-spinner");
   const uploadState = document.getElementById("ar-upload-state");
   const statusEl = document.getElementById("ar-status");
 
@@ -43,7 +42,6 @@ export function initAssetReportUI(handlers) {
   });
 
   function setLoading(isLoading) {
-    spinner.hidden = !isLoading;
     fileInput.disabled = isLoading;
     customerNameInput.disabled = isLoading;
     buildButton.disabled = isLoading || !hasWorkbook || !customerNameInput.value.trim();
