@@ -123,9 +123,11 @@
   table.bt tbody tr:nth-child(even) td{background:var(--c-sh);}
   table.bt tbody tr:hover td{background:#EEF1F6;}
   .sr td{background:#EAECF3!important;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text2);padding:4px 10px;border-top:2px solid #C5CAD9;}
+  .sum-row td{background:#F7F9FC!important;font-weight:700;color:var(--c-text);}
   .sk{font-family:'Courier New',monospace;font-size:11px;color:#1A4E82;font-weight:700;white-space:nowrap;}
   .qc{text-align:center;font-weight:700;color:var(--c-textm);}
   .nc{color:var(--c-textm);font-size:11px;}
+  .mc{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
   .br{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;padding:1px 4px;}
   .br-r{background:#FEF0EE;color:#C0392B;border:1px solid #F5C6C2;}
   .br-o{background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;}
@@ -159,6 +161,9 @@
   .bgr-btn:hover{background:var(--c-sh);color:var(--c-text);}
   .bgr-btn.del{border-color:#F5C6C2;color:#C0392B;background:#FEF0EE;}
   .bgr-btn.del:hover{background:#F5C6C2;}
+  .project-total-row{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:14px 18px;margin-top:14px;}
+  .project-total-row .pt-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-text2);}
+  .project-total-row .pt-value{font-size:22px;font-weight:700;color:var(--forti-red);font-variant-numeric:tabular-nums;}
 
   /* Import modal */
   #imp-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);align-items:center;justify-content:center;}
@@ -380,6 +385,7 @@ const CATALOG = [
 ];
 
 let cart = [], seq = 0, activeNav = null;
+let fortiskuPriceLookup = new Map();
 // cart entries are either product-entries {id, product, label, rows, meta}
 // or group-header entries {id, _type:'group', label, note}
 
@@ -513,7 +519,7 @@ function renderGroups() {
   }
   ec.style.display = 'none';
   sbar.style.display = 'flex';
-  let totL=0, totQ=0;
+  let totL=0, totQ=0, projectTotal=0;
   c.innerHTML = '';
   for (const entry of cart) {
     if (entry._type === 'group') {
@@ -537,14 +543,23 @@ function renderGroups() {
       addDragListeners(el);
       c.appendChild(el);
     } else {
-      let lines=0, qty=0;
+      let lines=0, qty=0, groupTotal=0;
       const displayRows = rowsWithTerm(entry.rows);
       const rows = displayRows.map(r => {
-        if (r.section!==undefined) return `<tr class="sr"><td colspan="5">${h(r.section)}</td></tr>`;
+        if (r.section!==undefined) return `<tr class="sr"><td colspan="7">${h(r.section)}</td></tr>`;
         lines++; if (typeof r.qty==='number') qty+=r.qty;
         const bm={req:'<span class="br br-r">Required</span>',mand:'<span class="br br-m">Mandatory</span>',opt:'<span class="br br-o">Optional</span>',inc:'<span class="br br-o">Included</span>',note:''};
-        return `<tr><td><span class="sk">${h(r.sku||'')}</span></td><td class="nc">${h(r.desc||'')}</td><td class="qc">${r.qty??''}</td><td>${bm[r.kind]||''}</td><td class="nc">${h(r.note||'')}</td></tr>`;
+        const priceInfo = lookupPriceInfo(r.sku);
+        const priceDisplay = priceInfo?.display || '';
+        const qtyValue = typeof r.qty === 'number' && Number.isFinite(r.qty) ? r.qty : null;
+        const lineTotal = priceInfo && qtyValue !== null ? priceInfo.value * qtyValue : null;
+        if (lineTotal !== null) {
+          groupTotal += lineTotal;
+          projectTotal += lineTotal;
+        }
+        return `<tr><td><span class="sk">${h(r.sku||'')}</span></td><td class="nc">${h(r.desc||'')}</td><td class="qc">${r.qty??''}</td><td class="nc mc">${h(priceDisplay)}</td><td class="nc mc">${lineTotal !== null ? h(formatCurrency(lineTotal)) : ''}</td><td>${bm[r.kind]||''}</td><td class="nc">${h(r.note||'')}</td></tr>`;
       }).join('');
+      const summaryRow = `<tr class="sum-row"><td colspan="4">Group Total</td><td class="mc">${groupTotal ? h(formatCurrency(groupTotal)) : ''}</td><td colspan="2"></td></tr>`;
       totL+=lines; totQ+=qty;
       const el = document.createElement('div');
       el.className = 'bg';
@@ -560,12 +575,16 @@ function renderGroups() {
         </div>
         <table class="bt"><thead><tr>
           <th style="width:200px;">Part Number</th><th>Description</th>
-          <th style="width:50px;text-align:center;">Qty</th><th style="width:80px;">Type</th><th>Notes</th>
-        </tr></thead><tbody>${rows}</tbody></table>`;
+          <th style="width:50px;text-align:center;">Qty</th><th style="width:110px;">Unit Price</th><th style="width:120px;">Line Total</th><th style="width:80px;">Type</th><th>Notes</th>
+        </tr></thead><tbody>${rows}${summaryRow}</tbody></table>`;
       addDragListeners(el);
       c.appendChild(el);
     }
   }
+  const totalRow = document.createElement('div');
+  totalRow.className = 'project-total-row';
+  totalRow.innerHTML = `<span class="pt-label">Project Total</span><span class="pt-value">${formatCurrency(projectTotal)}</span>`;
+  c.appendChild(totalRow);
   const prodCount = cart.filter(e=>!e._type).length;
   document.getElementById('sum-g').textContent = prodCount;
   document.getElementById('sum-l').textContent = totL;
@@ -668,6 +687,23 @@ document.addEventListener('keydown', e => {
 });
 
 function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function normalizeSkuForLookup(value) { return String(value || '').trim().replace(/\s+/g,'').toUpperCase(); }
+function formatCurrency(value) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+}
+function lookupPriceInfo(sku) {
+  if (!sku) return null;
+  return fortiskuPriceLookup.get(normalizeSkuForLookup(sku)) || null;
+}
+function setFortiSkuPriceLookup(nextLookup) {
+  fortiskuPriceLookup = nextLookup instanceof Map ? nextLookup : new Map();
+  renderGroups();
+}
 
 // ── TERM REPLACEMENT ──────────────────────────────────────────────────────────
 // All product pages emit -DD SKUs. applyTerm() is called when the term selector
@@ -887,6 +923,54 @@ updateBadges();
 renderGroups();
 if (cart.length) showPBV();
 buildNav();
+</script>
+<script type="module">
+import { loadPersisted } from "../../src/shared/data/storage.js";
+
+function formatModuleCurrency(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
+function buildPriceLookup(rows) {
+  const lookup = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const sku = String(row?.sku || '').trim();
+    if (!sku) continue;
+    const key = sku.replace(/\s+/g, '').toUpperCase();
+
+    let display = "";
+    let value = null;
+    if (typeof row?.price === "number" && Number.isFinite(row.price)) {
+      value = row.price;
+      display = formatModuleCurrency(row.price);
+    } else if (row?.price_display) {
+      display = String(row.price_display).trim();
+      const numeric = Number(String(row.price_display).replace(/[^0-9.-]/g, ""));
+      if (Number.isFinite(numeric)) {
+        value = numeric;
+      }
+    }
+
+    if (display) {
+      lookup.set(key, { display, value });
+    }
+  }
+  return lookup;
+}
+
+try {
+  const persisted = await loadPersisted();
+  if (typeof window.setFortiSkuPriceLookup === "function") {
+    window.setFortiSkuPriceLookup(buildPriceLookup(persisted?.rows || []));
+  }
+} catch (error) {
+  console.warn("Unable to load FortiSKU price data for Project BOM.", error);
+}
 </script>
 </body>
 </html>
