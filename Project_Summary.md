@@ -7,7 +7,8 @@ Fortisku is a static, browser-only toolkit for working with Fortinet data and li
 The project started as a SKU finder and has grown into a small suite of related tools for a Fortinet SE:
 
 - FortiSKU Finder
-- LifeCycle lookup
+- Hardware LifeCycle lookup
+- Software LifeCycle lookup
 - Ordering Guides lookup
 - Asset Report builder
 - Lab Portal Generator
@@ -26,6 +27,8 @@ The codebase is now organized by feature instead of keeping every page module fl
   - Optional compatibility alias for the finder route
 - `hardware-lifecycle/`
   - Canonical Hardware LifeCycle lookup page
+- `software-lifecycle/`
+  - Canonical Software LifeCycle lookup page
 - `ordering-guides/`
   - Canonical Ordering Guides page
 - `asset-reports/`
@@ -37,6 +40,7 @@ Primary browser routes are:
 
 - `/`
 - `/hardware-lifecycle/`
+- `/software-lifecycle/`
 - `/ordering-guides/`
 - `/asset-reports/`
 - `/lab-portal/`
@@ -53,6 +57,10 @@ Legacy page URLs are still present only as lightweight redirect files for backwa
   - Main SKU finder logic, UI, BOM support
 - `src/features/hardware-lifecycle/`
   - Hardware LifeCycle parsing, storage, search, UI
+- `src/features/software-lifecycle/`
+  - Software LifeCycle parsing, storage, search, UI
+- `src/shared/lifecycle/`
+  - Shared lifecycle controller and search helpers used by both lifecycle tools
 - `src/features/ordering-guides/`
   - Ordering Guide page logic and UI
 - `src/features/asset-reports/`
@@ -91,7 +99,7 @@ Key modules:
 - `src/shared/data/storage.js`
 - `src/shared/data/csv.js`
 
-### 2. LifeCycle Lookup
+### 2. Hardware LifeCycle Lookup
 
 Primary page: `hardware-lifecycle/index.html`
 
@@ -104,10 +112,32 @@ Purpose:
 Key modules:
 - `src/features/hardware-lifecycle/main.js`
 - `src/features/hardware-lifecycle/rss.js`
+- `src/features/hardware-lifecycle/search.js`
 - `src/features/hardware-lifecycle/storage.js`
 - `src/features/hardware-lifecycle/ui.js`
+- `src/shared/lifecycle/app.js`
+- `src/shared/lifecycle/search.js`
 
-### 3. Ordering Guides
+### 3. Software LifeCycle Lookup
+
+Primary page: `software-lifecycle/index.html`
+
+Purpose:
+- Refresh software lifecycle data from the Fortinet RSS feed
+- Import RSS XML through a guided modal workflow
+- Store normalized lifecycle rows in IndexedDB
+- Search software release-specific records through a dedicated UI
+
+Key modules:
+- `src/features/software-lifecycle/main.js`
+- `src/features/software-lifecycle/rss.js`
+- `src/features/software-lifecycle/search.js`
+- `src/features/software-lifecycle/storage.js`
+- `src/features/software-lifecycle/ui.js`
+- `src/shared/lifecycle/app.js`
+- `src/shared/lifecycle/search.js`
+
+### 4. Ordering Guides
 
 Primary page: `ordering-guides/index.html`
 
@@ -122,7 +152,7 @@ Key modules:
 - `src/shared/data/ingest.js`
 - `src/shared/data/storage.js`
 
-### 4. Asset Reports
+### 5. Asset Reports
 
 Primary page: `asset-reports/index.html`
 
@@ -136,7 +166,7 @@ Key modules:
 - `src/features/asset-reports/ui.js`
 - `src/features/asset-reports/workbook.js`
 
-### 5. Lab Portal Generator
+### 6. Lab Portal Generator
 
 Primary page: `lab-portal/index.html`
 
@@ -183,6 +213,7 @@ python3 -m http.server 5173
 - Main entry URLs:
   - `/`
   - `/hardware-lifecycle/`
+  - `/software-lifecycle/`
   - `/ordering-guides/`
   - `/asset-reports/`
   - `/lab-portal/`
@@ -192,7 +223,6 @@ python3 -m http.server 5173
 ## Recommended Next Steps
 
 - Extract the Lab Portal Generator into its own `src/features/lab-portal/` module set
-- Introduce a shared style system instead of repeating large inline page styles
 - Add lightweight smoke-test documentation for future changes
 - Add a small automated test strategy for pure logic modules like search, ingest, and storage helpers
 - Consider switching the repo remote to SSH permanently for smoother pushes from this environment
