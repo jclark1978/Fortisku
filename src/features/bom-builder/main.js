@@ -1,48 +1,26 @@
 import { initThemeToggle } from "../../shared/ui/theme.js";
 import { initToolboxNav } from "../../shared/ui/nav.js";
+import { PRODUCT_CATALOG, findProductBySlug } from "./catalog.js";
 
-const FORTIBOM_APP_PATH = "../vendor/FortiBOM/index.html";
 const FORTIGATE_PRODUCT_PATH = "products/fortigate-bomgen.html";
 const BRIDGE_STYLESHEET = new URL("./theme-bridge.css", import.meta.url).href;
-const PRODUCT_CATALOG = [
-  { label: "FortiGate", path: "products/fortigate-bomgen.html", category: "Network Security" },
-  { label: "FortiSASE", path: "products/fortisase-bomgen.html", category: "Network Security" },
-  { label: "FortiSandbox", path: "products/fortisandbox-bomgen.html", category: "Network Security" },
-  { label: "FortiADC", path: "products/fortiadc-bomgen.html", category: "Network Security" },
-  { label: "FortiDeceptor", path: "products/fortideceptor-bomgen.html", category: "Network Security" },
-  { label: "FortiWeb", path: "products/fortiweb-bomgen.html", category: "Network Security" },
-  { label: "FortiAP", path: "products/fortiap-bomgen.html", category: "Network Access" },
-  { label: "FortiSwitch", path: "products/fortiswitch-bomgen.html", category: "Network Access" },
-  { label: "FortiClient", path: "products/forticlient-bomgen.html", category: "Endpoint Security" },
-  { label: "FortiNAC", path: "products/fortinac-bomgen.html", category: "Access Control" },
-  { label: "FortiAuthenticator", path: "products/fortiauthenticator-bomgen.html", category: "Access Control" },
-  { label: "FortiAnalyzer", path: "products/fortianalyzer-bomgen.html", category: "Management" },
-  { label: "FortiManager", path: "products/fortimanager-bomgen.html", category: "Management" },
-  { label: "FortiAIOps", path: "products/fortiaiops-bomgen.html", category: "Management" },
-  { label: "FortiMonitor", path: "products/fortimonitor-bomgen.html", category: "Management" },
-  { label: "FortiSIEM", path: "products/fortisiem-bomgen.html", category: "Management" },
-  { label: "FortiFlex", path: "products/fortiflex-bomgen.html", category: "Management" },
-  { label: "Custom SKU", path: "products/custom-sku-bomgen.html", category: "Custom" },
-  { label: "Placeholder", path: "products/placeholder-bomgen.html", category: "Demo" }
-];
 const frame = document.getElementById("bom-builder-frame");
 const projectButton = document.getElementById("bom-builder-project-button");
-const searchInput = document.getElementById("bom-builder-search-input");
-const searchResults = document.getElementById("bom-builder-search-results");
 const statusEl = document.getElementById("bom-builder-status");
 let heightSyncTimer = 0;
 let themeObserver = null;
-let activeProductPath = FORTIGATE_PRODUCT_PATH;
+const initialProduct = resolveInitialProduct();
+let activeProductPath = initialProduct.path;
 
-initToolboxNav({ current: "bom-builder", basePath: "../" });
+initToolboxNav({ current: [`bom-product-${initialProduct.slug}`], basePath: "../" });
 initThemeToggle();
 startThemeSync();
 
 frame?.addEventListener("load", () => {
   try {
     bridgeFortiBomShell();
-    loadSelectedProduct(FORTIGATE_PRODUCT_PATH, "FortiGate");
-    setStatus("success", "Embedded BOM workspace is ready. Starting in the FortiGate configurator.");
+    loadSelectedProduct(initialProduct.path, initialProduct.label);
+    setStatus("success", `Embedded BOM workspace is ready. Starting in the ${initialProduct.label} configurator.`);
   } catch (error) {
     console.error("Failed to bridge FortiBOM shell", error);
     setStatus("warn", "The BOM workspace loaded, but the native Fortisku bridge could not be fully applied.");
@@ -54,32 +32,21 @@ projectButton?.addEventListener("click", () => {
   setStatus("info", "Showing the shared Project BOM workspace.");
 });
 
-searchInput?.addEventListener("input", () => {
-  renderSearchResults(searchInput.value);
-});
-
-searchInput?.addEventListener("focus", () => {
-  renderSearchResults(searchInput.value);
-});
-
-searchInput?.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    hideSearchResults();
-    searchInput.blur();
-  }
-});
-
-document.addEventListener("click", (event) => {
-  if (!searchResults || !searchInput) {
-    return;
+function resolveInitialProduct() {
+  const productSlug = new URL(window.location.href).searchParams.get("product");
+  const selected = findProductBySlug(productSlug);
+  if (selected) {
+    return selected;
   }
 
-  if (event.target === searchInput || searchResults.contains(event.target)) {
-    return;
+  const fallback = PRODUCT_CATALOG.find((product) => product.path === FORTIGATE_PRODUCT_PATH) || PRODUCT_CATALOG[0];
+  if (fallback) {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("product", fallback.slug);
+    window.history.replaceState({}, "", nextUrl);
   }
-
-  hideSearchResults();
-});
+  return fallback;
+}
 
 function bridgeFortiBomShell() {
   const appWindow = frame?.contentWindow;
@@ -152,66 +119,6 @@ function showProjectBom() {
 
 function setSelectedMode(mode) {
   projectButton?.toggleAttribute("aria-current", mode === "project");
-}
-
-function renderSearchResults(query = "") {
-  if (!searchResults || !searchInput) {
-    return;
-  }
-
-  const normalizedQuery = String(query || "").trim().toLowerCase();
-  const matches = PRODUCT_CATALOG
-    .filter((item) => {
-      if (!normalizedQuery) {
-        return true;
-      }
-
-      return `${item.label} ${item.category}`.toLowerCase().includes(normalizedQuery);
-    });
-
-  if (!matches.length) {
-    searchResults.hidden = false;
-    searchInput.setAttribute("aria-expanded", "true");
-    searchResults.innerHTML = `
-      <div class="search-result-empty">
-        No matching products. Try a different product name or category.
-      </div>
-    `;
-    return;
-  }
-
-  searchResults.hidden = false;
-  searchInput.setAttribute("aria-expanded", "true");
-  searchResults.innerHTML = matches.map((product) => `
-    <button class="search-result-option" type="button" data-path="${product.path}"${product.path === activeProductPath ? ' aria-current="true"' : ""}>
-      <span class="search-result-title">${product.label}</span>
-      <span class="search-result-category">${product.category}</span>
-    </button>
-  `).join("");
-
-  searchResults.querySelectorAll(".search-result-option").forEach((button) => {
-    button.addEventListener("click", () => {
-      const selected = PRODUCT_CATALOG.find((item) => item.path === button.dataset.path);
-      if (!selected) {
-        return;
-      }
-
-      searchInput.value = selected.label;
-      loadSelectedProduct(selected.path, selected.label);
-      setStatus("info", `Showing the ${selected.label} configurator.`);
-      hideSearchResults();
-    });
-  });
-}
-
-function hideSearchResults() {
-  if (!searchResults || !searchInput) {
-    return;
-  }
-
-  searchResults.hidden = true;
-  searchInput.setAttribute("aria-expanded", "false");
-  searchResults.innerHTML = "";
 }
 
 function setStatus(level, message) {

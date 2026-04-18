@@ -1,5 +1,5 @@
 .ui-btn,
-button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not(.search-result-empty),
+button:not(.theme-toggle):not(.nav-group-trigger):not(.forti-nav-group-trigger):not(.forti-topbar-icon):not(.search-result-option):not(.search-result-empty),
 .upload-label,
 .copy-btn,
 .icon-button {
@@ -26,7 +26,7 @@ button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not
 }
 
 .ui-btn:hover:not(:disabled),
-button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not(.search-result-empty):hover:not(:disabled),
+button:not(.theme-toggle):not(.nav-group-trigger):not(.forti-nav-group-trigger):not(.forti-topbar-icon):not(.search-result-option):not(.search-result-empty):hover:not(:disabled),
 .upload-label:hover,
 .copy-btn:hover:not(:disabled),
 .icon-button:hover:not(:disabled) {
@@ -36,7 +36,7 @@ button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not
 }
 
 .ui-btn:focus-visible,
-button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not(.search-result-empty):focus-visible,
+button:not(.theme-toggle):not(.nav-group-trigger):not(.forti-nav-group-trigger):not(.forti-topbar-icon):not(.search-result-option):not(.search-result-empty):focus-visible,
 .upload-label:focus-within,
 .copy-btn:focus-visible,
 .icon-button:focus-visible {
@@ -46,7 +46,7 @@ button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not
 
 .ui-btn:disabled,
 .ui-btn[aria-disabled="true"],
-button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not(.search-result-empty):disabled,
+button:not(.theme-toggle):not(.nav-group-trigger):not(.forti-nav-group-trigger):not(.forti-topbar-icon):not(.search-result-option):not(.search-result-empty):disabled,
 .upload-label[aria-disabled="true"] {
   opacity: 0.6;
   cursor: not-allowed;
@@ -54,14 +54,14 @@ button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not
 }
 
 .ui-btn--primary,
-button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not(.search-result-empty):not(.secondary):not(.drawer-close):not(.copy-btn):not(.icon-button) {
+button:not(.theme-toggle):not(.nav-group-trigger):not(.forti-nav-group-trigger):not(.forti-topbar-icon):not(.search-result-option):not(.search-result-empty):not(.secondary):not(.drawer-close):not(.copy-btn):not(.icon-button) {
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: #fff;
 }
 
 .ui-btn--primary:hover:not(:disabled),
-button:not(.theme-toggle):not(.nav-group-trigger):not(.search-result-option):not(.search-result-empty):not(.secondary):not(.drawer-close):not(.copy-btn):not(.icon-button):hover:not(:disabled) {
+button:not(.theme-toggle):not(.nav-group-trigger):not(.forti-nav-group-trigger):not(.forti-topbar-icon):not(.search-result-option):not(.search-result-empty):not(.secondary):not(.drawer-close):not(.copy-btn):not(.icon-button):hover:not(:disabled) {
   background: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
   color: #fff;

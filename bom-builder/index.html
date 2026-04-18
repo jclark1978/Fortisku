@@ -34,7 +34,7 @@
           <span class="integration-badge">Plugin-backed</span>
         </div>
         <p>
-          Search for a Fortinet product below to open its configurator inside Fortisku, add the items you need, and
+          Choose a Fortinet product below to open its configurator inside Fortisku, add the items you need, and
           manage the combined quote in Project BOM. Use this page when you want to build a customer BOM without
           leaving the toolbox.
         </p>
@@ -42,25 +42,10 @@
         <div class="bom-builder-launcher" aria-labelledby="bom-builder-launcher-heading">
           <div class="launcher-header">
             <h3 id="bom-builder-launcher-heading">Launch Product</h3>
-            <p>Search the BOM catalog and launch any embedded product generator without leaving the Fortisku shell.</p>
+            <p>Expand a product category, then choose the configurator you want to launch inside the Fortisku shell.</p>
           </div>
 
-          <div class="bom-builder-search-row">
-            <div class="bom-builder-search-shell">
-              <label class="sr-only" for="bom-builder-search-input">Search BOM products</label>
-              <input
-                id="bom-builder-search-input"
-                class="ui-input ui-search"
-                type="search"
-                placeholder="Search products like FortiGate, FortiManager, FortiAP..."
-                aria-label="Search BOM products"
-                autocomplete="off"
-                aria-expanded="false"
-                aria-controls="bom-builder-search-results"
-              />
-              <div id="bom-builder-search-results" class="bom-builder-search-results" hidden></div>
-            </div>
-          </div>
+          <div id="bom-builder-category-list" class="bom-builder-category-list" aria-label="BOM product categories"></div>
         </div>
 
         <div class="bom-builder-actions">
