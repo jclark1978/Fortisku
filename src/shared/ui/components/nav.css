@@ -175,7 +175,7 @@ body.theme-dark .theme-toggle-knob {
 }
 
 .forti-nav-group-trigger[aria-expanded="true"] + .forti-nav-group-menu {
-  max-height: 16rem;
+  max-height: 9999px;
 }
 
 .forti-nav-group:not([data-current="true"]) > .forti-nav-group-trigger[aria-expanded="true"] {
