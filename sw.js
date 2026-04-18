@@ -1,4 +1,4 @@
-const CACHE_NAME = "fortisku-cache-v19";
+const CACHE_NAME = "fortisku-cache-v20";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -39,8 +39,21 @@ const APP_SHELL = [
   "./src/shared/ui/theme.js",
   "./src/shared/ui/theme-init.js",
   "./src/shared/ui/nav.js",
+  "./src/shared/ui/tokens.css",
+  "./src/shared/ui/themes.css",
+  "./src/shared/ui/base.css",
   "./src/shared/ui/lifecycle-page.css",
   "./src/shared/ui/toolbox-shell.css",
+  "./src/shared/ui/components/buttons.css",
+  "./src/shared/ui/components/forms.css",
+  "./src/shared/ui/components/tables.css",
+  "./src/shared/ui/components/panels.css",
+  "./src/shared/ui/components/status.css",
+  "./src/shared/ui/components/nav.css",
+  "./src/shared/ui/components/overlays.css",
+  "./src/shared/ui/components/badges.css",
+  "./src/shared/ui/patterns/dataset-workspace.css",
+  "./src/shared/ui/patterns/metrics.css",
   "./src/shared/data/ingest.js",
   "./src/shared/data/search.js",
   "./src/shared/data/storage.js",

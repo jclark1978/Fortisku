@@ -136,7 +136,6 @@ function loadSelectedProduct(path, label) {
   appWindow.loadProduct(path, label, null);
   activeProductPath = path;
   setSelectedMode("product");
-  renderSearchResults(searchInput?.value || "");
   scheduleFrameHeightSync();
 }
 

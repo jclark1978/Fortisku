@@ -90,13 +90,13 @@ html[data-fortisku-bridge="true"][data-fortisku-theme="dark"] .sr td {
 
 html[data-fortisku-bridge="true"] .bp,
 html[data-fortisku-bridge="true"] .btn-p {
-  background: #da291c !important;
-  border-color: #da291c !important;
+  background: #4caf50 !important;
+  border-color: #4caf50 !important;
 }
 
 html[data-fortisku-bridge="true"] .bp:hover,
 html[data-fortisku-bridge="true"] .btn-p:hover {
-  background: #b42318 !important;
+  background: #43a047 !important;
 }
 
 html[data-fortisku-bridge="true"] .bs,
@@ -150,7 +150,7 @@ html[data-fortisku-bridge="true"] .callout.warn {
 html[data-fortisku-bridge="true"] .product-name span,
 html[data-fortisku-bridge="true"] .ph-icon,
 html[data-fortisku-bridge="true"] .bgr-accent {
-  background: #da291c !important;
+  background: #4caf50 !important;
 }
 
 html[data-fortisku-bridge="true"] .product-name,

@@ -81,64 +81,6 @@
       margin: 1rem 0 0.75rem;
     }
 
-    .upload-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.65rem;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--brand-border);
-      background: #ffffff;
-      color: var(--brand-text);
-      cursor: pointer;
-      font-weight: 600;
-      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
-    }
-
-    .upload-label:hover {
-      background: var(--brand-surface);
-      color: var(--brand-black);
-    }
-
-    .upload-label input[type="file"] {
-      display: none;
-    }
-
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 0.6rem 1rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
-      background: var(--brand-red);
-      color: #ffffff;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      background: #d9d9d9;
-      color: #ffffff;
-      box-shadow: none;
-      transform: none;
-    }
-
-    button.secondary {
-      background: #fff;
-      color: var(--brand-text);
-      border: 1px solid var(--brand-border);
-    }
-
-    button.secondary:hover:not(:disabled) {
-      background: var(--brand-surface);
-    }
-
-    button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(218, 41, 28, 0.22);
-    }
-
     .spinner {
       font-size: 0.95rem;
       color: var(--brand-text);
@@ -170,56 +112,6 @@
       margin-bottom: 0.85rem;
     }
 
-    .search-controls input[type="search"] {
-      flex: 1;
-      min-width: 220px;
-      border-radius: 999px;
-      border: 1px solid var(--brand-border);
-      padding: 0.6rem 1.1rem;
-      font: inherit;
-      color: inherit;
-      background: #ffffff;
-      transition: border-color 150ms ease, box-shadow 150ms ease;
-    }
-
-    .search-controls input[type="search"]:focus {
-      outline: none;
-      border-color: var(--brand-red);
-      box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.2);
-      background: #ffffff;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 1px solid var(--brand-border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    thead {
-      background: var(--brand-surface);
-    }
-
-    th, td {
-      padding: 0.65rem 0.75rem;
-      text-align: left;
-      vertical-align: top;
-      border-bottom: 1px solid var(--brand-border);
-    }
-
-    th {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--brand-text-soft);
-      font-weight: 600;
-    }
-
-    tbody tr:hover {
-      background: var(--brand-surface-alt);
-    }
-
     td a {
       color: var(--brand-red);
       text-decoration: none;
@@ -233,17 +125,6 @@
     .empty-state td {
       color: var(--brand-text-muted);
       text-align: center;
-    }
-
-    .status-message {
-      min-height: 1.25rem;
-      margin: 0.3rem 0 0;
-      font-size: 0.95rem;
-      color: var(--brand-text-muted);
-    }
-
-    .status-message.error {
-      color: #c81e1e;
     }
 
     @keyframes spin {
@@ -283,14 +164,6 @@
       color: #c8c8c8;
     }
 
-    body.theme-dark .upload-label,
-    body.theme-dark button.secondary,
-    body.theme-dark .dataset-upload-state {
-      background: #646464;
-      color: #ffffff;
-      border-color: #969696;
-    }
-
     body.theme-dark table,
     body.theme-dark th,
     body.theme-dark td {
@@ -300,18 +173,6 @@
     body.theme-dark thead,
     body.theme-dark tbody tr:hover {
       background: #646464;
-    }
-
-    body.theme-dark .search-controls input[type="search"] {
-      background: #3f3f3f;
-      color: #ffffff;
-      border-color: #969696;
-    }
-
-    body.theme-dark .search-controls input[type="search"]:focus {
-      border-color: var(--brand-red);
-      box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.25);
-      background: #464646;
     }
 
     body.theme-dark td a {
@@ -373,11 +234,11 @@
         </div>
       </dl>
       <div class="dataset-actions">
-        <label class="upload-label">
+        <label class="upload-label ui-btn ui-btn--secondary">
           <span>Upload Latest PriceList (.xlsx)</span>
           <input id="og-file-input" type="file" accept=".xlsx" />
         </label>
-        <button id="og-clear-button" type="button" class="secondary">Clear stored data</button>
+        <button id="og-clear-button" type="button" class="ui-btn ui-btn--secondary secondary">Clear stored data</button>
       </div>
       <p id="og-status" class="status-message info" role="status" aria-live="polite"></p>
     </section>
@@ -388,9 +249,9 @@
         <span id="og-search-summary" class="search-summary"></span>
       </div>
       <div class="search-controls">
-        <input id="og-search-input" type="search" placeholder="Search ordering guide or related products" aria-label="Search ordering guide" />
+        <input id="og-search-input" class="ui-input ui-search" type="search" placeholder="Search ordering guide or related products" aria-label="Search ordering guide" />
       </div>
-      <table aria-live="polite">
+      <table class="ui-table" aria-live="polite">
         <thead>
           <tr>
             <th scope="col">Ordering Guide</th>

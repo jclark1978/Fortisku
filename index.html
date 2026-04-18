@@ -7,35 +7,21 @@
   <link rel="stylesheet" href="./src/shared/ui/toolbox-shell.css" />
   <script src="./src/shared/ui/theme-init.js"></script>
   <style>
-    .panel {
-      background: var(--brand-panel);
-      border-radius: 12px;
-      border: 1px solid var(--brand-border);
-      padding: 1.5rem;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-      margin-bottom: 1.5rem;
-    }
-
     .panel-header {
-      display: flex;
-      gap: 1rem;
       align-items: baseline;
-      margin-bottom: 1rem;
     }
 
     .panel-header h2 {
-      margin: 0;
-      font-size: 1.35rem;
-      color: var(--brand-black);
+      font-size: var(--text-h2-size);
     }
 
     .dataset-upload-state {
-      font-size: 0.9rem;
-      color: var(--brand-text-muted);
-      background: var(--brand-surface);
-      border: 1px solid var(--brand-border);
-      border-radius: 999px;
-      padding: 0.15rem 0.55rem;
+      font-size: var(--text-body-sm-size);
+      color: var(--color-text-muted);
+      background: var(--color-bg-subtle);
+      border: var(--border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 0.15rem 0.65rem;
       white-space: nowrap;
     }
 
@@ -51,118 +37,6 @@
       grid-column: span 2;
     }
 
-    body.theme-dark {
-      background: #464646;
-      color: #ffffff;
-    }
-
-    body.theme-dark header h1 {
-      color: #ffffff;
-    }
-
-    body.theme-dark header p,
-    body.theme-dark .search-summary,
-    body.theme-dark .dataset-privacy-note,
-    body.theme-dark footer,
-    body.theme-dark .search-tip,
-    body.theme-dark .dataset-upload-state {
-      color: #f0f0f0;
-    }
-
-    body.theme-dark .panel,
-    body.theme-dark .bom-drawer,
-    body.theme-dark .bom-modal {
-      background: #464646;
-      border-color: #969696;
-      color: #ffffff;
-    }
-
-    body.theme-dark .panel-header h2,
-    body.theme-dark .dataset-meta dd,
-    body.theme-dark .copy-btn,
-    body.theme-dark .search-tip code,
-    body.theme-dark .icon-button,
-    body.theme-dark .drawer-close {
-      color: #ffffff;
-    }
-
-    body.theme-dark .dataset-meta dt,
-    body.theme-dark th,
-    body.theme-dark .bom-table th,
-    body.theme-dark .bom-empty,
-    body.theme-dark .discount-display,
-    body.theme-dark .status-message.info {
-      color: #c8c8c8;
-    }
-
-    body.theme-dark table,
-    body.theme-dark th,
-    body.theme-dark td,
-    body.theme-dark .bom-table td,
-    body.theme-dark .bom-table th,
-    body.theme-dark .bom-footer,
-    body.theme-dark .bom-drawer header,
-    body.theme-dark .bom-modal header,
-    body.theme-dark .bom-modal footer,
-    body.theme-dark .quantity-input,
-    body.theme-dark .discount-input {
-      border-color: #969696;
-    }
-
-    body.theme-dark thead,
-    body.theme-dark .copy-btn,
-    body.theme-dark .search-tip code,
-    body.theme-dark .upload-label,
-    body.theme-dark button.secondary,
-    body.theme-dark .dataset-upload-state,
-    body.theme-dark tbody tr:hover,
-    body.theme-dark .icon-button {
-      background: #646464;
-    }
-
-    body.theme-dark .upload-label,
-    body.theme-dark button.secondary,
-    body.theme-dark .copy-btn,
-    body.theme-dark .icon-button,
-    body.theme-dark .dataset-upload-state {
-      border-color: #969696;
-      color: #ffffff;
-    }
-
-    body.theme-dark .search-controls input[type="search"],
-    body.theme-dark .quantity-input,
-    body.theme-dark .discount-input {
-      background: #3f3f3f;
-      color: #ffffff;
-      border-color: #969696;
-    }
-
-    body.theme-dark .search-controls input[type="search"]:focus {
-      border-color: var(--brand-red);
-      box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.25);
-      background: #464646;
-    }
-
-    body.theme-dark .bom-toggle {
-      background: var(--brand-red);
-      color: #eff6ff;
-    }
-
-    body.theme-dark .bom-count {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    body.theme-dark .status-message.success {
-      color: #7fe3b5;
-    }
-
-    body.theme-dark .status-message.warn {
-      color: #d5c4f0;
-    }
-
-    body.theme-dark .status-message.error {
-      color: #ffb0aa;
-    }
     @media (max-width: 720px) {
       .header-row {
         flex-direction: column;
@@ -179,17 +53,17 @@
     }
 
     .dataset-meta dt {
-      font-size: 0.8rem;
+      font-size: var(--text-label-size);
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--brand-text-soft);
+      color: var(--color-text-subtle);
       margin-bottom: 0.15rem;
     }
 
     .dataset-meta dd {
       margin: 0;
       font-weight: 600;
-      color: var(--brand-text);
+      color: var(--color-text);
       word-break: break-word;
     }
 
@@ -201,97 +75,15 @@
       margin-bottom: 0.75rem;
     }
 
-    .upload-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.65rem;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      border: 1px solid #cbd2d9;
-      background: #ffffff;
-      color: var(--brand-text);
-      cursor: pointer;
-      font-weight: 600;
-      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
-    }
-
-    .upload-label:hover {
-      background: var(--brand-surface);
-      color: var(--brand-black);
-    }
-
-    .upload-label input[type="file"] {
-      display: none;
-    }
-
     .dataset-privacy-note {
       margin: 0 0 1rem;
-      font-size: 1rem;
-      color: var(--brand-text-muted);
-    }
-
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 0.6rem 1rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
-      background: var(--brand-red);
-      color: #ffffff;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      background: #d9d9d9;
-      color: #ffffff;
-      box-shadow: none;
-      transform: none;
-    }
-
-    button.secondary {
-      background: #ffffff;
-      color: var(--brand-text);
-      border: 1px solid var(--brand-border);
-    }
-
-    button.secondary:hover:not(:disabled) {
-      background: var(--brand-surface);
-    }
-
-    button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(218, 41, 28, 0.22);
-    }
-
-    .status-message {
-      min-height: 1.25rem;
-      margin: 0.3rem 0 0;
-      font-size: 0.95rem;
-      color: var(--brand-text-muted);
-      transition: opacity 200ms ease;
-    }
-
-    .status-message.info {
-      color: var(--brand-text-muted);
-    }
-
-    .status-message.success {
-      color: #2a7d59;
-    }
-
-    .status-message.warn {
-      color: #7b5ab3;
-    }
-
-    .status-message.error {
-      color: var(--brand-danger);
+      font-size: var(--text-body-lg-size);
+      color: var(--color-text-muted);
     }
 
     .spinner {
-      font-size: 0.95rem;
-      color: var(--brand-text);
+      font-size: var(--text-body-size);
+      color: var(--color-text);
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
@@ -302,8 +94,8 @@
       width: 0.75rem;
       height: 0.75rem;
       border-radius: 999px;
-      border: 2px solid var(--brand-border);
-      border-top-color: var(--brand-red);
+      border: 2px solid var(--color-border-subtle);
+      border-top-color: var(--color-accent);
       animation: spin 900ms linear infinite;
       display: inline-block;
     }
@@ -320,66 +112,12 @@
       margin-bottom: 0.85rem;
     }
 
-    .search-controls input[type="search"] {
-      flex: 1;
-      min-width: 200px;
-      border-radius: 999px;
-      border: 1px solid var(--brand-border);
-      padding: 0.6rem 1.1rem;
-      font: inherit;
-      color: inherit;
-      background: #ffffff;
-      transition: border-color 150ms ease, box-shadow 150ms ease;
-    }
-
-    .search-controls input[type="search"]:focus {
-      outline: none;
-      border-color: var(--brand-red);
-      box-shadow: 0 0 0 3px rgba(218, 41, 28, 0.2);
-      background: #ffffff;
-    }
-
     .search-summary {
-      font-size: 0.95rem;
-      color: var(--brand-text-muted);
+      font-size: var(--text-body-size);
+      color: var(--color-text-muted);
       margin-left: auto;
       text-align: right;
       flex: 0 0 auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 1px solid var(--brand-border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    thead {
-      background: var(--brand-surface);
-    }
-
-    th, td {
-      padding: 0.65rem 0.75rem;
-      text-align: left;
-      vertical-align: top;
-      border-bottom: 1px solid var(--brand-border);
-    }
-
-    th {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--brand-text-soft);
-      font-weight: 600;
-    }
-
-    tbody tr:nth-child(every) {
-      background: #ffffff;
-    }
-
-    tbody tr:hover {
-      background: var(--brand-surface-alt);
     }
 
     .sku-cell {
@@ -387,22 +125,6 @@
       align-items: center;
       gap: 0.45rem;
       flex-wrap: wrap;
-    }
-
-    .copy-btn {
-      background: var(--brand-surface);
-      color: var(--brand-text);
-      border: 1px solid var(--brand-border);
-      padding: 0.25rem 0.55rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      line-height: 1.2;
-      transition: background-color 120ms ease, color 120ms ease;
-    }
-
-    .copy-btn:hover:not(:disabled) {
-      background: #e5e5e5;
-      color: var(--brand-black);
     }
 
     .comment-indicator {
@@ -413,7 +135,7 @@
       height: 1.1rem;
       border-radius: 999px;
       background: #f0b429;
-      color: var(--brand-black);
+      color: var(--color-text-strong);
       font-size: 0.7rem;
       font-weight: 700;
       cursor: help;
@@ -426,16 +148,16 @@
 
     .search-tip {
       margin: -0.35rem 0 1rem;
-      color: var(--brand-text-soft);
-      font-size: 0.85rem;
+      color: var(--color-text-subtle);
+      font-size: var(--text-body-sm-size);
     }
 
     .search-tip code {
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      background: #ffffff;
+      font-family: var(--font-mono);
+      background: var(--color-bg-panel);
       padding: 0.1rem 0.35rem;
-      border-radius: 4px;
-      color: var(--brand-text);
+      border-radius: 6px;
+      color: var(--color-text);
     }
 
     .bom-toggle {
@@ -448,14 +170,15 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--brand-red);
+      background: var(--color-accent);
       color: #ffffff;
-      font-size: 0.95rem;
-      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+      font-size: var(--text-body-size);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-accent);
     }
 
     .bom-count {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.18);
       border-radius: 999px;
       padding: 0.1rem 0.55rem;
       font-weight: 600;
@@ -467,11 +190,11 @@
       right: 0;
       width: min(500px, 90vw);
       height: 100vh;
-      background: #ffffff;
-      border-left: 1px solid var(--brand-border);
-      box-shadow: -12px 0 24px rgba(15, 23, 42, 0.15);
+      background: var(--color-bg-raised);
+      border-left: var(--border-subtle);
+      box-shadow: var(--shadow-lg);
       transform: translateX(100%);
-      transition: transform 220ms ease;
+      transition: transform var(--motion-slow) ease;
       z-index: 40;
       display: flex;
       flex-direction: column;
@@ -483,11 +206,23 @@
 
     .bom-drawer header {
       padding: 1.25rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--brand-border);
+      border-bottom: var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+    }
+
+    .bom-header-copy h3 {
+      margin: 0;
+      font-size: var(--text-h3-size);
+      color: var(--color-text-strong);
+    }
+
+    .bom-header-copy p {
+      margin: 0;
+      color: var(--color-text-muted);
+      font-size: var(--text-body-size);
     }
 
     .bom-body {
@@ -496,38 +231,38 @@
       padding: 1rem 1.5rem 2rem;
     }
 
-    .bom-table {
-      width: 100%;
-      border-collapse: collapse;
+    .bom-table td:last-child,
+    .bom-table th:last-child {
+      width: 3rem;
+      text-align: center;
     }
 
-    .bom-table th,
-    .bom-table td {
-      padding: 0.5rem 0.35rem;
-      border-bottom: 1px solid var(--brand-border);
-      font-size: 0.9rem;
-    }
-
-    .bom-table th {
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 0.75rem;
-      color: var(--brand-text-soft);
+    .bom-table td:nth-child(3),
+    .bom-table td:nth-child(4),
+    .bom-table td:nth-child(5),
+    .bom-table td:nth-child(6),
+    .bom-table td:nth-child(7) {
+      white-space: nowrap;
     }
 
     .bom-footer {
-      border-top: 1px solid var(--brand-border);
+      border-top: var(--border-subtle);
       padding: 1rem 1.5rem 1.5rem;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+      background: var(--color-bg-panel);
     }
 
     .bom-summary {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 0.5rem 1rem;
-      font-size: 0.95rem;
+      font-size: var(--text-body-size);
+    }
+
+    .bom-summary strong {
+      color: var(--color-text-strong);
     }
 
     .bom-actions {
@@ -543,44 +278,28 @@
 
     .quantity-input {
       width: 70px;
-      border-radius: 6px;
-      border: 1px solid var(--brand-border);
-      padding: 0.35rem 0.5rem;
-      font: inherit;
       text-align: right;
     }
 
     .discount-display {
       font-variant-numeric: tabular-nums;
-      color: var(--brand-text-muted);
+      color: var(--color-text-muted);
     }
 
     .bom-empty {
       text-align: center;
       padding: 2.5rem 1rem;
-      color: var(--brand-text-soft);
+      color: var(--color-text-subtle);
     }
 
-    .drawer-close {
-      background: transparent;
-      border: none;
-      color: var(--brand-text);
-      font-size: 1.3rem;
-      padding: 0.25rem;
-      cursor: pointer;
-    }
-
-    .bom-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.25);
+    .ui-overlay.bom-overlay {
       z-index: 35;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 200ms ease;
+      transition: opacity var(--motion-base) ease;
     }
 
-    .bom-overlay.visible {
+    .ui-overlay.bom-overlay.visible {
       opacity: 1;
       pointer-events: all;
     }
@@ -588,9 +307,6 @@
     .bom-modal {
       position: fixed;
       inset: 5% 8%;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 28px 48px rgba(15, 23, 42, 0.35);
       z-index: 45;
       display: flex;
       flex-direction: column;
@@ -598,7 +314,7 @@
       transform: translateY(16px);
       opacity: 0;
       pointer-events: none;
-      transition: transform 200ms ease, opacity 200ms ease;
+      transition: transform var(--motion-base) ease, opacity var(--motion-base) ease;
     }
 
     .bom-modal.open {
@@ -610,7 +326,7 @@
     .bom-modal header,
     .bom-modal footer {
       padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--brand-border);
+      border-bottom: var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -630,51 +346,21 @@
 
     .discount-input {
       width: 70px;
-      border-radius: 6px;
-      border: 1px solid var(--brand-border);
-      padding: 0.35rem 0.5rem;
-      font: inherit;
       text-align: right;
     }
 
-    .icon-button {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 999px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      line-height: 1;
-      background: var(--brand-surface);
-      color: var(--brand-text);
-      border: 1px solid var(--brand-border);
-    }
-
-    .icon-button:hover:not(:disabled) {
-      background: #e5e5e5;
-      color: var(--brand-black);
-    }
-
     .icon-button.remove {
-      background: #f5b7b1;
-      border-color: #f1948a;
-      color: #781111;
+      background: var(--state-danger-bg);
+      border-color: var(--state-danger-border);
+      color: var(--state-danger-text);
     }
 
     .trash-button {
       width: 1.8rem;
       height: 1.8rem;
-      background: transparent;
-      border: none;
-      color: #9aa5b1;
-      cursor: pointer;
-    }
-
-    .trash-button:hover {
-      color: #c81e1e;
+      min-height: 1.8rem;
+      padding: 0;
+      color: var(--state-danger-text);
     }
 
     @keyframes spin {
@@ -694,14 +380,10 @@
         align-items: stretch;
       }
 
-      button,
+      .ui-btn,
       .bom-actions button {
         width: 100%;
         text-align: center;
-      }
-
-      .panel {
-        padding: 1.2rem;
       }
     }
   </style>
@@ -757,13 +439,13 @@
       </dl>
 
       <div class="dataset-actions">
-        <label class="upload-label">
+        <label class="upload-label ui-btn ui-btn--secondary">
           <span>Upload Latest PriceList (.xlsx)</span>
           <input id="file-input" type="file" accept=".xlsx" />
         </label>
 
-        <button id="export-all-button" type="button" class="secondary" disabled>Export all CSV</button>
-        <button id="clear-button" type="button" class="secondary">Clear stored data</button>
+        <button id="export-all-button" type="button" class="ui-btn ui-btn--secondary secondary" disabled>Export all CSV</button>
+        <button id="clear-button" type="button" class="ui-btn ui-btn--secondary secondary">Clear stored data</button>
       </div>
       <p id="dataset-status" class="status-message info" role="status" aria-live="polite"></p>
     </section>
@@ -775,13 +457,13 @@
       </div>
 
       <div class="search-controls">
-        <input id="search-input" type="search" placeholder="FortiGate 90G Enterprise bdl" aria-label="Search dataset" disabled />
-        <button id="export-results-button" type="button" class="secondary" disabled>Export results CSV</button>
+        <input id="search-input" class="ui-input ui-search" type="search" placeholder="FortiGate 90G Enterprise bdl" aria-label="Search dataset" disabled />
+        <button id="export-results-button" type="button" class="ui-btn ui-btn--secondary secondary" disabled>Export results CSV</button>
       </div>
       <p class="search-tip">Use spaces for AND and <code>OR</code> (or <code>|</code>) for choices, e.g. <code>FortiGate 90G Enterprise bdl</code> or <code>FortiGate (90G OR 70F) Enterprise bdl</code>.</p>
 
       <div class="results-wrapper">
-        <table id="results-table" aria-live="polite">
+        <table id="results-table" class="ui-table" aria-live="polite">
           <thead>
             <tr>
               <th scope="col">SKU</th>
@@ -805,24 +487,24 @@
     </footer>
   </div>
 
-  <button id="bom-toggle" class="bom-toggle" aria-expanded="false" aria-controls="bom-drawer" hidden>
+  <button id="bom-toggle" class="bom-toggle ui-btn ui-btn--primary ui-btn--pill" aria-expanded="false" aria-controls="bom-drawer" hidden>
     <span>List</span>
     <span class="bom-count" id="bom-count">0</span>
   </button>
 
-  <div id="bom-overlay" class="bom-overlay"></div>
+  <div id="bom-overlay" class="bom-overlay ui-overlay"></div>
 
   <aside id="bom-drawer" class="bom-drawer" aria-hidden="true">
     <header>
-      <div>
-        <h3 style="margin:0;font-size:1.1rem;color:var(--brand-black);">Bill of Materials</h3>
-        <p style="margin:0;color:var(--brand-text-soft);font-size:0.9rem;">Manage selected SKUs and export pricing.</p>
+      <div class="bom-header-copy">
+        <h3>Bill of Materials</h3>
+        <p>Manage selected SKUs and export pricing.</p>
       </div>
-      <button id="bom-close" class="drawer-close" aria-label="Close list">×</button>
+      <button id="bom-close" class="drawer-close ui-btn ui-btn--quiet" aria-label="Close list">×</button>
     </header>
     <div class="bom-body">
       <div id="bom-empty" class="bom-empty" hidden>No items added yet. Use the “+” buttons to build your list.</div>
-      <table class="bom-table" id="bom-table" hidden>
+      <table class="bom-table ui-table" id="bom-table" hidden>
         <thead>
           <tr>
             <th>SKU</th>
@@ -841,23 +523,23 @@
     <div class="bom-footer">
       <div class="bom-summary" id="bom-summary"></div>
       <div class="bom-actions">
-        <button id="bom-open" type="button" class="secondary">Open full view</button>
-        <button id="bom-export" type="button">Export CSV</button>
-        <button id="bom-clear" type="button" class="secondary">Clear list</button>
+        <button id="bom-open" type="button" class="ui-btn ui-btn--secondary secondary">Open full view</button>
+        <button id="bom-export" type="button" class="ui-btn ui-btn--primary">Export CSV</button>
+        <button id="bom-clear" type="button" class="ui-btn ui-btn--secondary secondary">Clear list</button>
       </div>
     </div>
   </aside>
 
-  <div id="bom-modal" class="bom-modal" role="dialog" aria-modal="true" aria-labelledby="bom-modal-title">
+  <div id="bom-modal" class="bom-modal ui-modal" role="dialog" aria-modal="true" aria-labelledby="bom-modal-title">
     <header>
-      <div>
-        <h3 id="bom-modal-title" style="margin:0;color:var(--brand-black);">Bill of Materials</h3>
-        <p style="margin:0;color:var(--brand-text-soft);font-size:0.9rem;">Adjust discounts, then export.</p>
+      <div class="bom-header-copy">
+        <h3 id="bom-modal-title">Bill of Materials</h3>
+        <p>Adjust discounts, then export.</p>
       </div>
-      <button id="bom-modal-close" class="drawer-close" aria-label="Close full view">×</button>
+      <button id="bom-modal-close" class="drawer-close ui-btn ui-btn--quiet" aria-label="Close full view">×</button>
     </header>
     <main>
-      <table class="bom-table">
+      <table class="bom-table ui-table">
         <thead>
           <tr>
             <th>SKU</th>
@@ -876,8 +558,8 @@
     <footer>
       <div class="bom-summary" id="bom-modal-summary"></div>
       <div class="bom-actions">
-        <button id="bom-modal-export" type="button">Export CSV</button>
-        <button id="bom-modal-clear" type="button" class="secondary">Clear list</button>
+        <button id="bom-modal-export" type="button" class="ui-btn ui-btn--primary">Export CSV</button>
+        <button id="bom-modal-clear" type="button" class="ui-btn ui-btn--secondary secondary">Clear list</button>
       </div>
     </footer>
   </div>

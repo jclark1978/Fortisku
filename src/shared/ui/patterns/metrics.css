@@ -1,0 +1,28 @@
+.ui-metric-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.ui-metric {
+  background: var(--color-bg-panel);
+  border: var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-metric-label {
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-line);
+  font-weight: var(--text-label-weight);
+  color: var(--color-text-muted);
+}
+
+.ui-metric-value {
+  margin-top: var(--space-2);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-text-strong);
+}

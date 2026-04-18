@@ -1,0 +1,63 @@
+.ui-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-line);
+  font-weight: var(--text-label-weight);
+  color: var(--color-text-muted);
+}
+
+.ui-input,
+.ui-select,
+.ui-textarea,
+.search-controls input[type="search"],
+.quantity-input,
+.discount-input,
+.paste-box {
+  width: 100%;
+  min-height: var(--ui-control-height);
+  padding: 0 1rem;
+  border-radius: var(--radius-control);
+  border: var(--border-subtle);
+  background: var(--color-bg-panel);
+  color: var(--color-text);
+  font: inherit;
+  transition:
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
+}
+
+.ui-search,
+.search-controls input[type="search"] {
+  min-height: var(--ui-search-height);
+  border-radius: var(--radius-pill);
+  flex: 1;
+  min-width: 200px;
+}
+
+.ui-textarea,
+.paste-box {
+  padding: 0.8rem 1rem;
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus,
+.search-controls input[type="search"]:focus,
+.quantity-input:focus,
+.discount-input:focus,
+.paste-box:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.ui-helper {
+  margin-top: var(--space-2);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--color-text-muted);
+}

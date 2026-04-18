@@ -1,0 +1,11 @@
+.ui-dataset-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-toolbar-gap);
+  align-items: center;
+}
+
+.ui-dataset-summary {
+  display: grid;
+  gap: var(--space-4);
+}

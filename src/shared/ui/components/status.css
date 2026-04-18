@@ -1,0 +1,50 @@
+.ui-alert,
+.status-message,
+.rss-modal-status {
+  border-radius: var(--radius-control);
+  border: 1px solid transparent;
+  padding: 0.75rem 0.9rem;
+}
+
+.ui-alert {
+  padding: 0.75rem 0.9rem;
+}
+
+.status-message:empty,
+.rss-modal-status:empty {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.ui-alert--info,
+.status-message.info,
+.rss-modal-status.info {
+  background: var(--state-info-bg);
+  border-color: var(--state-info-border);
+  color: var(--state-info-text);
+}
+
+.ui-alert--success,
+.status-message.success,
+.rss-modal-status.success {
+  background: var(--state-success-bg);
+  border-color: var(--state-success-border);
+  color: var(--state-success-text);
+}
+
+.ui-alert--warn,
+.status-message.warn,
+.rss-modal-status.warn {
+  background: var(--state-warning-bg);
+  border-color: var(--state-warning-border);
+  color: var(--state-warning-text);
+}
+
+.ui-alert--error,
+.status-message.error,
+.rss-modal-status.error {
+  background: var(--state-danger-bg);
+  border-color: var(--state-danger-border);
+  color: var(--state-danger-text);
+}

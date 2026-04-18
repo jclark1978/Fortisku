@@ -1,0 +1,136 @@
+:root {
+  color-scheme: light;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-red-600: #4caf50;
+  --color-red-700: #43a047;
+  --color-neutral-0: #ffffff;
+  --color-neutral-25: #f8fafb;
+  --color-neutral-50: #f2f5f7;
+  --color-neutral-75: #f0f2f4;
+  --color-neutral-100: #e7ecf0;
+  --color-neutral-200: #d6dde4;
+  --color-neutral-300: #c8d0d8;
+  --color-neutral-500: #667281;
+  --color-neutral-600: #4f5a68;
+  --color-neutral-700: #39424e;
+  --color-neutral-900: #12161b;
+
+  --color-success-100: #edf9f2;
+  --color-success-200: #b8e6c9;
+  --color-success-700: #18794e;
+  --color-info-100: #eef5ff;
+  --color-info-200: #bdd5fb;
+  --color-info-700: #1f5fbf;
+  --color-warning-100: #fff7e8;
+  --color-warning-200: #f5d9a0;
+  --color-warning-700: #8a5800;
+  --color-danger-100: #fef0ee;
+  --color-danger-200: #f5c6c2;
+  --color-danger-700: #b42318;
+
+  --color-bg-canvas: var(--color-neutral-75);
+  --color-bg-subtle: var(--color-neutral-50);
+  --color-bg-panel: var(--color-neutral-0);
+  --color-bg-raised: var(--color-neutral-0);
+  --color-text-strong: var(--color-neutral-900);
+  --color-text: var(--color-neutral-700);
+  --color-text-muted: var(--color-neutral-600);
+  --color-text-subtle: var(--color-neutral-500);
+  --color-border-subtle: var(--color-neutral-300);
+  --color-border-strong: var(--color-neutral-500);
+  --color-accent: var(--color-red-600);
+  --color-accent-hover: var(--color-red-700);
+  --color-focus-ring: rgba(76, 175, 80, 0.16);
+
+  --state-success-bg: var(--color-success-100);
+  --state-success-border: var(--color-success-200);
+  --state-success-text: var(--color-success-700);
+  --state-info-bg: var(--color-info-100);
+  --state-info-border: var(--color-info-200);
+  --state-info-text: var(--color-info-700);
+  --state-warning-bg: var(--color-warning-100);
+  --state-warning-border: var(--color-warning-200);
+  --state-warning-text: var(--color-warning-700);
+  --state-danger-bg: var(--color-danger-100);
+  --state-danger-border: var(--color-danger-200);
+  --state-danger-text: var(--color-danger-700);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --radius-control: 10px;
+  --radius-panel: 16px;
+  --radius-pill: 999px;
+
+  --border-width: 1px;
+  --border-subtle: 1px solid var(--color-border-subtle);
+
+  --shadow-sm: 0 1px 4px rgba(15, 23, 42, 0.14);
+  --shadow-md: 0 18px 38px rgba(15, 23, 42, 0.18);
+  --shadow-lg: 0 24px 56px rgba(15, 23, 42, 0.24);
+
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 240ms;
+
+  --text-display-size: 2rem;
+  --text-display-line: 2.5rem;
+  --text-display-weight: 700;
+  --text-h1-size: clamp(1.9rem, 3vw, 2.6rem);
+  --text-h1-line: 1.15;
+  --text-h1-weight: 700;
+  --text-h2-size: 1.375rem;
+  --text-h2-line: 1.35;
+  --text-h2-weight: 700;
+  --text-h3-size: 1.125rem;
+  --text-h3-line: 1.45;
+  --text-h3-weight: 600;
+  --text-body-lg-size: 1rem;
+  --text-body-lg-line: 1.5rem;
+  --text-body-size: 0.875rem;
+  --text-body-line: 1.375rem;
+  --text-body-sm-size: 0.8125rem;
+  --text-body-sm-line: 1.25rem;
+  --text-label-size: 0.75rem;
+  --text-label-line: 1rem;
+  --text-label-weight: 600;
+  --text-micro-size: 0.6875rem;
+  --text-micro-line: 1rem;
+  --text-micro-weight: 600;
+
+  --ui-control-height: 40px;
+  --ui-search-height: 44px;
+  --ui-panel-padding: 24px;
+  --ui-panel-gap: 16px;
+  --ui-toolbar-gap: 12px;
+  --ui-table-cell-padding-y: 10px;
+  --ui-table-cell-padding-x: 12px;
+
+  /* Legacy aliases for existing pages during migration */
+  --brand-red: var(--color-accent);
+  --brand-red-dark: var(--color-accent-hover);
+  --brand-black: var(--color-text-strong);
+  --brand-text: var(--color-text);
+  --brand-text-muted: var(--color-text-muted);
+  --brand-text-soft: var(--color-text-subtle);
+  --brand-border: var(--color-border-subtle);
+  --brand-panel: var(--color-bg-panel);
+  --brand-surface: var(--color-bg-canvas);
+  --brand-surface-alt: var(--color-bg-subtle);
+  --brand-success: var(--state-success-text);
+  --brand-info: var(--state-info-text);
+  --brand-warn: var(--state-warning-text);
+  --brand-danger: var(--state-danger-text);
+}

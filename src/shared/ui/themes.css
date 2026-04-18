@@ -1,0 +1,29 @@
+body.theme-dark {
+  --color-bg-canvas: #0b1220;
+  --color-bg-subtle: #162032;
+  --color-bg-panel: #111827;
+  --color-bg-raised: #1a2233;
+  --color-text-strong: #ffffff;
+  --color-text: #e4e7eb;
+  --color-text-muted: #c0c6cf;
+  --color-text-subtle: #98a2b3;
+  --color-border-subtle: #374151;
+  --color-border-strong: #6b7280;
+  --color-focus-ring: rgba(76, 175, 80, 0.22);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.26);
+  --shadow-md: 0 18px 38px rgba(0, 0, 0, 0.34);
+  --shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.4);
+
+  --state-success-bg: rgba(24, 121, 78, 0.2);
+  --state-success-border: rgba(184, 230, 201, 0.32);
+  --state-success-text: #a6e1bf;
+  --state-info-bg: rgba(31, 95, 191, 0.2);
+  --state-info-border: rgba(189, 213, 251, 0.28);
+  --state-info-text: #bfdbff;
+  --state-warning-bg: rgba(138, 88, 0, 0.24);
+  --state-warning-border: rgba(245, 217, 160, 0.28);
+  --state-warning-text: #ffd89a;
+  --state-danger-bg: rgba(180, 35, 24, 0.24);
+  --state-danger-border: rgba(245, 198, 194, 0.3);
+  --state-danger-text: #ffc6c1;
+}

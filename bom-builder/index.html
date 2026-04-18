@@ -30,12 +30,13 @@
     <main>
       <section class="panel bom-builder-intro" aria-labelledby="bom-builder-heading">
         <div class="panel-header">
-          <h2 id="bom-builder-heading">Integration Preview</h2>
+          <h2 id="bom-builder-heading">Build a Project BOM</h2>
           <span class="integration-badge">Plugin-backed</span>
         </div>
         <p>
-          This first phase keeps FortiBOM as an upstream-managed engine while Fortisku owns the route, shared shell,
-          and theme styling. The current preview is centered on the FortiGate flow and the shared project BOM workspace.
+          Search for a Fortinet product below to open its configurator inside Fortisku, add the items you need, and
+          manage the combined quote in Project BOM. Use this page when you want to build a customer BOM without
+          leaving the toolbox.
         </p>
 
         <div class="bom-builder-launcher" aria-labelledby="bom-builder-launcher-heading">
@@ -49,6 +50,7 @@
               <label class="sr-only" for="bom-builder-search-input">Search BOM products</label>
               <input
                 id="bom-builder-search-input"
+                class="ui-input ui-search"
                 type="search"
                 placeholder="Search products like FortiGate, FortiManager, FortiAP..."
                 aria-label="Search BOM products"
@@ -62,8 +64,8 @@
         </div>
 
         <div class="bom-builder-actions">
-          <button id="bom-builder-project-button" type="button" class="bom-button secondary">Project BOM</button>
-          <a id="bom-builder-open-full-link" class="secondary action-link" href="../vendor/FortiBOM/index.html" target="_blank" rel="noopener noreferrer">Open Full FortiBOM</a>
+          <button id="bom-builder-project-button" type="button" class="ui-btn ui-btn--secondary bom-button secondary">Project BOM</button>
+          <a id="bom-builder-open-full-link" class="ui-btn ui-btn--secondary action-link" href="../vendor/FortiBOM/index.html" target="_blank" rel="noopener noreferrer">Open Full FortiBOM</a>
         </div>
 
         <p id="bom-builder-status" class="status-message info" role="status" aria-live="polite">
@@ -86,7 +88,7 @@
     </main>
 
     <footer>
-      BOM Builder is currently hosted through a Fortisku wrapper around a vendored FortiBOM snapshot so upstream changes can be integrated more safely.
+      Build product configurations and manage your Project BOM from one place inside Fortisku.
     </footer>
   </div>
 

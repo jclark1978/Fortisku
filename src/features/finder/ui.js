@@ -311,14 +311,14 @@ export function initUI(handlers) {
 
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
-    copyBtn.className = "copy-btn";
+    copyBtn.className = "copy-btn ui-btn ui-btn--secondary";
     copyBtn.dataset.rowIndex = String(index);
     copyBtn.textContent = "Copy";
     wrapper.appendChild(copyBtn);
 
     const toggleBtn = document.createElement("button");
     toggleBtn.type = "button";
-    toggleBtn.className = "icon-button bom-toggle-btn";
+    toggleBtn.className = "icon-button bom-toggle-btn ui-btn ui-btn--secondary ui-btn--pill";
     toggleBtn.dataset.rowId = row.id;
     const isInList = bomLookup.has(row.id);
     toggleBtn.classList.toggle("remove", isInList);
@@ -490,7 +490,7 @@ export function initUI(handlers) {
       const trash = document.createElement("button");
       trash.type = "button";
       trash.dataset.rowId = item.id;
-      trash.className = "trash-button";
+      trash.className = "trash-button ui-btn ui-btn--quiet";
       trash.innerHTML = "🗑";
       actionsCell.appendChild(trash);
       tr.appendChild(actionsCell);
@@ -500,23 +500,13 @@ export function initUI(handlers) {
 
     bomRows.appendChild(fragment);
 
-    bomSummary.innerHTML = `
-      <div><strong>Items:</strong> ${quantityFormatter.format(bomState.totals.itemCount)}</div>
-      <div><strong>Qty:</strong> ${quantityFormatter.format(bomState.totals.totalQuantity)}</div>
-      <div><strong>List Total:</strong> ${currencyFormatter.format(bomState.totals.listTotal)}</div>
-      <div><strong>Discounted:</strong> ${currencyFormatter.format(bomState.totals.discountedTotal)}</div>
-    `;
+    bomSummary.innerHTML = renderBomSummaryMarkup();
   }
 
   function renderBomModal() {
     const items = bomState.items;
     if (!modalOpen) {
-      bomModalSummary.innerHTML = `
-        <div><strong>Items:</strong> ${quantityFormatter.format(bomState.totals.itemCount)}</div>
-        <div><strong>Qty:</strong> ${quantityFormatter.format(bomState.totals.totalQuantity)}</div>
-        <div><strong>List Total:</strong> ${currencyFormatter.format(bomState.totals.listTotal)}</div>
-        <div><strong>Discounted:</strong> ${currencyFormatter.format(bomState.totals.discountedTotal)}</div>
-      `;
+      bomModalSummary.innerHTML = renderBomSummaryMarkup();
       return;
     }
 
@@ -576,7 +566,7 @@ export function initUI(handlers) {
       const trash = document.createElement("button");
       trash.type = "button";
       trash.dataset.rowId = item.id;
-      trash.className = "trash-button";
+      trash.className = "trash-button ui-btn ui-btn--quiet";
       trash.innerHTML = "🗑";
       actionsCell.appendChild(trash);
       tr.appendChild(actionsCell);
@@ -585,12 +575,7 @@ export function initUI(handlers) {
     });
 
     bomModalRows.appendChild(fragment);
-    bomModalSummary.innerHTML = `
-      <div><strong>Items:</strong> ${quantityFormatter.format(bomState.totals.itemCount)}</div>
-      <div><strong>Qty:</strong> ${quantityFormatter.format(bomState.totals.totalQuantity)}</div>
-      <div><strong>List Total:</strong> ${currencyFormatter.format(bomState.totals.listTotal)}</div>
-      <div><strong>Discounted:</strong> ${currencyFormatter.format(bomState.totals.discountedTotal)}</div>
-    `;
+    bomModalSummary.innerHTML = renderBomSummaryMarkup();
   }
 
   function openDrawer() {
@@ -621,6 +606,15 @@ export function initUI(handlers) {
     modalOpen = false;
     bomModal.classList.remove("open");
     updateOverlay();
+  }
+
+  function renderBomSummaryMarkup() {
+    return `
+      <div><strong>Items:</strong> ${quantityFormatter.format(bomState.totals.itemCount)}</div>
+      <div><strong>Qty:</strong> ${quantityFormatter.format(bomState.totals.totalQuantity)}</div>
+      <div><strong>List Total:</strong> ${currencyFormatter.format(bomState.totals.listTotal)}</div>
+      <div><strong>Discounted:</strong> ${currencyFormatter.format(bomState.totals.discountedTotal)}</div>
+    `;
   }
 
   function updateOverlay() {

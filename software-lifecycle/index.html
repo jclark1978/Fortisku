@@ -55,8 +55,8 @@
         </dl>
 
         <div class="dataset-actions">
-          <button id="slc-open-modal-button" type="button">Refresh from RSS</button>
-          <button id="slc-clear-button" type="button" class="secondary">Clear stored data</button>
+          <button id="slc-open-modal-button" type="button" class="ui-btn ui-btn--primary">Refresh from RSS</button>
+          <button id="slc-clear-button" type="button" class="ui-btn ui-btn--secondary secondary">Clear stored data</button>
         </div>
 
         <p id="slc-dataset-status" class="status-message info" role="status" aria-live="polite"></p>
@@ -71,6 +71,7 @@
         <div class="search-controls">
           <input
             id="slc-search-input"
+            class="ui-input ui-search"
             type="search"
             placeholder="FortiADC 3.0"
             aria-label="Search product release"
@@ -79,7 +80,7 @@
         </div>
 
         <div class="results-wrapper">
-          <table id="slc-results-table" aria-live="polite">
+          <table id="slc-results-table" class="ui-table" aria-live="polite">
             <thead>
               <tr>
                 <th scope="col">Product</th>
@@ -107,21 +108,21 @@
     <div class="rss-modal-content">
       <div class="rss-modal-header">
         <h3 id="slc-modal-title">Refresh from Fortinet RSS</h3>
-        <button id="slc-close-modal-button" type="button" class="secondary">Close</button>
+        <button id="slc-close-modal-button" type="button" class="ui-btn ui-btn--secondary secondary">Close</button>
       </div>
 
       <p>Open the Fortinet RSS feed in a new tab, select all, copy the XML, then click Paste from clipboard.</p>
 
       <div class="rss-modal-actions">
-        <button id="slc-open-button" type="button">Open Fortinet RSS</button>
-        <button id="slc-paste-clipboard-button" type="button" class="secondary">Paste from clipboard</button>
+        <button id="slc-open-button" type="button" class="ui-btn ui-btn--primary">Open Fortinet RSS</button>
+        <button id="slc-paste-clipboard-button" type="button" class="ui-btn ui-btn--secondary secondary">Paste from clipboard</button>
       </div>
 
       <p id="slc-modal-status" class="rss-modal-status info" role="status" aria-live="polite"></p>
 
       <textarea
         id="slc-paste-input"
-        class="paste-box"
+        class="paste-box ui-textarea"
         hidden
         spellcheck="false"
         placeholder="Paste the Fortinet RSS XML here, then press Ctrl+Enter to import..."

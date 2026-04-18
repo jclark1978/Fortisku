@@ -13,40 +13,31 @@
     }
 
     section {
-      background: var(--brand-panel);
-      border-radius: 12px;
-      border: 1px solid var(--brand-border);
-      padding: 1.5rem;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      margin: 0;
     }
 
     .panel-header {
-      display: flex;
-      gap: 1rem;
-      align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 1rem;
+      align-items: baseline;
     }
 
     .panel-header h2 {
-      margin: 0;
-      font-size: 1.35rem;
-      color: var(--brand-black);
+      font-size: var(--text-h2-size);
     }
 
     .upload-state {
-      font-size: 0.9rem;
-      color: var(--brand-text-muted);
-      background: var(--brand-surface);
-      border: 1px solid var(--brand-border);
-      border-radius: 999px;
-      padding: 0.15rem 0.55rem;
+      font-size: var(--text-body-sm-size);
+      color: var(--color-text-muted);
+      background: var(--color-bg-subtle);
+      border: var(--border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 0.15rem 0.65rem;
       white-space: nowrap;
     }
 
     .intro {
       margin: 0 0 1rem;
-      color: var(--brand-text-muted);
+      color: var(--color-text-muted);
     }
 
     .form-grid {
@@ -62,53 +53,12 @@
     }
 
     .field label {
-      font-size: 0.8rem;
-      letter-spacing: 0.04em;
+      font-size: var(--text-label-size);
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: var(--brand-text-soft);
-      font-weight: 700;
-    }
-
-    .field input[type="text"] {
+      color: var(--color-text-subtle);
+      font-weight: var(--text-label-weight);
       width: 100%;
-      min-height: 46px;
-      border-radius: 10px;
-      border: 1px solid var(--brand-border);
-      padding: 0.75rem 0.9rem;
-      font: inherit;
-      color: var(--brand-text);
-      background: #ffffff;
-    }
-
-    .field input[type="text"]:focus-visible {
-      outline: 2px solid rgba(218, 41, 28, 0.22);
-      outline-offset: 2px;
-      border-color: var(--brand-red);
-    }
-
-    .upload-label {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      gap: 0.65rem;
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      border: 1px solid var(--brand-border);
-      background: #ffffff;
-      color: var(--brand-text);
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .upload-label:hover {
-      border-color: var(--brand-red);
-      color: var(--brand-black);
-    }
-
-    .upload-label input {
-      display: none;
     }
 
     .action-row {
@@ -119,68 +69,8 @@
       align-items: center;
     }
 
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
-    }
-
-    button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(218, 41, 28, 0.22);
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .primary {
-      background: var(--brand-red);
-      color: #ffffff;
-    }
-
-    .primary:hover:not(:disabled) {
-      background: var(--brand-red-dark);
-    }
-
-    .secondary {
-      background: #ffffff;
-      color: var(--brand-text);
-      border: 1px solid var(--brand-border);
-    }
-
-    .secondary:hover:not(:disabled) {
-      border-color: var(--brand-red);
-      color: var(--brand-black);
-    }
-
-    .status-message {
-      margin: 1rem 0 0;
-      min-height: 1.5rem;
-      font-weight: 600;
-    }
-
-    .status-message.info {
-      color: var(--brand-info);
-    }
-
-    .status-message.success {
-      color: var(--brand-success);
-    }
-
-    .status-message.warn {
-      color: var(--brand-warn);
-    }
-
-    .status-message.error {
-      color: var(--brand-danger);
+    .action-row .ui-btn {
+      min-width: 10rem;
     }
 
     .spinner {
@@ -188,8 +78,8 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      border: 2px solid rgba(48, 127, 226, 0.18);
-      border-top-color: var(--brand-info);
+      border: 2px solid var(--color-border-subtle);
+      border-top-color: var(--state-info-text);
       animation: spin 700ms linear infinite;
       vertical-align: middle;
     }
@@ -209,25 +99,25 @@
     }
 
     .meta-card {
-      border: 1px solid var(--brand-border);
+      border: var(--border-subtle);
       border-radius: 12px;
       padding: 1rem;
-      background: var(--brand-surface-alt);
+      background: var(--color-bg-subtle);
     }
 
     .meta-card dt {
       margin: 0 0 0.2rem;
-      font-size: 0.78rem;
+      font-size: var(--text-label-size);
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--brand-text-soft);
+      color: var(--color-text-subtle);
     }
 
     .meta-card dd {
       margin: 0;
-      font-size: 1rem;
+      font-size: var(--text-body-lg-size);
       font-weight: 700;
-      color: var(--brand-black);
+      color: var(--color-text-strong);
       word-break: break-word;
     }
 
@@ -243,19 +133,19 @@
     }
 
     .preview-panel {
-      border: 1px solid var(--brand-border);
+      border: var(--border-subtle);
       border-radius: 12px;
       overflow: hidden;
-      background: #ffffff;
+      background: var(--color-bg-panel);
     }
 
     .preview-panel h3 {
       margin: 0;
       padding: 0.9rem 1rem;
-      border-bottom: 1px solid var(--brand-border);
-      font-size: 1rem;
-      color: var(--brand-black);
-      background: var(--brand-surface-alt);
+      border-bottom: var(--border-subtle);
+      font-size: var(--text-h3-size);
+      color: var(--color-text-strong);
+      background: var(--color-bg-subtle);
     }
 
     .preview-table-scroll {
@@ -263,28 +153,16 @@
       overflow: auto;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
     th,
     td {
-      padding: 0.7rem 1rem;
-      border-bottom: 1px solid var(--brand-border);
-      text-align: left;
-      vertical-align: top;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
 
     th {
       position: sticky;
       top: 0;
       z-index: 1;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--brand-text-soft);
-      background: #fafafa;
     }
 
     tbody tr:last-child td {
@@ -292,7 +170,7 @@
     }
 
     .empty-row td {
-      color: var(--brand-text-muted);
+      color: var(--color-text-muted);
       font-style: italic;
     }
 
@@ -305,8 +183,8 @@
       height: 1.1rem;
       margin-left: 0.45rem;
       border-radius: 999px;
-      background: rgba(200, 25, 46, 0.12);
-      color: var(--brand-red);
+      background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+      color: var(--color-accent);
       font-size: 0.72rem;
       font-weight: 800;
       line-height: 1;
@@ -323,14 +201,14 @@
       max-width: 19rem;
       padding: 0.55rem 0.7rem;
       border-radius: 10px;
-      background: rgba(19, 24, 31, 0.96);
-      color: #ffffff;
+      background: color-mix(in srgb, var(--color-text-strong) 92%, transparent);
+      color: var(--color-bg-panel);
       font-size: 0.8rem;
       font-weight: 500;
       line-height: 1.45;
       text-align: left;
       white-space: pre-line;
-      box-shadow: 0 12px 28px rgba(19, 24, 31, 0.24);
+      box-shadow: var(--shadow-md);
       opacity: 0;
       pointer-events: none;
       transform: translateY(-50%) translateX(-0.2rem);
@@ -345,77 +223,15 @@
 
     .note {
       margin: 1rem 0 0;
-      color: var(--brand-text-muted);
-      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      font-size: var(--text-body-size);
     }
 
     footer {
       margin-top: 2rem;
-      color: var(--brand-text-soft);
-      font-size: 0.9rem;
+      color: var(--color-text-subtle);
+      font-size: var(--text-body-sm-size);
       text-align: center;
-    }
-
-    body.theme-dark {
-      background: #464646;
-      color: #ffffff;
-    }
-
-    body.theme-dark header h1,
-    body.theme-dark .panel-header h2,
-    body.theme-dark .meta-card dd,
-    body.theme-dark .preview-panel h3 {
-      color: #ffffff;
-    }
-
-    body.theme-dark header p,
-    body.theme-dark .intro,
-    body.theme-dark .note,
-    body.theme-dark footer,
-    body.theme-dark .upload-state,
-    body.theme-dark .meta-card dt,
-    body.theme-dark th,
-    body.theme-dark .status-message.info {
-      color: #d0d0d0;
-    }
-
-    body.theme-dark section,
-    body.theme-dark .upload-label,
-    body.theme-dark .secondary,
-    body.theme-dark .field input[type="text"],
-    body.theme-dark .preview-panel {
-      background: #565656;
-      border-color: #7a7a7a;
-      color: #ffffff;
-    }
-
-    body.theme-dark .secondary:hover:not(:disabled),
-    body.theme-dark .upload-label:hover {
-      background: #616161;
-      color: #ffffff;
-    }
-
-    body.theme-dark .lifecycle-hint {
-      background: rgba(255, 255, 255, 0.14);
-      color: #ffd7dc;
-    }
-
-    body.theme-dark .lifecycle-tooltip {
-      background: rgba(245, 247, 250, 0.96);
-      color: #20262f;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-    }
-
-    body.theme-dark .upload-state,
-    body.theme-dark .meta-card,
-    body.theme-dark .preview-panel h3,
-    body.theme-dark th {
-      background: #4d4d4d;
-      border-color: #7a7a7a;
-    }
-
-    body.theme-dark td {
-      border-color: #6a6a6a;
     }
 
     @media (max-width: 760px) {
@@ -439,7 +255,7 @@
         align-items: stretch;
       }
 
-      .action-row button {
+      .action-row .ui-btn {
         width: 100%;
       }
     }
@@ -465,7 +281,7 @@
     </header>
 
     <main>
-      <section aria-labelledby="asset-upload-heading">
+      <section class="panel" aria-labelledby="asset-upload-heading">
         <div class="panel-header">
           <h2 id="asset-upload-heading">Build Report</h2>
           <span id="ar-upload-state" class="upload-state">Waiting for workbook</span>
@@ -475,11 +291,11 @@
         <div class="form-grid">
           <div class="field">
             <label for="ar-customer-name">Customer Name</label>
-            <input id="ar-customer-name" type="text" placeholder="e.g. Acme Corp" autocomplete="off" />
+            <input id="ar-customer-name" class="ui-input" type="text" placeholder="e.g. Acme Corp" autocomplete="off" />
           </div>
           <div class="field">
             <label for="ar-file-input">Asset Workbook</label>
-            <label class="upload-label" for="ar-file-input">
+            <label class="upload-label ui-btn ui-btn--secondary" for="ar-file-input">
               <span>Select .xlsx file</span>
               <input id="ar-file-input" type="file" accept=".xlsx" />
             </label>
@@ -487,14 +303,14 @@
         </div>
 
         <div class="action-row">
-          <button id="ar-build-button" class="primary" type="button" disabled>Generate Asset Report</button>
-          <button id="ar-clear-button" class="secondary" type="button">Clear</button>
+          <button id="ar-build-button" class="ui-btn ui-btn--primary" type="button" disabled>Generate Asset Report</button>
+          <button id="ar-clear-button" class="ui-btn ui-btn--secondary secondary" type="button">Clear</button>
         </div>
 
         <p id="ar-status" class="status-message info" role="status" aria-live="polite"></p>
       </section>
 
-      <section aria-labelledby="asset-summary-heading">
+      <section class="panel" aria-labelledby="asset-summary-heading">
         <div class="panel-header">
           <h2 id="asset-summary-heading">Workbook Summary</h2>
         </div>
@@ -530,7 +346,7 @@
           <div class="preview-panel">
             <h3>Top Models</h3>
             <div class="preview-table-scroll">
-              <table>
+              <table class="ui-table">
                 <thead>
                   <tr>
                     <th scope="col">Product Model</th>
@@ -547,7 +363,7 @@
           <div class="preview-panel">
             <h3>Renewal Schedule</h3>
             <div class="preview-table-scroll">
-              <table>
+              <table class="ui-table">
                 <thead>
                   <tr>
                     <th scope="col">Quarter</th>
