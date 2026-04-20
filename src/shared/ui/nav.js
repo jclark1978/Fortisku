@@ -28,15 +28,19 @@ const TOOLBOX_ITEMS = [
     key: "bom-builder",
     label: "BOM Builder",
     icon: "layers",
-    children: groupCatalogByCategory().map(({ category, products }) => ({
-      key: categoryKey(category),
-      label: category,
-      children: products.map((product) => ({
-        key: `bom-product-${product.slug}`,
-        label: product.label,
-        href: `bom-builder/?product=${encodeURIComponent(product.slug)}`
+    children: [
+      { key: "bom-project", label: "Project BOM", href: "bom-builder/?view=project" },
+      { key: "bom-saved", label: "Saved Projects", href: "bom-builder/?view=saved" },
+      ...groupCatalogByCategory().map(({ category, products }) => ({
+        key: categoryKey(category),
+        label: category,
+        children: products.map((product) => ({
+          key: `bom-product-${product.slug}`,
+          label: product.label,
+          href: `bom-builder/?product=${encodeURIComponent(product.slug)}`
+        }))
       }))
-    }))
+    ]
   },
   {
     key: "lifecycle",

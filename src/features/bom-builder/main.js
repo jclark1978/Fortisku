@@ -6,21 +6,22 @@ const FORTIGATE_PRODUCT_PATH = "products/fortigate-bomgen.html";
 const BRIDGE_STYLESHEET = new URL("./theme-bridge.css", import.meta.url).href;
 const frame = document.getElementById("bom-builder-frame");
 const projectButton = document.getElementById("bom-builder-project-button");
+const savedButton = document.getElementById("bom-builder-saved-button");
 const statusEl = document.getElementById("bom-builder-status");
+const initialView = resolveInitialView();
+const initialProduct = resolveInitialProduct();
+
 let heightSyncTimer = 0;
 let themeObserver = null;
-const initialProduct = resolveInitialProduct();
-let activeProductPath = initialProduct.path;
 
-initToolboxNav({ current: [`bom-product-${initialProduct.slug}`], basePath: "../" });
+initToolboxNav({ current: getInitialNavSelection(), basePath: "../" });
 initThemeToggle();
 startThemeSync();
 
 frame?.addEventListener("load", () => {
   try {
     bridgeFortiBomShell();
-    loadSelectedProduct(initialProduct.path, initialProduct.label);
-    setStatus("success", `Embedded BOM workspace is ready. Starting in the ${initialProduct.label} configurator.`);
+    openInitialView();
   } catch (error) {
     console.error("Failed to bridge FortiBOM shell", error);
     setStatus("warn", "The BOM workspace loaded, but the native SE Toolbox bridge could not be fully applied.");
@@ -32,6 +33,18 @@ projectButton?.addEventListener("click", () => {
   setStatus("info", "Showing the shared Project BOM workspace.");
 });
 
+savedButton?.addEventListener("click", () => {
+  showSavedProjects();
+  setStatus("info", "Showing saved BOM projects from the embedded workspace.");
+});
+
+window.addEventListener("resize", scheduleFrameHeightSync);
+
+function resolveInitialView() {
+  const requestedView = new URL(window.location.href).searchParams.get("view");
+  return requestedView === "project" || requestedView === "saved" ? requestedView : "product";
+}
+
 function resolveInitialProduct() {
   const productSlug = new URL(window.location.href).searchParams.get("product");
   const selected = findProductBySlug(productSlug);
@@ -40,12 +53,40 @@ function resolveInitialProduct() {
   }
 
   const fallback = PRODUCT_CATALOG.find((product) => product.path === FORTIGATE_PRODUCT_PATH) || PRODUCT_CATALOG[0];
-  if (fallback) {
+  if (fallback && initialView === "product") {
     const nextUrl = new URL(window.location.href);
     nextUrl.searchParams.set("product", fallback.slug);
+    nextUrl.searchParams.delete("view");
     window.history.replaceState({}, "", nextUrl);
   }
   return fallback;
+}
+
+function getInitialNavSelection() {
+  if (initialView === "project") {
+    return ["bom-project"];
+  }
+  if (initialView === "saved") {
+    return ["bom-saved"];
+  }
+  return initialProduct ? [`bom-product-${initialProduct.slug}`] : ["bom-builder"];
+}
+
+function openInitialView() {
+  if (initialView === "project") {
+    showProjectBom();
+    setStatus("success", "Embedded FabricBOM workspace is ready. Starting in Project BOM.");
+    return;
+  }
+
+  if (initialView === "saved") {
+    showSavedProjects();
+    setStatus("success", "Embedded FabricBOM workspace is ready. Starting in Saved Projects.");
+    return;
+  }
+
+  loadSelectedProduct(initialProduct.path, initialProduct.label);
+  setStatus("success", `Embedded FabricBOM workspace is ready. Starting in the ${initialProduct.label} configurator.`);
 }
 
 function bridgeFortiBomShell() {
@@ -101,8 +142,11 @@ function loadSelectedProduct(path, label) {
   }
 
   appWindow.loadProduct(path, label, null);
-  activeProductPath = path;
   setSelectedMode("product");
+  const selectedProduct = PRODUCT_CATALOG.find((product) => product.path === path);
+  if (selectedProduct) {
+    updateViewQuery({ productSlug: selectedProduct.slug });
+  }
   scheduleFrameHeightSync();
 }
 
@@ -114,11 +158,37 @@ function showProjectBom() {
 
   appWindow.showPBV();
   setSelectedMode("project");
+  updateViewQuery({ view: "project" });
+  scheduleFrameHeightSync();
+}
+
+function showSavedProjects() {
+  const appWindow = frame?.contentWindow;
+  if (!appWindow?.showSavedProjects) {
+    return;
+  }
+
+  appWindow.showSavedProjects();
+  setSelectedMode("saved");
+  updateViewQuery({ view: "saved" });
   scheduleFrameHeightSync();
 }
 
 function setSelectedMode(mode) {
   projectButton?.toggleAttribute("aria-current", mode === "project");
+  savedButton?.toggleAttribute("aria-current", mode === "saved");
+}
+
+function updateViewQuery({ productSlug = null, view = null }) {
+  const nextUrl = new URL(window.location.href);
+  if (productSlug) {
+    nextUrl.searchParams.set("product", productSlug);
+    nextUrl.searchParams.delete("view");
+  } else if (view) {
+    nextUrl.searchParams.set("view", view);
+    nextUrl.searchParams.delete("product");
+  }
+  window.history.replaceState({}, "", nextUrl);
 }
 
 function setStatus(level, message) {

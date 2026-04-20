@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiDLP — FortiBOM</title>
+<style>
+:root {
+  --forti-red:             #EE3124;
+  --forti-border:          #DDE1E9;
+  --forti-bg:              #F2F4F7;
+  --forti-white:           #FFFFFF;
+  --forti-text:            #2A2F3A;
+  --forti-text-secondary:  #6B7589;
+  --forti-text-muted:      #9BA5BA;
+  --forti-section-header:  #F7F9FC;
+  --forti-input-border:    #C8CDD9;
+  --forti-table-head:      #EEF1F6;
+  --forti-table-stripe:    #F7F9FC;
+  --forti-info-bg:         #EEF3FF;
+  --forti-info-border:     #B8CBF5;
+  --forti-info-text:       #3557A5;
+  --forti-warn-bg:         #FFF8EE;
+  --forti-warn-border:     #F5D9A0;
+  --forti-warn-text:       #8A5800;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--forti-text);
+  background: var(--forti-bg);
+  padding: 20px;
+}
+
+/* ── Page header ── */
+.page-header { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+.page-icon {
+  width:42px; height:42px; border-radius:6px;
+  background:var(--forti-red); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.page-icon svg { width:24px; height:24px; fill:#fff; }
+.page-title { font-size:20px; font-weight:700; color:var(--forti-text); line-height:1.2; }
+.page-subtitle { font-size:11px; color:var(--forti-text-muted); margin-top:2px; }
+
+/* ── Cards ── */
+.card {
+  background:var(--forti-white);
+  border:1px solid var(--forti-border);
+  border-radius:4px;
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.card-header {
+  background:var(--forti-section-header);
+  border-bottom:1px solid var(--forti-border);
+  padding:9px 18px;
+  font-weight:600;
+  font-size:12px;
+  color:var(--forti-text-secondary);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.card-body { padding:16px 18px; }
+
+/* ── Form fields ── */
+.field-group { margin-bottom:14px; }
+.field-group:last-child { margin-bottom:0; }
+label { display:block; font-size:12px; font-weight:600; color:var(--forti-text-secondary); margin-bottom:5px; }
+label .req { color:var(--forti-red); margin-left:2px; }
+input[type=number], select {
+  background:white; border:1px solid var(--forti-input-border);
+  border-radius:3px; padding:6px 9px; font-size:13px; width:100%;
+  color:var(--forti-text); outline:none; font-family:inherit;
+  appearance:none; -webkit-appearance:none;
+}
+select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236B7589'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 9px center; padding-right:26px; }
+input[type=number]:focus, select:focus {
+  border-color:var(--forti-red);
+  box-shadow:0 0 0 2px rgba(238,49,36,.1);
+}
+input.invalid, select.invalid { border-color:var(--forti-red) !important; }
+.err { display:none; color:var(--forti-red); font-size:11px; margin-top:3px; }
+
+/* ── Two-column grid ── */
+.grid-2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr)); gap:14px; }
+
+/* ── Tier cards ── */
+.tier-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr)); gap:8px; margin-bottom:4px; }
+.tier-card {
+  border:2px solid var(--forti-border);
+  border-radius:4px;
+  padding:11px 14px;
+  cursor:pointer;
+  transition:border-color .15s, background .15s;
+  background:white;
+}
+.tier-card:hover { border-color:#B8CBF5; background:#F8FAFF; }
+.tier-card.selected { border-color:var(--forti-red); background:#FEF8F8; }
+.tier-card .tc-name { font-weight:700; font-size:13px; color:var(--forti-text); }
+.tier-card .tc-sub  { font-size:11px; color:var(--forti-text-secondary); margin-top:2px; }
+.tier-card .tc-code { font-family:'Courier New',monospace; font-size:10px; color:#1A4E82; margin-top:5px; }
+
+/* ── Band indicator ── */
+.band-indicator {
+  display:none;
+  background:var(--forti-info-bg);
+  border:1px solid var(--forti-info-border);
+  border-radius:3px;
+  padding:4px 10px;
+  font-size:12px;
+  color:var(--forti-info-text);
+  margin-top:5px;
+}
+
+/* ── Callouts ── */
+.callout { border-radius:3px; padding:9px 12px; font-size:12px; line-height:1.6; display:flex; gap:8px; margin-bottom:10px; }
+.callout:last-child { margin-bottom:0; }
+.callout-icon { flex-shrink:0; font-size:14px; margin-top:1px; }
+.info { background:var(--forti-info-bg); border:1px solid var(--forti-info-border); color:var(--forti-info-text); }
+.warn { background:var(--forti-warn-bg); border:1px solid var(--forti-warn-border); color:var(--forti-warn-text); }
+
+/* ── Add-ons ── */
+.addon-row {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 0; border-bottom:1px solid var(--forti-border);
+}
+.addon-row:last-child { border-bottom:none; padding-bottom:0; }
+.addon-row input[type=checkbox] { margin-top:2px; width:auto; flex-shrink:0; cursor:pointer; accent-color:var(--forti-red); }
+.addon-label { flex:1; }
+.addon-label .al-name { font-size:13px; font-weight:600; color:var(--forti-text); }
+.addon-label .al-desc { font-size:11px; color:var(--forti-text-muted); margin-top:1px; }
+.addon-row.disabled { opacity:.4; pointer-events:none; }
+
+/* ── Feature table ── */
+.feat-table { width:100%; border-collapse:collapse; font-size:11px; margin-bottom:0; }
+.feat-table thead th {
+  background:var(--forti-table-head);
+  border:1px solid var(--forti-border);
+  padding:6px 10px;
+  font-size:10px; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--forti-text-secondary); text-align:center;
+}
+.feat-table thead th:first-child { text-align:left; }
+.feat-table tbody td {
+  border:1px solid var(--forti-border);
+  padding:5px 10px;
+  vertical-align:middle;
+  color:var(--forti-text);
+}
+.feat-table tbody tr:nth-child(even) td { background:var(--forti-table-stripe); }
+.feat-table td.check { text-align:center; color:#2E7D32; font-size:13px; }
+.feat-table td.dash  { text-align:center; color:var(--forti-text-muted); }
+.feat-table tr.group-head td {
+  background:#EAECF3 !important;
+  font-weight:700; font-size:10px; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--forti-text-secondary);
+  padding:4px 10px; border-top:2px solid #C5CAD9;
+}
+
+/* ── Action buttons ── */
+.actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+button {
+  padding:7px 16px; border:none; border-radius:3px; cursor:pointer;
+  font-size:13px; font-weight:600; font-family:inherit;
+  transition:opacity .15s;
+}
+button:hover { opacity:.85; }
+.btn-primary { background:var(--forti-red); color:white; }
+.btn-success { background:#2E7D32; color:white; }
+.btn-neutral { background:#E4E7EF; color:var(--forti-text); }
+.btn-sm { padding:5px 11px; font-size:11px; font-weight:600; }
+#smsg { font-size:12px; font-weight:600; }
+
+/* ── BOM preview table ── */
+#bom-section { display:none; }
+#bom-section .card-header { display:flex; align-items:center; justify-content:space-between; }
+.bom-table { width:100%; border-collapse:collapse; font-size:12px; }
+.bom-table thead th {
+  background:var(--forti-table-head);
+  border:1px solid var(--forti-border);
+  padding:7px 11px;
+  font-size:10px; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--forti-text-secondary); white-space:nowrap;
+}
+.bom-table tbody td { border:1px solid var(--forti-border); padding:7px 11px; vertical-align:top; }
+.bom-table tbody tr:nth-child(even) td { background:var(--forti-table-stripe); }
+.bom-table .section-row td {
+  background:#EAECF3 !important;
+  font-weight:700; font-size:10px; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--forti-text-secondary);
+  padding:5px 11px; border-top:2px solid #C5CAD9;
+}
+.sku { font-family:'Courier New',monospace; font-size:11px; color:#1A4E82; white-space:nowrap; }
+.nc  { color:var(--forti-text-muted); font-size:11px; }
+.badge { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:2px; padding:1px 4px; display:inline-block; white-space:nowrap; }
+.badge-req  { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+.badge-opt  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.badge-mand { background:#FFF8EE; color:#8A5800; border:1px solid #F5D9A0; }
+.badge-inc  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.badge-note { display:none; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE HEADER
+═══════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-icon">
+    <!-- Shield with lock icon -->
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5L12 1zm-1 13H9v-2h2v2zm0-4H9V6h2v4zm4 4h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+    </svg>
+  </div>
+  <div>
+    <div class="page-title">FortiDLP</div>
+    <div class="page-subtitle">Cloud-native Endpoint DLP &amp; Insider Risk Management · Ordering Guide FNDLP-OG-R7-20260116</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUCT OVERVIEW TABLE
+═══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">License Tier Comparison</div>
+  <div class="card-body" style="padding:0; overflow-x:auto;">
+    <table class="feat-table">
+      <thead>
+        <tr>
+          <th style="width:45%; text-align:left;">Feature</th>
+          <th style="width:18%;">Core</th>
+          <th style="width:18%;">Advanced</th>
+          <th style="width:19%;">Managed Service</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="group-head"><td colspan="4">DLP</td></tr>
+        <tr><td>Device Control</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Inline DLP for Web, Email, Printers, Clipboard &amp; Removable Media</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Visibility Event Streams (USB, Browsers, Email, Print)</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>GenAI &amp; SaaS App Inventory with Data Risk Analytics</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Real-time Content Inspection (On and Off Network)</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Data Origin &amp; Data Lineage Tracking</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Customizable Endpoint Employee Coaching</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Global Data Privacy &amp; Regulatory Compliance Policy Library</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Microsoft Purview Sensitivity Label Support</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Secure Evidence Store (File, Clipboard, GenAI Prompt Forensics)</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Investigate Event Search &amp; Activity Timeline</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Incident Management with 1-Year Data Retention</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr class="group-head"><td colspan="4">Insider Risk Management</td></tr>
+        <tr><td>Telemetry-Rich Activity Event Streams (Endpoints &amp; Cloud Drives)</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Machine Learning-Powered Behavioral Detections</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>MITRE ATT&amp;CK®-mapped Insider Threat Detection Library</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Insider Risk Data Exfiltration Sequence Detection</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Endpoint Isolate &amp; Lock Device Actions</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Secure Evidence Store for Screen Capture Forensics</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Case Management with FortiAI¹</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr class="group-head"><td colspan="4">Enterprise SaaS Integration</td></tr>
+        <tr><td>Microsoft Office 365 Connector</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Google Workspace Connector</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Box Drive Connector</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Employee Coaching via Slack &amp; Teams</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Realtime File Sharing Controls</td><td class="dash">–</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr class="group-head"><td colspan="4">Managed Service</td></tr>
+        <tr><td>Product Configuration &amp; Provisioning</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+        <tr><td>Monthly Data Reports &amp; Security Analyst Reviews</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+        <tr><td>DLP Policy Optimization</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+        <tr><td>Incident Monitoring Assistance</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+        <tr><td>Premium PoP Hosting (e.g. KSA)</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:8px 12px; font-size:10px; color:var(--forti-text-muted);">¹ FortiAI requires an additional token license. FortiCare Premium support is included with all license tiers.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONFIGURATION FORM
+═══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">License Configuration</div>
+  <div class="card-body">
+
+    <!-- Tier selection -->
+    <div class="field-group">
+      <label>License Tier <span class="req">*</span></label>
+      <div class="tier-grid" id="tier-grid">
+
+        <div class="tier-card" id="tc-core" onclick="selectTier('core')">
+          <div class="tc-name">Core</div>
+          <div class="tc-sub">Endpoint DLP &amp; Secure Data Flow</div>
+          <div class="tc-code">DLPEP-1097</div>
+        </div>
+
+        <div class="tier-card" id="tc-advanced" onclick="selectTier('advanced')">
+          <div class="tc-name">Advanced</div>
+          <div class="tc-sub">Core + Insider Risk + SaaS Integration</div>
+          <div class="tc-code">DLPEP-1098</div>
+        </div>
+
+        <div class="tier-card" id="tc-managed" onclick="selectTier('managed')">
+          <div class="tc-name">Advanced + Managed Service</div>
+          <div class="tc-sub">Advanced + Named Contact, Risk Reports, BPS &amp; Premium PoP</div>
+          <div class="tc-code">DLPEP-1099</div>
+        </div>
+
+        <div class="tier-card" id="tc-premium" onclick="selectTier('premium')">
+          <div class="tc-name">Advanced + Premium Hosting</div>
+          <div class="tc-sub">Advanced with premium PoP (e.g. KSA)</div>
+          <div class="tc-code">DLPEP-1174</div>
+        </div>
+
+      </div>
+      <div class="err" id="err-tier">Please select a license tier.</div>
+    </div>
+
+    <!-- Endpoint count + band indicator -->
+    <div class="grid-2">
+      <div class="field-group">
+        <label>Number of Endpoints <span class="req">*</span>  <span style="font-weight:400;font-size:11px;color:var(--forti-text-muted);">(min. 100)</span></label>
+        <input type="number" id="f-endpoints" min="100" step="1" placeholder="e.g. 500" oninput="updateBandIndicator()">
+        <div class="err" id="err-endpoints">Enter a valid endpoint count (minimum 100).</div>
+        <div class="band-indicator" id="band-indicator">
+          Band: <code id="band-text">FC2</code> · <span id="band-range">100–499 endpoints</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Deployment Type</label>
+        <select id="f-deployment" style="margin-top:0;">
+          <option value="new">New Customer (first year)</option>
+          <option value="renewal">Renewal / Add-on</option>
+        </select>
+        <div style="font-size:11px;color:var(--forti-text-muted);margin-top:4px;" id="deploy-hint">BPS or Managed Service is mandatory for new customers in year 1.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADD-ONS
+═══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Add-on Services</div>
+  <div class="card-body">
+
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <span><strong>New customers:</strong> BPS is mandatory in the first subscription year. Selecting the <em>Managed Service</em> tier automatically fulfills the BPS requirement — do not add BPS separately in that case.</span>
+    </div>
+
+    <!-- BPS add-on -->
+    <div class="addon-row" id="addon-bps-row">
+      <input type="checkbox" id="addon-bps" onchange="updateAddonState()">
+      <div class="addon-label">
+        <div class="al-name">FortiCare Best Practices Service (BPS) <span id="bps-badge" style="display:none;" class="badge badge-mand">Mandatory – New Customers</span></div>
+        <div class="al-desc">Designated FortiDLP contact, setup guidance, best practice advice, and checkpoint meetings. Required for new customers in year 1. SKU: FC1/FC2/FC3-10-DLBPS-310-02-DD (banded by endpoint count).</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ACTION BUTTONS
+═══════════════════════════════════════════════════════════ -->
+<div class="actions">
+  <button class="btn-primary" onclick="generateBOM()">Preview BOM</button>
+  <button class="btn-success" onclick="addToProjectBOM()">Add to Project BOM</button>
+  <button class="btn-neutral" onclick="resetForm()">Reset</button>
+  <span id="smsg"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOM PREVIEW
+═══════════════════════════════════════════════════════════ -->
+<div id="bom-section">
+  <div class="card">
+    <div class="card-header">
+      <span>BOM Preview</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-neutral btn-sm" onclick="copyTSV()">Copy TSV</button>
+        <button class="btn-neutral btn-sm" onclick="window.print()">Print</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0; overflow-x:auto;">
+      <table class="bom-table">
+        <thead>
+          <tr>
+            <th style="width:22%;">Part Number</th>
+            <th style="width:36%;">Description</th>
+            <th style="width:6%; text-align:center;">Qty</th>
+            <th style="width:9%;">Type</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bom-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA MODEL
+═══════════════════════════════════════════════════════════ */
+
+// License tier definitions
+const TIERS = {
+  core:     { label:'Core',                       skuCode:'1097', desc:'FortiDLP Core — Endpoint DLP, Secure Data Flow with Data Lineage, FortiCare Premium' },
+  advanced: { label:'Advanced',                   skuCode:'1098', desc:'FortiDLP Advanced — Endpoint DLP, Insider Risk Management, SaaS Integration, FortiCare Premium' },
+  managed:  { label:'Advanced + Managed Service', skuCode:'1099', desc:'FortiDLP Advanced with Managed Service — Endpoint DLP, Insider Risk, SaaS Integration, Named Contact, Risk Reports, BPS & Premium PoP, FortiCare Premium' },
+  premium:  { label:'Advanced + Premium Hosting', skuCode:'1174', desc:'FortiDLP Advanced with Premium Hosting — Premium PoP (KSA), Endpoint DLP, Insider Risk, SaaS Integration, FortiCare Premium' },
+};
+
+// Endpoint band breakpoints for main license tiers
+// Band is derived from endpoint count — ordered largest-first for display, exact match used for SKU
+const LICENSE_BANDS = [
+  { band:'FC5', min:10000, max:Infinity,   label:'10,000+ endpoints' },
+  { band:'FC4', min:2000,  max:9999,       label:'2,000–9,999 endpoints' },
+  { band:'FC3', min:500,   max:1999,       label:'500–1,999 endpoints' },
+  { band:'FC2', min:100,   max:499,        label:'100–499 endpoints' },
+];
+
+// BPS bands (separate breakpoints)
+const BPS_BANDS = [
+  { band:'FC3', min:10000, max:Infinity, label:'10,000+ endpoints' },
+  { band:'FC2', min:1000,  max:9999,    label:'1,000–9,999 endpoints' },
+  { band:'FC1', min:1,     max:999,     label:'Up to 999 endpoints' },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let _selectedTier = null;
+let _lastRows  = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function getLicenseBand(n) {
+  for (const b of LICENSE_BANDS) {
+    if (n >= b.min && n <= b.max) return b;
+  }
+  return null;
+}
+
+function getBpsBand(n) {
+  for (const b of BPS_BANDS) {
+    if (n >= b.min && n <= b.max) return b;
+  }
+  return BPS_BANDS[BPS_BANDS.length - 1];
+}
+
+function buildLicenseSku(band, skuCode) {
+  return `${band}-10-DLPEP-${skuCode}-02-DD`;
+}
+
+function buildBpsSku(band) {
+  return `${band}-10-DLBPS-310-02-DD`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UI INTERACTIONS
+═══════════════════════════════════════════════════════════ */
+function selectTier(tier) {
+  _selectedTier = tier;
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('tc-' + tier).classList.add('selected');
+  document.getElementById('err-tier').style.display = 'none';
+  updateAddonState();
+  clearStatus();
+}
+
+function updateBandIndicator() {
+  const n = parseInt(document.getElementById('f-endpoints').value, 10);
+  const ind = document.getElementById('band-indicator');
+  if (!isNaN(n) && n >= 100) {
+    const b = getLicenseBand(n);
+    if (b) {
+      document.getElementById('band-text').textContent  = b.band;
+      document.getElementById('band-range').textContent = b.label;
+      ind.style.display = 'block';
+    } else {
+      ind.style.display = 'none';
+    }
+  } else {
+    ind.style.display = 'none';
+  }
+  clearStatus();
+}
+
+function updateAddonState() {
+  const isManaged = _selectedTier === 'managed';
+  const row = document.getElementById('addon-bps-row');
+  const cb  = document.getElementById('addon-bps');
+
+  if (isManaged) {
+    // Managed Service already includes BPS — disable and uncheck
+    row.classList.add('disabled');
+    cb.checked = false;
+  } else {
+    row.classList.remove('disabled');
+    // Show/hide mandatory badge based on deployment type
+    const isNew = document.getElementById('f-deployment').value === 'new';
+    const badge = document.getElementById('bps-badge');
+    badge.style.display = isNew ? 'inline-block' : 'none';
+  }
+}
+
+document.getElementById('f-deployment').addEventListener('change', () => {
+  updateAddonState();
+  clearStatus();
+});
+
+function clearStatus() {
+  const s = document.getElementById('smsg');
+  s.textContent = '';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════════════════════════ */
+function validateField(fieldId, errId, condition) {
+  const field = document.getElementById(fieldId);
+  const err   = document.getElementById(errId);
+  if (!condition) {
+    if (field) field.classList.add('invalid');
+    if (err)   err.style.display = 'block';
+    return false;
+  }
+  if (field) field.classList.remove('invalid');
+  if (err)   err.style.display = 'none';
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERATE BOM
+═══════════════════════════════════════════════════════════ */
+function generateBOM() {
+  // ── 1. Read form values ──────────────────────────────
+  const tier       = _selectedTier;
+  const endpoints  = parseInt(document.getElementById('f-endpoints').value, 10);
+  const isNew      = document.getElementById('f-deployment').value === 'new';
+  const addBps     = document.getElementById('addon-bps').checked;
+  const isManaged  = tier === 'managed';
+
+  // ── 2. Validate ──────────────────────────────────────
+  let ok = true;
+
+  // Tier
+  if (!tier) {
+    document.getElementById('err-tier').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('err-tier').style.display = 'none';
+  }
+
+  // Endpoint count
+  ok = validateField('f-endpoints', 'err-endpoints', !isNaN(endpoints) && endpoints >= 100) && ok;
+
+  if (!ok) return false;
+
+  // ── 3. Band resolution ───────────────────────────────
+  const licBand = getLicenseBand(endpoints);
+  // Note: licBand should always be found since min is 100 → FC2 starts at 100
+  // If someone enters exactly 10000 → FC5
+  const bpsBand = getBpsBand(endpoints);
+
+  // ── 4. Build rows array ──────────────────────────────
+  const rows = [];
+  const tierDef = TIERS[tier];
+
+  rows.push({ section: 'FortiDLP License' });
+
+  const licSku = buildLicenseSku(licBand.band, tierDef.skuCode);
+  rows.push({
+    sku:  licSku,
+    desc: tierDef.desc,
+    qty:  endpoints,
+    kind: 'req',
+    note: `${licBand.band} · ${licBand.label} · per endpoint · FortiCare Premium included`,
+  });
+
+  // ── 5. BPS handling ──────────────────────────────────
+  if (isManaged) {
+    rows.push({
+      sku:  '⚠',
+      desc: 'BPS is included within the Advanced + Managed Service tier — do not order separately.',
+      qty:  null,
+      kind: 'note',
+      note: '',
+    });
+  } else {
+    if (isNew) {
+      // BPS is mandatory for new customers — always include as mand row
+      const bpsSku = buildBpsSku(bpsBand.band);
+      rows.push({ section: 'Best Practices Service (Mandatory – New Customers)' });
+      rows.push({
+        sku:  bpsSku,
+        desc: `FortiCare Best Practices Consultation Service (BPS) — Setup, designated contact, best practice advice & checkpoint meetings`,
+        qty:  1,
+        kind: 'mand',
+        note: `${bpsBand.band} · ${bpsBand.label} · mandatory year 1 for new customers`,
+      });
+      if (!addBps) {
+        // Warn SE if they haven't ticked BPS on a new customer deal
+        rows.push({
+          sku:  '⚠',
+          desc: 'BPS checkbox not selected but is mandatory for new customers. SKU above has been added automatically.',
+          qty:  null,
+          kind: 'note',
+          note: '',
+        });
+      }
+    } else if (addBps) {
+      // Renewal opted in for BPS
+      const bpsSku = buildBpsSku(bpsBand.band);
+      rows.push({ section: 'Best Practices Service (Optional)' });
+      rows.push({
+        sku:  bpsSku,
+        desc: `FortiCare Best Practices Consultation Service (BPS) — Setup, designated contact, best practice advice & checkpoint meetings`,
+        qty:  1,
+        kind: 'opt',
+        note: `${bpsBand.band} · ${bpsBand.label}`,
+      });
+    }
+  }
+
+  // ── 6. Populate state vars ───────────────────────────
+  const tierLabel = tierDef.label;
+  _lastLabel = `FortiDLP ${tierLabel} × ${endpoints.toLocaleString()} endpoints`;
+  _lastRows  = rows;
+  _lastMeta  = {
+    'Tier':          tierLabel,
+    'Endpoints':     endpoints.toLocaleString(),
+    'License Band':  licBand.band,
+    'Deployment':    isNew ? 'New Customer' : 'Renewal / Add-on',
+    'BPS':           isManaged ? 'Included (Managed)' : (isNew ? 'Mandatory' : (addBps ? 'Yes' : 'No')),
+  };
+
+  // ── 7. Render preview ────────────────────────────────
+  renderBOM(rows);
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER BOM TABLE
+═══════════════════════════════════════════════════════════ */
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-tbody');
+  tbody.innerHTML = '';
+
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+
+    if (row.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${escHtml(row.section)}</td>`;
+    } else {
+      const badgeMap = { req:'REQUIRED', mand:'MANDATORY', opt:'OPTIONAL', inc:'INCLUDED', note:'' };
+      const badgeClass = `badge-${row.kind}`;
+      const badgeText  = badgeMap[row.kind] || '';
+      const badgeHtml  = badgeText ? `<span class="badge ${badgeClass}">${badgeText}</span>` : '';
+      const qtyHtml    = row.qty != null ? row.qty.toLocaleString() : '—';
+      const skuHtml    = row.sku === '⚠'
+        ? `<span style="font-size:13px;">⚠</span>`
+        : `<span class="sku">${escHtml(row.sku)}</span>`;
+
+      tr.innerHTML = `
+        <td>${skuHtml}</td>
+        <td class="nc">${escHtml(row.desc)}</td>
+        <td style="text-align:center;">${qtyHtml}</td>
+        <td>${badgeHtml}</td>
+        <td class="nc">${escHtml(row.note || '')}</td>`;
+    }
+
+    tbody.appendChild(tr);
+  });
+
+  const section = document.getElementById('bom-section');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADD TO PROJECT BOM
+═══════════════════════════════════════════════════════════ */
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiDLP',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta,
+    }, '*');
+  }
+  const s = document.getElementById('smsg');
+  s.textContent = '✓ Added to Project BOM.';
+  s.style.color = '#2E7D32';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════ */
+function resetForm() {
+  _selectedTier = null;
+  _lastRows  = [];
+  _lastLabel = '';
+  _lastMeta  = {};
+
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('f-endpoints').value = '';
+  document.getElementById('f-deployment').value = 'new';
+  document.getElementById('addon-bps').checked = false;
+
+  // Clear validation states
+  ['f-endpoints'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('invalid');
+  });
+  ['err-tier','err-endpoints'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  document.getElementById('band-indicator').style.display = 'none';
+  document.getElementById('bom-section').style.display = 'none';
+  document.getElementById('bom-tbody').innerHTML = '';
+  document.getElementById('bps-badge').style.display = 'inline-block';
+  document.getElementById('addon-bps-row').classList.remove('disabled');
+
+  clearStatus();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COPY TSV
+═══════════════════════════════════════════════════════════ */
+function copyTSV() {
+  if (!_lastRows.length) return;
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(row => {
+    if (row.section !== undefined) {
+      lines.push(`[${row.section}]\t\t\t\t`);
+    } else {
+      const kindMap = { req:'REQUIRED', mand:'MANDATORY', opt:'OPTIONAL', inc:'INCLUDED', note:'' };
+      lines.push([
+        row.sku || '',
+        row.desc || '',
+        row.qty != null ? row.qty : '',
+        kindMap[row.kind] || '',
+        row.note || '',
+      ].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const s = document.getElementById('smsg');
+    s.textContent = '✓ TSV copied to clipboard.';
+    s.style.color = '#2E7D32';
+  }).catch(() => {
+    const s = document.getElementById('smsg');
+    s.textContent = 'Copy failed — please use browser permissions.';
+    s.style.color = 'var(--forti-red)';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT — show BPS mandatory badge on load (new customer default)
+═══════════════════════════════════════════════════════════ */
+document.getElementById('bps-badge').style.display = 'inline-block';
+</script>
+</body>
+</html>

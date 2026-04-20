@@ -285,7 +285,7 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
 ══════════════════════════════════════ -->
 <div class="card">
   <div class="card-head">Program Overview</div>
-  <div class="card-body">
+  <div class="card-body" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
     <table>
       <thead>
         <tr>
@@ -317,7 +317,7 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
       </tbody>
     </table>
 
-    <div style="margin-top:14px;">
+    <div style="margin-top:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <table>
         <thead>
           <tr>
@@ -472,7 +472,7 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
       <button class="btn-neutral btn-sm" onclick="copyTSV()">⎘ Copy TSV</button>
       <button class="btn-neutral btn-sm" onclick="window.print()">⎙ Print</button>
     </div>
-    <table id="bom-table">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table id="bom-table">
       <thead>
         <tr>
           <th style="width:200px;">Part Number</th>
@@ -483,7 +483,7 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
         </tr>
       </thead>
       <tbody id="bom-tbody"></tbody>
-    </table>
+    </table></div>
   </div>
 </div>
 

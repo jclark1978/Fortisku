@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiEDR – FortiBOM</title>
+<style>
+:root {
+  --forti-red:    #EE3124;
+  --forti-border: #DDE1E9;
+  --forti-bg:     #F2F4F7;
+  --forti-white:  #FFFFFF;
+  --forti-text:   #2A2F3A;
+  --forti-text-secondary: #6B7589;
+  --forti-text-muted:     #9BA5BA;
+  --forti-section-header: #F7F9FC;
+  --forti-input-border:   #C8CDD9;
+  --forti-table-head:     #EEF1F6;
+  --forti-table-stripe:   #F7F9FC;
+  --forti-info-bg:    #EEF3FF;
+  --forti-info-border:#B8CBF5;
+  --forti-info-text:  #3557A5;
+  --forti-warn-bg:    #FFF8EE;
+  --forti-warn-border:#F5D9A0;
+  --forti-warn-text:  #8A5800;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:13px;line-height:1.5;background:var(--forti-bg);color:var(--forti-text);padding:20px;}
+a{color:var(--forti-red);}
+
+/* Header */
+.page-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.page-icon{width:44px;height:44px;background:var(--forti-red);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.page-icon svg{width:26px;height:26px;fill:#fff;}
+.page-title{font-size:20px;font-weight:700;color:var(--forti-text);}
+.page-subtitle{font-size:11px;color:var(--forti-text-muted);}
+
+/* Cards */
+.card{background:var(--forti-white);border:1px solid var(--forti-border);border-radius:4px;margin-bottom:14px;overflow:hidden;}
+.card-header{background:var(--forti-section-header);border-bottom:1px solid var(--forti-border);padding:9px 18px;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--forti-text-secondary);}
+.card-body{padding:16px 18px;}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr));gap:14px;}
+
+/* Form elements */
+label{display:block;font-size:12px;font-weight:600;color:var(--forti-text-secondary);margin-bottom:4px;}
+label .req{color:var(--forti-red);}
+input[type=number],select{background:#fff;border:1px solid var(--forti-input-border);border-radius:3px;padding:6px 9px;font-size:13px;width:100%;font-family:inherit;}
+input[type=number]:focus,select:focus{outline:none;border-color:var(--forti-red);box-shadow:0 0 0 2px rgba(238,49,36,.1);}
+input.invalid,select.invalid{border-color:var(--forti-red);}
+.err{display:none;font-size:11px;color:var(--forti-red);margin-top:3px;}
+
+/* Tier cards */
+.tier-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;}
+.tier-card{border:1px solid var(--forti-border);border-radius:4px;padding:10px 12px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;}
+.tier-card:hover{border-color:#aaa;}
+.tier-card.selected{border:2px solid var(--forti-red);background:#FEF8F8;}
+.tier-card .tc-name{font-weight:700;font-size:12px;color:var(--forti-text);}
+.tier-card .tc-sub{font-size:11px;color:var(--forti-text-secondary);margin-top:2px;}
+.tier-card .tc-sku{font-size:10px;color:#9BA5BA;font-family:'Courier New',monospace;margin-top:4px;}
+
+/* Feature table */
+.feat-table{width:100%;border-collapse:collapse;font-size:11px;}
+.feat-table th{background:var(--forti-table-head);border:1px solid var(--forti-border);padding:6px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--forti-text-secondary);text-align:center;}
+.feat-table th:first-child{text-align:left;}
+.feat-table td{border:1px solid var(--forti-border);padding:5px 10px;text-align:center;color:var(--forti-text-secondary);}
+.feat-table td:first-child{text-align:left;font-weight:500;color:var(--forti-text);}
+.feat-table tr:nth-child(even) td{background:var(--forti-table-stripe);}
+.feat-table .section-hdr td{background:#EAECF3!important;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--forti-text-secondary);text-align:left;}
+.chk{color:#2E7D32;font-size:13px;}
+.dash{color:#C8CDD9;}
+
+/* Callouts */
+.callout{border-radius:3px;padding:9px 12px;font-size:12px;line-height:1.6;display:flex;gap:8px;margin-bottom:10px;}
+.info{background:var(--forti-info-bg);border:1px solid var(--forti-info-border);color:var(--forti-info-text);}
+.warn{background:var(--forti-warn-bg);border:1px solid var(--forti-warn-border);color:var(--forti-warn-text);}
+.callout-icon{flex-shrink:0;font-size:14px;margin-top:1px;}
+
+/* Checkboxes */
+.addon-list{display:flex;flex-direction:column;gap:8px;}
+.addon-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--forti-border);border-radius:3px;background:#fff;}
+.addon-row input[type=checkbox]{width:14px;height:14px;margin-top:2px;flex-shrink:0;accent-color:var(--forti-red);}
+.addon-row.disabled{opacity:.4;pointer-events:none;}
+.addon-label{font-size:12px;font-weight:600;color:var(--forti-text);}
+.addon-sku{font-family:'Courier New',monospace;font-size:10px;color:#1A4E82;}
+.addon-note{font-size:11px;color:var(--forti-text-muted);}
+
+/* Qty input for addon */
+.addon-qty{width:64px!important;margin-top:4px;}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px;}
+button{padding:8px 18px;font-size:13px;font-family:inherit;font-weight:600;border:none;border-radius:3px;cursor:pointer;transition:opacity .15s;}
+.btn-primary{background:var(--forti-red);color:#fff;}
+.btn-primary:hover{opacity:.88;}
+.btn-success{background:#2E7D32;color:#fff;}
+.btn-success:hover{opacity:.88;}
+.btn-secondary{background:#6B7589;color:#fff;}
+.btn-secondary:hover{opacity:.88;}
+#smsg{font-size:12px;color:#2E7D32;font-weight:600;}
+
+/* BOM preview */
+#bom-section{display:none;margin-top:14px;}
+.bom-meta{background:var(--forti-info-bg);border:1px solid var(--forti-info-border);border-radius:3px;padding:8px 14px;font-size:12px;color:var(--forti-info-text);margin-bottom:10px;display:flex;gap:20px;flex-wrap:wrap;}
+.bom-meta span b{font-weight:700;}
+table.bom-table{width:100%;border-collapse:collapse;font-size:12px;}
+table.bom-table thead th{background:var(--forti-table-head);border:1px solid var(--forti-border);padding:7px 11px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--forti-text-secondary);}
+table.bom-table tbody td{border:1px solid var(--forti-border);padding:7px 11px;vertical-align:top;}
+table.bom-table tbody tr:nth-child(even) td{background:var(--forti-table-stripe);}
+.section-row td{background:#EAECF3!important;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--forti-text-secondary);padding:5px 11px!important;border-top:2px solid #C5CAD9!important;}
+.sku-cell{font-family:'Courier New',monospace;font-size:11px;color:#1A4E82;white-space:nowrap;}
+.nc{color:var(--forti-text-muted);font-size:11px;}
+.badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;padding:1px 4px;display:inline-block;}
+.badge-req{background:#FEF0EE;color:#C0392B;border:1px solid #F5C6C2;}
+.badge-opt{background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;}
+.badge-mand{background:#FFF8EE;color:#8A5800;border:1px solid #F5D9A0;}
+.badge-inc{background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;}
+.bom-actions{display:flex;gap:8px;margin-bottom:10px;}
+.btn-small{padding:5px 12px;font-size:12px;}
+
+/* MOQ warning */
+#moq-warn{display:none;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ PAGE HEADER -->
+<div class="page-header">
+  <div class="page-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5L12 1zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/>
+    </svg>
+  </div>
+  <div>
+    <div class="page-title">FortiEDR</div>
+    <div class="page-subtitle">Endpoint Detection &amp; Response — Ordering Guide FED-OG-R35-20251117</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ FEATURE MATRIX -->
+<div class="card">
+  <div class="card-header">Tier Comparison</div>
+  <div class="card-body" style="overflow-x:auto;">
+    <table class="feat-table">
+      <thead>
+        <tr>
+          <th style="min-width:220px;">Feature</th>
+          <th>EPP / EDR-Light<br><span style="font-weight:400;text-transform:none;font-size:10px;">Discover &amp; Protect</span></th>
+          <th>EDR-Complete<br><span style="font-weight:400;text-transform:none;font-size:10px;">Discover, Protect &amp; Respond</span></th>
+          <th>XDR<br><span style="font-weight:400;text-transform:none;font-size:10px;">+ Extended Detection</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-hdr"><td colspan="4">IT Hygiene / Discover</td></tr>
+        <tr><td>Asset Discovery</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Attack Surface Reduction</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Application Control / USB</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr class="section-hdr"><td colspan="4">Endpoint Protection / Protect</td></tr>
+        <tr><td>NGAV (pre-execution)</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Post-execution Protection</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Sandbox Analysis / Cloud Threat Intel</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Attack Chain Visualization / MITRE</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr class="section-hdr"><td colspan="4">EDR / Respond</td></tr>
+        <tr><td>AI-powered Investigation</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Security Fabric + 3rd-Party Integration</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Automated Remediation &amp; IR Framework</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Continuous Recording &amp; Analysis</td><td><span class="dash">—</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>Threat Hunting / AI Behavior Tagging</td><td><span class="dash">—</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>IOC Ingestion and Search</td><td><span class="dash">—</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr class="section-hdr"><td colspan="4">Extended Detection &amp; Response (XDR)</td></tr>
+        <tr><td>eXtended Detection — Security Fabric</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>eXtended Detection — AWS / Google SCC</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="chk">✓</span></td></tr>
+        <tr class="section-hdr"><td colspan="4">Deployment</td></tr>
+        <tr><td>Cloud Deployment</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+        <tr><td>On-premise (internet-connected)</td><td><span class="dash">—</span></td><td><span class="chk">✓</span></td><td><span class="dash">—</span></td></tr>
+        <tr><td>MDR Available</td><td>Basic MDR</td><td>Managed EDR</td><td>Managed XDR</td></tr>
+        <tr><td>MOQ</td><td>100 seats</td><td>100 seats (Mgd) / 500 (self)</td><td>500 seats</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ CONFIG FORM -->
+<div class="card">
+  <div class="card-header">1 · Select Subscription Tier</div>
+  <div class="card-body">
+
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <div>FortiEDR supports <strong>one bundle per customer account</strong>. Customers can upgrade tiers mid-term or at renewal. Managed (MDR) options are available for all tiers but <strong>cannot be used with on-premise deployments</strong>.</div>
+    </div>
+
+    <!-- Self-managed -->
+    <div style="font-size:12px;font-weight:700;color:var(--forti-text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Self-Managed</div>
+    <div class="tier-grid" id="tier-grid">
+      <div class="tier-card selected" onclick="selectTier('epp')" id="tc-epp">
+        <div class="tc-name">EPP / EDR-Light</div>
+        <div class="tc-sub">Discover &amp; Protect</div>
+        <div class="tc-sku">FCx-10-FEDR1-350-01-DD</div>
+      </div>
+      <div class="tier-card" onclick="selectTier('edr')" id="tc-edr">
+        <div class="tc-name">EDR-Complete</div>
+        <div class="tc-sub">Discover, Protect &amp; Respond</div>
+        <div class="tc-sku">FCx-10-FEDR1-348-01-DD</div>
+      </div>
+      <div class="tier-card" onclick="selectTier('xdr')" id="tc-xdr">
+        <div class="tc-name">XDR</div>
+        <div class="tc-sub">+ Extended Detection</div>
+        <div class="tc-sku">FCx-10-FEDR1-394-01-DD</div>
+      </div>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--forti-text-secondary);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em;">Managed (MDR)</div>
+    <div class="tier-grid">
+      <div class="tier-card" onclick="selectTier('mepp')" id="tc-mepp">
+        <div class="tc-name">Managed EPP / EDR-Light</div>
+        <div class="tc-sub">Basic MDR</div>
+        <div class="tc-sku">FCx-10-FEDR1-391-01-DD</div>
+      </div>
+      <div class="tier-card" onclick="selectTier('medr')" id="tc-medr">
+        <div class="tc-name">Managed EDR-Complete</div>
+        <div class="tc-sub">MDR — Full EDR</div>
+        <div class="tc-sku">FCx-10-FEDR1-349-01-DD</div>
+      </div>
+      <div class="tier-card" onclick="selectTier('mxdr')" id="tc-mxdr">
+        <div class="tc-name">Managed XDR</div>
+        <div class="tc-sub">MXDR</div>
+        <div class="tc-sku">FCx-10-FEDR1-597-01-DD</div>
+      </div>
+    </div>
+
+    <!-- On-premise note -->
+    <div id="onprem-warn" class="callout warn" style="margin-top:12px;display:none;">
+      <span class="callout-icon">⚠</span>
+      <div>On-premise deployments are supported for <strong>EDR-Complete only</strong> and require Fortinet Cloud Services internet connectivity at all times. MDR service is <strong>not available</strong> for on-premise. Air-gapped environments are not supported.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Endpoint Count -->
+<div class="card">
+  <div class="card-header">2 · Endpoint Count &amp; Pack Configuration</div>
+  <div class="card-body">
+
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <div>License packs: <strong>25 · 500 · 2,000 · 10,000</strong> endpoints. Largest-first packing is used. The band prefix (FC1–FC4) is set by pack size.</div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label for="f-endpoints">Total Endpoints <span class="req">*</span></label>
+        <input type="number" id="f-endpoints" min="1" value="" placeholder="e.g. 750" oninput="updatePackPreview()">
+        <div class="err" id="err-endpoints">Please enter a valid endpoint count (≥ 1).</div>
+        <div id="moq-warn" class="callout warn" style="margin-top:6px;">
+          <span class="callout-icon">⚠</span>
+          <div id="moq-warn-text"></div>
+        </div>
+      </div>
+      <div>
+        <label>Deployment</label>
+        <select id="f-deploy" onchange="updateDeploy()">
+          <option value="cloud">Cloud</option>
+          <option value="onprem">On-Premise</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Pack preview -->
+    <div id="pack-preview" style="display:none;margin-top:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--forti-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Pack Breakdown</div>
+      <div id="pack-list" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add-ons -->
+<div class="card">
+  <div class="card-header">3 · Add-on Services</div>
+  <div class="card-body">
+
+    <div class="callout warn" style="margin-bottom:14px;">
+      <span class="callout-icon">⚠</span>
+      <div><strong>FortiCare BPS Onboarding is mandatory for all new deployments</strong> (initial orders only). Select the tier that matches the total endpoint count. Not required for renewals.</div>
+    </div>
+
+    <div class="addon-list">
+
+      <!-- BPS Onboarding -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--forti-text-secondary);margin-top:4px;margin-bottom:4px;">FortiCare BPS Onboarding (required for new deployments)</div>
+
+      <div class="addon-row" id="bps-row">
+        <input type="checkbox" id="cb-bps" checked onchange="renderPackPreview()">
+        <div style="flex:1;">
+          <div class="addon-label">FortiCare Best Practices Onboarding Service</div>
+          <div class="addon-note">Auto-selected based on endpoint count. Change if needed.</div>
+          <div style="margin-top:6px;">
+            <label style="font-size:11px;margin-bottom:2px;">BPS Size Tier</label>
+            <select id="bps-tier" style="font-size:12px;" onchange="">
+              <option value="FC0-10-EDBPS-310-02-DD">≤ 500 endpoints — FC0-10-EDBPS-310-02-DD</option>
+              <option value="FC1-10-EDBPS-310-02-DD">501–1,000 endpoints — FC1-10-EDBPS-310-02-DD</option>
+              <option value="FC2-10-EDBPS-310-02-DD">1,001–3,000 endpoints — FC2-10-EDBPS-310-02-DD</option>
+              <option value="FC3-10-EDBPS-310-02-DD">3,001–10,000 endpoints — FC3-10-EDBPS-310-02-DD</option>
+              <option value="FC5-10-EDBPS-310-02-DD">10,001–30,000 endpoints — FC5-10-EDBPS-310-02-DD</option>
+              <option value="FP-10-EDR-PS">30,001+ endpoints — FP-10-EDR-PS (per day, PS required)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cloud Storage -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--forti-text-secondary);margin-top:10px;margin-bottom:4px;">Cloud Services</div>
+
+      <div class="addon-row" id="storage-row">
+        <input type="checkbox" id="cb-storage" onchange="">
+        <div style="flex:1;">
+          <div class="addon-label">Cloud Storage Disk Expansion (512 GB)</div>
+          <div class="addon-sku">FC-10-FEDR1-1112-01-DD</div>
+          <div class="addon-note">Additional cloud storage for FortiEDR telemetry and recordings.</div>
+          <div style="margin-top:6px;">
+            <label style="font-size:11px;margin-bottom:2px;">Quantity</label>
+            <input type="number" id="storage-qty" class="addon-qty" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Services -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--forti-text-secondary);margin-top:10px;margin-bottom:4px;">Professional Services</div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-ps-impl">
+        <div style="flex:1;">
+          <div class="addon-label">FortiEDR Professional Service</div>
+          <div class="addon-sku">FP-10-FTEDR-000-00-00</div>
+          <div class="addon-note">Implementation and deployment consulting.</div>
+        </div>
+      </div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-ps-day">
+        <div style="flex:1;">
+          <div class="addon-label">FortiEDR Day (Professional Services)</div>
+          <div class="addon-sku">FP-10-EDR-PS</div>
+          <div class="addon-note">Per-day professional services engagement.</div>
+          <div style="margin-top:6px;">
+            <label style="font-size:11px;margin-bottom:2px;">Days</label>
+            <input type="number" id="ps-day-qty" class="addon-qty" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-ps-ir">
+        <div style="flex:1;">
+          <div class="addon-label">Incident Response Training</div>
+          <div class="addon-sku">FP-10-PS-TRAINING</div>
+          <div class="addon-note">IR readiness training for SOC / security teams.</div>
+        </div>
+      </div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-ps-forensics">
+        <div style="flex:1;">
+          <div class="addon-label">Forensics and IR Consultancy</div>
+          <div class="addon-sku">FP-10-EDR-FRNSCS</div>
+          <div class="addon-note">Post-incident forensics and remediation guidance.</div>
+        </div>
+      </div>
+
+      <!-- Training -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--forti-text-secondary);margin-top:10px;margin-bottom:4px;">Training Services</div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-tr-vilt">
+        <div style="flex:1;">
+          <div class="addon-label">FCP FortiEDR — Classroom Virtual ILT</div>
+          <div class="addon-sku">FT-EDR</div>
+          <div class="addon-note">Instructor-led virtual training for FortiEDR.</div>
+          <div style="margin-top:6px;">
+            <label style="font-size:11px;margin-bottom:2px;">Seats</label>
+            <input type="number" id="tr-vilt-qty" class="addon-qty" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-tr-lab">
+        <div style="flex:1;">
+          <div class="addon-label">NSE Training Lab Environment</div>
+          <div class="addon-sku">FT-EDR-LAB</div>
+          <div class="addon-note">Standard NSE lab access.</div>
+          <div style="margin-top:6px;">
+            <label style="font-size:11px;margin-bottom:2px;">Seats</label>
+            <input type="number" id="tr-lab-qty" class="addon-qty" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="addon-row">
+        <input type="checkbox" id="cb-tr-nse5">
+        <div style="flex:1;">
+          <div class="addon-label">NSE5 Exam Voucher</div>
+          <div class="addon-sku">NSE-EX-SPL5</div>
+          <div class="addon-note">Exam voucher for FortiEDR NSE 5 certification.</div>
+          <div style="margin-top:6px;">
+            <label style="font-size:11px;margin-bottom:2px;">Vouchers</label>
+            <input type="number" id="tr-nse5-qty" class="addon-qty" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ ACTIONS -->
+<div class="card">
+  <div class="card-body">
+    <div class="btn-row">
+      <button class="btn-primary" onclick="generateBOM()">Preview BOM</button>
+      <button class="btn-success" onclick="addToProjectBOM()">Add to Project BOM</button>
+      <button class="btn-secondary" onclick="resetForm()">Reset</button>
+      <span id="smsg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ BOM PREVIEW -->
+<div id="bom-section">
+  <div class="card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>BOM Preview</span>
+      <div class="bom-actions" style="margin:0;">
+        <button class="btn-secondary btn-small" onclick="copyTSV()">Copy TSV</button>
+        <button class="btn-secondary btn-small" onclick="printBOM()">Print</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="bom-meta" id="bom-meta"></div>
+      <div style="overflow-x:auto;">
+        <table class="bom-table" id="bom-table">
+          <thead>
+            <tr>
+              <th>Part Number</th>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Type</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="bom-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ JAVASCRIPT -->
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+const TIERS = {
+  epp:  { label:'EPP / EDR-Light (Discover & Protect)',    code:'350', managed:false },
+  edr:  { label:'EDR-Complete (Discover, Protect & Respond)', code:'348', managed:false },
+  xdr:  { label:'XDR (Discover, Protect & Respond + XDR)',   code:'394', managed:false },
+  mepp: { label:'Managed EPP / EDR-Light (Basic MDR)',     code:'391', managed:true  },
+  medr: { label:'Managed EDR-Complete',                    code:'349', managed:true  },
+  mxdr: { label:'Managed XDR',                             code:'597', managed:true  },
+};
+
+// Pack sizes: { size, band }
+const PACKS = [
+  { size:10000, band:'FC4' },
+  { size:2000,  band:'FC3' },
+  { size:500,   band:'FC2' },
+  { size:25,    band:'FC1' },
+];
+
+// BPS thresholds
+const BPS_TIERS = [
+  { max:500,   sku:'FC0-10-EDBPS-310-02-DD', label:'≤ 500 endpoints' },
+  { max:1000,  sku:'FC1-10-EDBPS-310-02-DD', label:'501–1,000 endpoints' },
+  { max:3000,  sku:'FC2-10-EDBPS-310-02-DD', label:'1,001–3,000 endpoints' },
+  { max:10000, sku:'FC3-10-EDBPS-310-02-DD', label:'3,001–10,000 endpoints' },
+  { max:30000, sku:'FC5-10-EDBPS-310-02-DD', label:'10,001–30,000 endpoints' },
+  { max:Infinity, sku:'FP-10-EDR-PS', label:'30,001+ endpoints (PS per day)' },
+];
+
+// ── State ───────────────────────────────────────────────────────────────────
+let _selectedTier = 'epp';
+let _lastRows = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+// ── Tier Selection ──────────────────────────────────────────────────────────
+function selectTier(id) {
+  _selectedTier = id;
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('tc-' + id).classList.add('selected');
+
+  const isMDR    = TIERS[id].managed;
+  const isOnPrem = document.getElementById('f-deploy').value === 'onprem';
+
+  // Warn if MDR + on-prem selected
+  const warn = document.getElementById('onprem-warn');
+  if (isMDR && isOnPrem) {
+    warn.style.display = 'flex';
+  } else {
+    warn.style.display = 'none';
+  }
+
+  // On-prem only valid for EDR
+  if (isOnPrem && id !== 'edr') {
+    document.getElementById('f-deploy').value = 'cloud';
+  }
+}
+
+function updateDeploy() {
+  const deploy = document.getElementById('f-deploy').value;
+  const isMDR  = TIERS[_selectedTier].managed;
+  const warn   = document.getElementById('onprem-warn');
+
+  if (deploy === 'onprem') {
+    if (isMDR) {
+      warn.style.display = 'flex';
+    } else if (_selectedTier !== 'edr') {
+      // Force EDR for on-prem
+      selectTier('edr');
+      document.getElementById('f-deploy').value = 'onprem';
+      warn.style.display = 'none';
+    }
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+// ── Pack Preview ─────────────────────────────────────────────────────────────
+function packEndpoints(total) {
+  let remaining = total;
+  const result = [];
+  for (const pack of PACKS) {
+    const qty = Math.floor(remaining / pack.size);
+    if (qty > 0) {
+      result.push({ ...pack, qty });
+      remaining -= qty * pack.size;
+    }
+  }
+  if (remaining > 0) {
+    result.push({ size:25, band:'FC1', qty:1 });
+  }
+  return result;
+}
+
+function autoBPS(total) {
+  const sel = document.getElementById('bps-tier');
+  for (const tier of BPS_TIERS) {
+    if (total <= tier.max) {
+      sel.value = tier.sku;
+      return;
+    }
+  }
+}
+
+function checkMOQ(total) {
+  const mw = document.getElementById('moq-warn');
+  const mt = document.getElementById('moq-warn-text');
+  const tier = TIERS[_selectedTier];
+  const isMDR = tier.managed;
+  // EPP / Managed EPP / Managed EDR family: 100 MOQ
+  const moq100 = ['epp','mepp','medr'].includes(_selectedTier);
+  const minQty = moq100 ? 100 : 500;
+
+  if (total > 0 && total < minQty) {
+    mt.textContent = `Minimum order quantity for ${tier.label} is ${minQty} seats. Consider ordering ${minQty} seats.`;
+    mw.style.display = 'flex';
+  } else {
+    mw.style.display = 'none';
+  }
+}
+
+function updatePackPreview() {
+  const total = parseInt(document.getElementById('f-endpoints').value) || 0;
+  const preview = document.getElementById('pack-preview');
+  const list    = document.getElementById('pack-list');
+
+  autoBPS(total);
+  checkMOQ(total);
+
+  if (total <= 0) { preview.style.display = 'none'; return; }
+
+  const packs = packEndpoints(total);
+  list.innerHTML = '';
+  packs.forEach(p => {
+    const div = document.createElement('div');
+    div.style.cssText = 'background:#EEF3FF;border:1px solid #B8CBF5;border-radius:3px;padding:5px 10px;font-size:11px;color:#3557A5;';
+    div.innerHTML = `<strong>${p.qty}×</strong> ${p.size.toLocaleString()}-pack <span style="font-family:'Courier New';font-size:10px;">(${p.band})</span>`;
+    list.appendChild(div);
+  });
+  preview.style.display = 'block';
+}
+
+function renderPackPreview() { updatePackPreview(); }
+
+// ── Build SKU from pack ──────────────────────────────────────────────────────
+function buildSKU(band, code) {
+  return `${band}-10-FEDR1-${code}-01-DD`;
+}
+
+// ── Validate ─────────────────────────────────────────────────────────────────
+function validate() {
+  let ok = true;
+  const total = parseInt(document.getElementById('f-endpoints').value);
+  const errE  = document.getElementById('err-endpoints');
+  const field = document.getElementById('f-endpoints');
+  if (!total || total < 1) {
+    field.classList.add('invalid');
+    errE.style.display = 'block';
+    ok = false;
+  } else {
+    field.classList.remove('invalid');
+    errE.style.display = 'none';
+  }
+  return ok;
+}
+
+// ── Generate BOM ─────────────────────────────────────────────────────────────
+function generateBOM() {
+  if (!validate()) return false;
+
+  const total  = parseInt(document.getElementById('f-endpoints').value);
+  const tier   = TIERS[_selectedTier];
+  const deploy = document.getElementById('f-deploy').value;
+  const packs  = packEndpoints(total);
+
+  const rows = [];
+
+  // ── Main subscription
+  rows.push({ section: `${tier.label} — Endpoint Subscription` });
+  packs.forEach(p => {
+    const sku = buildSKU(p.band, tier.code);
+    rows.push({
+      sku, qty: p.qty,
+      desc: `FortiEDR ${tier.label} — ${p.size.toLocaleString()}-pack`,
+      kind: 'req',
+      note: `${p.size.toLocaleString()}-endpoint pack · ${p.band} band`,
+    });
+  });
+
+  // ── On-prem note
+  if (deploy === 'onprem') {
+    rows.push({
+      sku:'⚠', qty:null, kind:'note',
+      desc:'On-premise deployment — Fortinet Cloud Services internet connectivity required. MDR not available in this mode.',
+      note:'',
+    });
+  }
+
+  // ── BPS Onboarding
+  const cbBPS = document.getElementById('cb-bps').checked;
+  if (cbBPS) {
+    rows.push({ section: 'FortiCare BPS Onboarding (Mandatory – New Deployments)' });
+    const bpsSku = document.getElementById('bps-tier').value;
+    const bpsLabel = BPS_TIERS.find(b => b.sku === bpsSku)?.label || '';
+    if (bpsSku === 'FP-10-EDR-PS') {
+      rows.push({
+        sku:'FP-10-EDR-PS', qty:1, kind:'mand',
+        desc:'FortiEDR BPS Onboarding — 30,001+ endpoints (dedicated PS, per day)',
+        note:'Contact Fortinet PS for scoping',
+      });
+    } else {
+      rows.push({
+        sku: bpsSku, qty:1, kind:'mand',
+        desc:`FortiCare Best Practices Onboarding Service — ${bpsLabel}`,
+        note:'Required initial order · 12-month term',
+      });
+    }
+  }
+
+  // ── Cloud Storage
+  if (document.getElementById('cb-storage').checked) {
+    const qty = parseInt(document.getElementById('storage-qty').value) || 1;
+    rows.push({ section: 'Cloud Storage Add-on' });
+    rows.push({
+      sku:'FC-10-FEDR1-1112-01-DD', qty,
+      desc:'FortiEDR Cloud Storage Disk Expansion (512 GB)',
+      kind:'opt', note:'Cloud deployment only',
+    });
+  }
+
+  // ── Professional Services
+  const psRows = [];
+  if (document.getElementById('cb-ps-impl').checked)
+    psRows.push({ sku:'FP-10-FTEDR-000-00-00', qty:1, desc:'FortiEDR Professional Service (Implementation)', kind:'opt', note:'' });
+  if (document.getElementById('cb-ps-day').checked) {
+    const qty = parseInt(document.getElementById('ps-day-qty').value) || 1;
+    psRows.push({ sku:'FP-10-EDR-PS', qty, desc:'FortiEDR Day — Professional Services (per day)', kind:'opt', note:'' });
+  }
+  if (document.getElementById('cb-ps-ir').checked)
+    psRows.push({ sku:'FP-10-PS-TRAINING', qty:1, desc:'Incident Response Training', kind:'opt', note:'' });
+  if (document.getElementById('cb-ps-forensics').checked)
+    psRows.push({ sku:'FP-10-EDR-FRNSCS', qty:1, desc:'Forensics and IR Consultancy', kind:'opt', note:'' });
+  if (psRows.length) { rows.push({ section:'Professional Services' }); psRows.forEach(r => rows.push(r)); }
+
+  // ── Training Services
+  const trRows = [];
+  if (document.getElementById('cb-tr-vilt').checked) {
+    const qty = parseInt(document.getElementById('tr-vilt-qty').value) || 1;
+    trRows.push({ sku:'FT-EDR', qty, desc:'FCP FortiEDR — Classroom Virtual ILT', kind:'opt', note:'' });
+  }
+  if (document.getElementById('cb-tr-lab').checked) {
+    const qty = parseInt(document.getElementById('tr-lab-qty').value) || 1;
+    trRows.push({ sku:'FT-EDR-LAB', qty, desc:'NSE Training Lab Environment — Standard Access', kind:'opt', note:'' });
+  }
+  if (document.getElementById('cb-tr-nse5').checked) {
+    const qty = parseInt(document.getElementById('tr-nse5-qty').value) || 1;
+    trRows.push({ sku:'NSE-EX-SPL5', qty, desc:'NSE5 FortiEDR Exam Voucher', kind:'opt', note:'' });
+  }
+  if (trRows.length) { rows.push({ section:'Training Services' }); trRows.forEach(r => rows.push(r)); }
+
+  _lastRows  = rows;
+  _lastLabel = `FortiEDR ${tier.label} · ${total.toLocaleString()} endpoints`;
+  _lastMeta  = {
+    'Tier':    tier.label,
+    'Endpoints': total.toLocaleString(),
+    'Deployment': deploy === 'onprem' ? 'On-Premise' : 'Cloud',
+    'Managed (MDR)': tier.managed ? 'Yes' : 'No',
+  };
+
+  renderBOM();
+  document.getElementById('bom-section').style.display = 'block';
+  document.getElementById('bom-section').scrollIntoView({ behavior:'smooth', block:'start' });
+  document.getElementById('smsg').textContent = '';
+  return true;
+}
+
+// ── Render BOM ───────────────────────────────────────────────────────────────
+function renderBOM() {
+  const meta = document.getElementById('bom-meta');
+  meta.innerHTML = Object.entries(_lastMeta)
+    .map(([k,v]) => `<span><b>${k}:</b> ${v}</span>`).join('');
+
+  const tbody = document.getElementById('bom-body');
+  tbody.innerHTML = '';
+  _lastRows.forEach(row => {
+    const tr = document.createElement('tr');
+    if (row.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${row.section}</td>`;
+    } else {
+      const badge = row.kind === 'req'  ? '<span class="badge badge-req">Required</span>'
+                  : row.kind === 'mand' ? '<span class="badge badge-mand">Mandatory</span>'
+                  : row.kind === 'opt'  ? '<span class="badge badge-opt">Optional</span>'
+                  : row.kind === 'inc'  ? '<span class="badge badge-inc">Included</span>'
+                  : '';
+      tr.innerHTML = `
+        <td class="sku-cell">${row.sku}</td>
+        <td class="nc">${row.desc}</td>
+        <td style="text-align:center;">${row.qty !== null ? row.qty : ''}</td>
+        <td>${badge}</td>
+        <td class="nc">${row.note || ''}</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Add to Project BOM ───────────────────────────────────────────────────────
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  window.parent.postMessage({
+    type:    'FORTIBOM_ADD',
+    product: 'FortiEDR',
+    label:   _lastLabel,
+    rows:    _lastRows,
+    meta:    _lastMeta,
+  }, '*');
+  const msg = document.getElementById('smsg');
+  msg.textContent = '✓ Added to Project BOM';
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+// ── Reset ────────────────────────────────────────────────────────────────────
+function resetForm() {
+  selectTier('epp');
+  document.getElementById('f-endpoints').value = '';
+  document.getElementById('f-deploy').value = 'cloud';
+  document.getElementById('pack-preview').style.display = 'none';
+  document.getElementById('moq-warn').style.display = 'none';
+  document.getElementById('onprem-warn').style.display = 'none';
+  ['cb-bps','cb-storage','cb-ps-impl','cb-ps-day','cb-ps-ir','cb-ps-forensics',
+   'cb-tr-vilt','cb-tr-lab','cb-tr-nse5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = (id === 'cb-bps');
+  });
+  document.getElementById('storage-qty').value = 1;
+  document.getElementById('ps-day-qty').value  = 1;
+  document.getElementById('tr-vilt-qty').value  = 1;
+  document.getElementById('tr-lab-qty').value   = 1;
+  document.getElementById('tr-nse5-qty').value  = 1;
+  document.getElementById('bom-section').style.display = 'none';
+  document.getElementById('smsg').textContent = '';
+  document.getElementById('err-endpoints').style.display = 'none';
+  document.getElementById('f-endpoints').classList.remove('invalid');
+}
+
+// ── Copy TSV ─────────────────────────────────────────────────────────────────
+function copyTSV() {
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(r => {
+    if (r.section !== undefined) {
+      lines.push(`### ${r.section}\t\t\t\t`);
+    } else {
+      const kind = r.kind === 'req' ? 'REQUIRED' : r.kind === 'mand' ? 'MANDATORY' : r.kind === 'opt' ? 'OPTIONAL' : '';
+      lines.push([r.sku, r.desc, r.qty ?? '', kind, r.note || ''].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const msg = document.getElementById('smsg');
+    msg.textContent = '✓ TSV copied to clipboard';
+    setTimeout(() => msg.textContent = '', 2500);
+  });
+}
+
+// ── Print ────────────────────────────────────────────────────────────────────
+function printBOM() { window.print(); }
+</script>
+</body>
+</html>

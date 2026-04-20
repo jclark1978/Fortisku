@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiPresence — BOM Generator</title>
+<style>
+  :root {
+    --forti-red:    #EE3124;
+    --forti-border: #DDE1E9;
+    --forti-bg:     #F2F4F7;
+    --forti-white:  #FFFFFF;
+    --forti-text:   #2A2F3A;
+    --forti-text-secondary: #6B7589;
+    --forti-text-muted:     #9BA5BA;
+    --forti-section-header: #F7F9FC;
+    --forti-input-border:   #C8CDD9;
+    --forti-table-head:     #EEF1F6;
+    --forti-table-stripe:   #F7F9FC;
+    --forti-info-bg:    #EEF3FF;
+    --forti-info-border:#B8CBF5;
+    --forti-info-text:  #3557A5;
+    --forti-warn-bg:    #FFF8EE;
+    --forti-warn-border:#F5D9A0;
+    --forti-warn-text:  #8A5800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--forti-text);
+    background: var(--forti-bg);
+    padding: 20px;
+  }
+
+  /* Page Header */
+  .page-header { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .page-icon {
+    width:44px; height:44px; background:var(--forti-red); border-radius:6px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .page-icon svg { width:26px; height:26px; fill:white; }
+  .page-title h1 { font-size:18px; font-weight:700; color:var(--forti-text); }
+  .page-title p  { font-size:11px; color:var(--forti-text-muted); margin-top:1px; }
+
+  /* Cards */
+  .card { background:var(--forti-white); border:1px solid var(--forti-border); border-radius:4px; margin-bottom:14px; overflow:hidden; }
+  .card-header { background:var(--forti-section-header); border-bottom:1px solid var(--forti-border); padding:9px 18px; font-weight:600; font-size:12px; color:var(--forti-text-secondary); text-transform:uppercase; letter-spacing:.05em; }
+  .card-body { padding:16px 18px; }
+
+  /* Form */
+  label { display:block; font-size:12px; font-weight:600; color:var(--forti-text-secondary); margin-bottom:4px; }
+  .req { color:var(--forti-red); }
+  input[type=number], select {
+    background:white; border:1px solid var(--forti-input-border); border-radius:3px;
+    padding:6px 9px; font-size:13px; width:100%; outline:none;
+    font-family:inherit; color:var(--forti-text);
+  }
+  input[type=number]:focus, select:focus {
+    border-color:var(--forti-red); box-shadow:0 0 0 2px rgba(238,49,36,.1);
+  }
+  input.invalid, select.invalid {
+    border-color:var(--forti-red); box-shadow:0 0 0 2px rgba(238,49,36,.12);
+  }
+  .err { display:none; color:var(--forti-red); font-size:11px; margin-top:3px; }
+  .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr)); gap:14px; }
+  .form-group { display:flex; flex-direction:column; }
+
+  /* Deployment mode toggle */
+  .deploy-tabs { display:flex; gap:0; border:1px solid var(--forti-border); border-radius:4px; overflow:hidden; margin-bottom:14px; }
+  .deploy-tab {
+    flex:1; padding:9px 14px; font-size:12px; font-weight:600; cursor:pointer;
+    background:var(--forti-white); color:var(--forti-text-secondary);
+    border:none; text-align:center; transition:background .15s,color .15s;
+  }
+  .deploy-tab.active { background:var(--forti-red); color:white; }
+  .deploy-tab:not(.active):hover { background:var(--forti-bg); }
+
+  /* Feature comparison table */
+  table.compare { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+  table.compare thead th {
+    background:var(--forti-table-head); border:1px solid var(--forti-border);
+    padding:7px 11px; font-size:10px; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--forti-text-secondary); font-weight:700;
+  }
+  table.compare tbody td { border:1px solid var(--forti-border); padding:7px 11px; vertical-align:top; }
+  table.compare tbody tr:nth-child(even) td { background:var(--forti-table-stripe); }
+  table.compare .check { color:#2E7D32; font-weight:700; }
+  table.compare .feat  { font-weight:600; color:var(--forti-text); }
+
+  /* BOM preview table */
+  table.bom { width:100%; border-collapse:collapse; font-size:12px; }
+  table.bom thead th {
+    background:var(--forti-table-head); border:1px solid var(--forti-border);
+    padding:7px 11px; font-size:10px; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--forti-text-secondary); font-weight:700;
+  }
+  table.bom tbody td { border:1px solid var(--forti-border); padding:7px 11px; vertical-align:top; }
+  table.bom tbody tr:nth-child(even) td { background:var(--forti-table-stripe); }
+  .section-row td {
+    background:#EAECF3!important; font-weight:700; font-size:10px;
+    text-transform:uppercase; letter-spacing:.06em; color:var(--forti-text-secondary);
+    padding:5px 11px; border-top:2px solid #C5CAD9;
+  }
+  .sku-mono { font-family:'Courier New',monospace; font-size:11px; color:#1A4E82; }
+  .nc { color:var(--forti-text-muted); }
+  .badge { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:2px; padding:1px 4px; display:inline-block; }
+  .badge-req  { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+  .badge-opt  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+  .badge-mand { background:#FFF8EE; color:#8A5800; border:1px solid #F5D9A0; }
+  .badge-inc  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+
+  /* Callouts */
+  .callout { border-radius:3px; padding:9px 12px; font-size:12px; line-height:1.6; display:flex; gap:8px; margin-bottom:10px; }
+  .info { background:var(--forti-info-bg); border:1px solid var(--forti-info-border); color:var(--forti-info-text); }
+  .warn { background:var(--forti-warn-bg); border:1px solid var(--forti-warn-border); color:var(--forti-warn-text); }
+  .callout-icon { flex-shrink:0; font-size:14px; line-height:1.4; }
+
+  /* AP tier indicator */
+  .tier-indicator {
+    display:none; background:var(--forti-info-bg); border:1px solid var(--forti-info-border);
+    border-radius:3px; padding:4px 10px; font-size:12px; color:var(--forti-info-text); margin-top:4px;
+  }
+
+  /* Pack preview */
+  .pack-preview { display:none; margin-top:8px; }
+  .pack-pill {
+    display:inline-block; background:#EEF3FF; border:1px solid #B8CBF5;
+    border-radius:10px; padding:2px 8px; font-size:11px; color:#3557A5;
+    margin:2px 3px 2px 0;
+  }
+
+  /* Action buttons */
+  .actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px; }
+  .btn {
+    padding:8px 18px; font-size:13px; font-weight:600; border:none;
+    border-radius:3px; cursor:pointer; font-family:inherit; transition:opacity .15s;
+  }
+  .btn:hover { opacity:.88; }
+  .btn-primary { background:var(--forti-red); color:white; }
+  .btn-success { background:#2E7D32; color:white; }
+  .btn-neutral { background:#E8ECF4; color:var(--forti-text); }
+  .btn-sm { padding:5px 11px; font-size:11px; font-weight:600; border:none; border-radius:3px; cursor:pointer; font-family:inherit; }
+  #smsg { font-size:12px; font-weight:600; }
+
+  /* BOM section */
+  #bom-section { display:none; }
+  .bom-actions { display:flex; gap:8px; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE HEADER
+═══════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    </svg>
+  </div>
+  <div class="page-title">
+    <h1>FortiPresence</h1>
+    <p>Wi-Fi Presence Analytics &amp; Customer Engagement · Datasheet FPAL-DAT-R11-20230919</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     FEATURE COMPARISON
+═══════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Free vs Paid Tier Comparison</div>
+  <div class="card-body" style="padding:0;">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th style="width:34%;">Feature</th>
+          <th style="width:33%;">Free Tier</th>
+          <th style="width:33%;">Paid Tier (Orderable)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feat">Presence Analytics</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td class="feat">Heatmaps / Traffic Flow</td>
+          <td><span class="check">✓</span> (30-day limit)</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td class="feat">Number of Sites</td>
+          <td>Single site</td>
+          <td>Unlimited</td>
+        </tr>
+        <tr>
+          <td class="feat">FortiAP Count</td>
+          <td>Up to 15 APs</td>
+          <td>Unlimited</td>
+        </tr>
+        <tr>
+          <td class="feat">Dashboard</td>
+          <td>Static</td>
+          <td>Customizable</td>
+        </tr>
+        <tr>
+          <td class="feat">Social Wi-Fi / Captive Portal</td>
+          <td>30 connected users</td>
+          <td>Unlimited</td>
+        </tr>
+        <tr>
+          <td class="feat">Reporting</td>
+          <td>Site only, 1-day data</td>
+          <td>Site or deployment-wide</td>
+        </tr>
+        <tr>
+          <td class="feat">Data Retention</td>
+          <td>7 days <span class="nc">(paused after 30 days inactive)</span></td>
+          <td>1 year rolling</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DEPLOYMENT MODE
+═══════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Deployment Mode</div>
+  <div class="card-body">
+    <div class="deploy-tabs">
+      <button class="deploy-tab active" id="tab-cloud" onclick="setDeploy('cloud')">☁ Hosted Cloud (FortiPresence Cloud)</button>
+      <button class="deploy-tab" id="tab-vm"    onclick="setDeploy('vm')">🖥 On-Premise VM (FortiPresence-VM)</button>
+    </div>
+    <div id="cloud-callout" class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <span>FortiPresence Cloud is a <strong>per-AP annual subscription</strong> that enables the full paid tier with 1-year rolling data retention and unlimited sites. License one SKU per AP managed by FortiPresence. The base service is free — only the paid tier (unlocking advanced features) is orderable.</span>
+    </div>
+    <div id="vm-callout" class="callout info" style="display:none;">
+      <span class="callout-icon">ℹ</span>
+      <span>FortiPresence-VM requires the <strong>base VM license</strong> (<code>LIC-FPA-VM</code>) plus <strong>per-AP perpetual licenses</strong>. AP licenses are packed using largest-tier-first (1000 → 500 → 250 → 50 → 1). VM licenses are perpetual — no annual renewal required.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CONFIGURATION — CLOUD
+═══════════════════════════════════════════════════ -->
+<div class="card" id="cloud-config">
+  <div class="card-header">Cloud Configuration</div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="cloud-aps">Number of APs <span class="req">*</span></label>
+        <input type="number" id="cloud-aps" min="1" max="99999" placeholder="e.g. 50" oninput="updateCloudPreview()">
+        <div class="err" id="cloud-aps-err">Enter a valid AP count (≥ 1).</div>
+        <div class="tier-indicator" id="cloud-preview">
+          <span id="cloud-preview-text"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="cloud-qty">Number of License Sets <span class="req">*</span></label>
+        <select id="cloud-qty">
+          <option value="1">1 (single order)</option>
+        </select>
+        <div style="font-size:11px; color:var(--forti-text-muted); margin-top:4px;">Each set = quantity matching your AP count.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CONFIGURATION — VM
+═══════════════════════════════════════════════════ -->
+<div class="card" id="vm-config" style="display:none;">
+  <div class="card-header">VM Configuration</div>
+  <div class="card-body">
+    <div class="callout warn" style="margin-bottom:14px;">
+      <span class="callout-icon">⚠</span>
+      <span><strong>VM base license is required.</strong> <code>LIC-FPA-VM</code> must be ordered once per VM instance before any per-AP licenses can be applied. Per-AP licenses are perpetual — no term renewal.</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="vm-instances">VM Instances <span class="req">*</span></label>
+        <input type="number" id="vm-instances" min="1" max="999" value="1" placeholder="1">
+        <div class="err" id="vm-instances-err">Enter a valid VM instance count (≥ 1).</div>
+      </div>
+      <div class="form-group">
+        <label for="vm-aps">Total APs to License <span class="req">*</span></label>
+        <input type="number" id="vm-aps" min="1" max="999999" placeholder="e.g. 120" oninput="updateVMPreview()">
+        <div class="err" id="vm-aps-err">Enter a valid AP count (≥ 1).</div>
+        <div class="tier-indicator" id="vm-tier-indicator">
+          Band: <code id="vm-tier-text"></code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pack preview -->
+    <div class="pack-preview" id="vm-pack-preview">
+      <div style="font-size:11px; font-weight:600; color:var(--forti-text-secondary); margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">Packing preview</div>
+      <div id="vm-pack-pills"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     ACTION BUTTONS
+═══════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-body">
+    <div class="actions">
+      <button class="btn btn-primary" onclick="generateBOM()">Preview BOM</button>
+      <button class="btn btn-success" onclick="addToProjectBOM()">Add to Project BOM</button>
+      <button class="btn btn-neutral" onclick="resetForm()">Reset</button>
+      <span id="smsg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     BOM PREVIEW
+═══════════════════════════════════════════════════ -->
+<div class="card" id="bom-section">
+  <div class="card-header">BOM Preview</div>
+  <div class="card-body">
+    <div class="bom-actions">
+      <button class="btn btn-neutral btn-sm" onclick="copyTSV()">📋 Copy TSV</button>
+      <button class="btn btn-neutral btn-sm" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="bom" id="bom-table">
+        <thead>
+          <tr>
+            <th style="width:26%;">Part Number</th>
+            <th style="width:36%;">Description</th>
+            <th style="width:7%;">Qty</th>
+            <th style="width:10%;">Type</th>
+            <th style="width:21%;">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bom-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA MODEL
+═══════════════════════════════════════════════════ */
+const DEPLOY_CLOUD = 'cloud';
+const DEPLOY_VM    = 'vm';
+
+// VM AP license tiers (largest-first for packing)
+const VM_AP_TIERS = [
+  { qty: 1000, sku: 'LIC-FPA-AP-1000', desc: '1000-AP perpetual licenses for FortiPresence-VM' },
+  { qty:  500, sku: 'LIC-FPA-AP-500',  desc: '500-AP perpetual licenses for FortiPresence-VM' },
+  { qty:  250, sku: 'LIC-FPA-AP-250',  desc: '250-AP perpetual licenses for FortiPresence-VM' },
+  { qty:   50, sku: 'LIC-FPA-AP-50',   desc: '50-AP perpetual licenses for FortiPresence-VM' },
+  { qty:    1, sku: 'LIC-FPA-AP',      desc: 'Per-AP perpetual license for FortiPresence-VM' },
+];
+
+let _deploy   = DEPLOY_CLOUD;
+let _lastRows = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+/* ═══════════════════════════════════════════════════
+   DEPLOYMENT TOGGLE
+═══════════════════════════════════════════════════ */
+function setDeploy(mode) {
+  _deploy = mode;
+  document.getElementById('tab-cloud').classList.toggle('active', mode === DEPLOY_CLOUD);
+  document.getElementById('tab-vm').classList.toggle('active',    mode === DEPLOY_VM);
+  document.getElementById('cloud-callout').style.display  = mode === DEPLOY_CLOUD ? '' : 'none';
+  document.getElementById('vm-callout').style.display     = mode === DEPLOY_VM    ? '' : 'none';
+  document.getElementById('cloud-config').style.display   = mode === DEPLOY_CLOUD ? '' : 'none';
+  document.getElementById('vm-config').style.display      = mode === DEPLOY_VM    ? '' : 'none';
+  clearStatus();
+  hideBOM();
+}
+
+/* ═══════════════════════════════════════════════════
+   LIVE PREVIEWS
+═══════════════════════════════════════════════════ */
+function updateCloudPreview() {
+  const aps = parseInt(document.getElementById('cloud-aps').value, 10);
+  const el  = document.getElementById('cloud-preview');
+  const txt = document.getElementById('cloud-preview-text');
+  if (aps > 0) {
+    txt.textContent = `→ ${aps} × FC-10-FPCLD-169-02-DD`;
+    el.style.display = '';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function updateVMPreview() {
+  const aps  = parseInt(document.getElementById('vm-aps').value, 10);
+  const ind  = document.getElementById('vm-tier-indicator');
+  const prev = document.getElementById('vm-pack-preview');
+  const pills = document.getElementById('vm-pack-pills');
+
+  if (!aps || aps < 1) {
+    ind.style.display  = 'none';
+    prev.style.display = 'none';
+    return;
+  }
+
+  // Build pack
+  const packed = packAPs(aps);
+  ind.style.display  = '';
+  document.getElementById('vm-tier-text').textContent =
+    packed.map(p => `${p.count}×${p.tier.sku}`).join(' + ');
+
+  // Pills
+  pills.innerHTML = packed.map(p =>
+    `<span class="pack-pill">${p.count} × ${p.tier.sku} (${p.count * p.tier.qty} APs)</span>`
+  ).join('');
+  prev.style.display = '';
+}
+
+/* ═══════════════════════════════════════════════════
+   PACKING ALGORITHM (largest-first greedy)
+═══════════════════════════════════════════════════ */
+function packAPs(total) {
+  let remaining = total;
+  const result = [];
+  for (const tier of VM_AP_TIERS) {
+    const count = Math.floor(remaining / tier.qty);
+    if (count > 0) {
+      result.push({ tier, count });
+      remaining -= count * tier.qty;
+    }
+  }
+  // Round up remainder to the 1-AP tier
+  if (remaining > 0) {
+    result.push({ tier: VM_AP_TIERS[VM_AP_TIERS.length - 1], count: 1 });
+  }
+  return result;
+}
+
+/* ═══════════════════════════════════════════════════
+   VALIDATION HELPER
+═══════════════════════════════════════════════════ */
+function validateField(fieldId, errId, condition) {
+  const field = document.getElementById(fieldId);
+  const err   = document.getElementById(errId);
+  if (!condition) {
+    field.classList.add('invalid');
+    err.style.display = 'block';
+    return false;
+  }
+  field.classList.remove('invalid');
+  err.style.display = 'none';
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════
+   GENERATE BOM
+═══════════════════════════════════════════════════ */
+function generateBOM() {
+  clearStatus();
+  const rows = [];
+  let valid = true;
+
+  if (_deploy === DEPLOY_CLOUD) {
+    /* ─── Cloud path ─── */
+    const aps = parseInt(document.getElementById('cloud-aps').value, 10);
+    valid = validateField('cloud-aps', 'cloud-aps-err', aps >= 1) && valid;
+    if (!valid) return false;
+
+    rows.push({ section: 'FortiPresence Cloud Subscription' });
+    rows.push({
+      sku:  'FC-10-FPCLD-169-02-DD',
+      desc: 'FortiPresence Cloud annual subscription license — advanced features + 1-year rolling data retention. Per-AP.',
+      qty:  aps,
+      kind: 'req',
+      note: 'Annual sub · Co-term -DD · Per AP',
+    });
+
+    _lastLabel = `FortiPresence Cloud ×${aps} AP`;
+    _lastMeta  = { 'Deployment': 'Hosted Cloud', 'APs Licensed': aps, 'License Type': 'Annual Subscription (per-AP)' };
+
+  } else {
+    /* ─── VM path ─── */
+    const instances = parseInt(document.getElementById('vm-instances').value, 10);
+    const aps       = parseInt(document.getElementById('vm-aps').value, 10);
+
+    valid = validateField('vm-instances', 'vm-instances-err', instances >= 1) && valid;
+    valid = validateField('vm-aps',       'vm-aps-err',       aps >= 1)       && valid;
+    if (!valid) return false;
+
+    /* VM base license(s) */
+    rows.push({ section: 'FortiPresence-VM Base License' });
+    rows.push({
+      sku:  'LIC-FPA-VM',
+      desc: 'FortiPresence Analytics virtual machine — base VM license. Per-AP licenses sold separately.',
+      qty:  instances,
+      kind: 'req',
+      note: 'Perpetual · Required per VM instance',
+    });
+
+    /* Per-AP perpetual licenses — packed */
+    rows.push({ section: 'Per-AP Perpetual Licenses' });
+    const packed = packAPs(aps);
+    for (const p of packed) {
+      rows.push({
+        sku:  p.tier.sku,
+        desc: p.tier.desc,
+        qty:  p.count,
+        kind: 'req',
+        note: `Perpetual · covers ${p.count * p.tier.qty} APs`,
+      });
+    }
+
+    /* Totals note */
+    const totalLicensed = packed.reduce((s, p) => s + p.count * p.tier.qty, 0);
+    if (totalLicensed > aps) {
+      rows.push({
+        sku:  '—',
+        desc: `Packing rounds up: ${totalLicensed} AP licenses issued for ${aps} APs requested.`,
+        qty:  null,
+        kind: 'note',
+        note: '',
+      });
+    }
+
+    _lastLabel = `FortiPresence-VM ×${instances} VM · ${aps} APs`;
+    _lastMeta  = {
+      'Deployment':    'On-Premise VM',
+      'VM Instances':  instances,
+      'APs Licensed':  totalLicensed,
+      'License Type':  'Perpetual',
+    };
+  }
+
+  _lastRows = rows;
+  renderBOM(rows);
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER BOM TABLE
+═══════════════════════════════════════════════════ */
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-body');
+  tbody.innerHTML = '';
+
+  for (const row of rows) {
+    const tr = document.createElement('tr');
+
+    if (row.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${escHtml(row.section)}</td>`;
+    } else {
+      const badgeHtml = badgeFor(row.kind);
+      tr.innerHTML = `
+        <td><span class="sku-mono">${escHtml(row.sku)}</span></td>
+        <td class="nc">${escHtml(row.desc)}</td>
+        <td>${row.qty !== null ? row.qty : ''}</td>
+        <td>${badgeHtml}</td>
+        <td class="nc">${escHtml(row.note || '')}</td>
+      `;
+    }
+    tbody.appendChild(tr);
+  }
+
+  const sec = document.getElementById('bom-section');
+  sec.style.display = '';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function badgeFor(kind) {
+  switch (kind) {
+    case 'req':  return '<span class="badge badge-req">Required</span>';
+    case 'mand': return '<span class="badge badge-mand">Mandatory</span>';
+    case 'opt':  return '<span class="badge badge-opt">Optional</span>';
+    case 'inc':  return '<span class="badge badge-inc">Included</span>';
+    default:     return '';
+  }
+}
+
+function escHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ═══════════════════════════════════════════════════
+   ADD TO PROJECT BOM
+═══════════════════════════════════════════════════ */
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiPresence',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta,
+    }, '*');
+    showStatus('✓ Added to Project BOM.', '#2E7D32');
+  } else {
+    showStatus('✓ BOM generated (standalone mode).', '#2E7D32');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   COPY TSV
+═══════════════════════════════════════════════════ */
+function copyTSV() {
+  const cols = ['Part Number', 'Description', 'Qty', 'Type', 'Notes'];
+  const lines = [cols.join('\t')];
+  for (const row of _lastRows) {
+    if (row.section !== undefined) {
+      lines.push([`### ${row.section}`, '', '', '', ''].join('\t'));
+    } else {
+      lines.push([row.sku, row.desc, row.qty !== null ? row.qty : '', row.kind, row.note || ''].join('\t'));
+    }
+  }
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    showStatus('📋 Copied to clipboard.', '#3557A5');
+  }).catch(() => {
+    showStatus('Copy failed — please try again.', '#C0392B');
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════ */
+function resetForm() {
+  document.getElementById('cloud-aps').value        = '';
+  document.getElementById('vm-instances').value     = '1';
+  document.getElementById('vm-aps').value           = '';
+
+  // Clear validation states
+  ['cloud-aps','vm-instances','vm-aps'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('invalid');
+  });
+  ['cloud-aps-err','vm-instances-err','vm-aps-err'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Hide live previews
+  document.getElementById('cloud-preview').style.display   = 'none';
+  document.getElementById('vm-tier-indicator').style.display = 'none';
+  document.getElementById('vm-pack-preview').style.display  = 'none';
+
+  hideBOM();
+  clearStatus();
+  _lastRows  = [];
+  _lastLabel = '';
+  _lastMeta  = {};
+}
+
+function hideBOM()       { document.getElementById('bom-section').style.display = 'none'; }
+function clearStatus()   { const el = document.getElementById('smsg'); el.textContent = ''; }
+function showStatus(msg, color) {
+  const el = document.getElementById('smsg');
+  el.textContent = msg;
+  el.style.color = color;
+}
+</script>
+</body>
+</html>

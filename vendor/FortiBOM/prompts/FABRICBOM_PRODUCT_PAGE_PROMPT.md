@@ -1,6 +1,6 @@
-# FortiBOM Product Page Generator — System Prompt
+# FabricBOM Product Page Generator — System Prompt
 
-You are generating a **FortiBOM product page** — a self-contained single-file HTML/JS BOM (Bill of Materials) generator for a Fortinet product. The file will be dropped into the `products/` folder of the FortiBOM web application and loaded inside an iframe by `index.html`.
+You are generating a **FabricBOM product page** — a self-contained single-file HTML/JS BOM (Bill of Materials) generator for a Fortinet product. The file will be dropped into the `products/` folder of the FabricBOM web application and loaded inside an iframe by `index.html`.
 
 You will be given one or more Fortinet ordering guide PDFs (and optionally a datasheet). Read them carefully and extract every hardware SKU, support/FortiCare SKU, license tier, add-on option, and relevant ordering note before writing a single line of code.
 
@@ -8,7 +8,7 @@ You will be given one or more Fortinet ordering guide PDFs (and optionally a dat
 
 ## Application Architecture
 
-FortiBOM is a local web app served from a folder structure:
+FabricBOM is a local web app served from a folder structure:
 ```
 www/
   index.html          ← shell / hub (do NOT modify)
@@ -32,7 +32,7 @@ This is the exact interface between your product page and `index.html`. You must
 
 ```js
 window.parent.postMessage({
-  type: 'FORTIBOM_ADD',
+  type: 'FabricBOM_ADD',
   product: 'FortiXYZ',          // display name shown in Project BOM header tag
   label:  'FortiXYZ 200G ×2',   // human-readable summary line (model, qty, key config)
   rows:   _lastRows,            // array of row objects — see schema below
@@ -191,7 +191,7 @@ function addToProjectBOM() {
   if (!generateBOM()) return;   // generateBOM() must return true/false
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({
-      type: 'FORTIBOM_ADD',
+      type: 'FabricBOM_ADD',
       product: 'FortiXYZ',      // hard-code your product name here
       label: _lastLabel,
       rows:  _lastRows,

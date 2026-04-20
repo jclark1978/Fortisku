@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiExtender BOM Generator</title>
+<style>
+:root {
+  --forti-red:    #EE3124;
+  --forti-border: #DDE1E9;
+  --forti-bg:     #F2F4F7;
+  --forti-white:  #FFFFFF;
+  --forti-text:   #2A2F3A;
+  --forti-text-secondary: #6B7589;
+  --forti-text-muted:     #9BA5BA;
+  --forti-section-header: #F7F9FC;
+  --forti-input-border:   #C8CDD9;
+  --forti-table-head:     #EEF1F6;
+  --forti-table-stripe:   #F7F9FC;
+  --forti-info-bg:    #EEF3FF;
+  --forti-info-border:#B8CBF5;
+  --forti-info-text:  #3557A5;
+  --forti-warn-bg:    #FFF8EE;
+  --forti-warn-border:#F5D9A0;
+  --forti-warn-text:  #8A5800;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--forti-text);
+  background: var(--forti-bg);
+  padding: 20px;
+}
+a { color: var(--forti-red); }
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.page-icon {
+  width: 44px; height: 44px;
+  background: var(--forti-red);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.page-icon svg { fill: white; width: 26px; height: 26px; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--forti-text); line-height: 1.2; }
+.page-subtitle { font-size: 11px; color: var(--forti-text-muted); margin-top: 2px; }
+
+/* ── Cards ── */
+.card {
+  background: var(--forti-white);
+  border: 1px solid var(--forti-border);
+  border-radius: 4px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-header {
+  background: var(--forti-section-header);
+  border-bottom: 1px solid var(--forti-border);
+  padding: 9px 18px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--forti-text-secondary);
+}
+.card-body { padding: 16px 18px; }
+
+/* ── Form grid ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr));
+  gap: 14px;
+}
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+label { font-size: 12px; font-weight: 600; color: var(--forti-text-secondary); }
+label .req { color: var(--forti-red); margin-left: 2px; }
+select, input[type=number], input[type=text] {
+  background: white;
+  border: 1px solid var(--forti-input-border);
+  border-radius: 3px;
+  padding: 6px 9px;
+  font-size: 13px;
+  width: 100%;
+  color: var(--forti-text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+select:focus, input[type=number]:focus, input[type=text]:focus {
+  border-color: var(--forti-red);
+  box-shadow: 0 0 0 2px rgba(238,49,36,.1);
+}
+.invalid {
+  border-color: var(--forti-red) !important;
+  box-shadow: 0 0 0 2px rgba(238,49,36,.12) !important;
+}
+.err-msg { font-size: 11px; color: var(--forti-red); display: none; margin-top: 1px; }
+
+/* ── Model cards ── */
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.model-card {
+  border: 1px solid var(--forti-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  cursor: pointer;
+  background: white;
+  transition: border-color .15s, background .15s;
+  user-select: none;
+}
+.model-card:hover { border-color: #ADBAD4; background: #FAFBFD; }
+.model-card.selected {
+  border: 2px solid var(--forti-red);
+  background: #FEF8F8;
+}
+.model-card .mc-name { font-weight: 600; font-size: 13px; color: var(--forti-text); }
+.model-card .mc-sub { font-size: 11px; color: var(--forti-text-secondary); margin-top: 2px; }
+.model-card .mc-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-radius: 2px;
+  padding: 1px 5px;
+  margin-top: 5px;
+}
+.mc-badge.entry  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.mc-badge.mid    { background:#F0FAF0; color:#1A6B2E; border:1px solid #A8D8B0; }
+.mc-badge.high   { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+.mc-badge.vehicle{ background:#FFF8EE; color:#8A5800; border:1px solid #F5D9A0; }
+.mc-badge.rugged { background:#F4F0FE; color:#5B3EA5; border:1px solid #C8B8F5; }
+
+/* ── Section label ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--forti-text-secondary);
+  margin: 12px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--forti-border);
+}
+.section-label:first-child { margin-top: 0; }
+
+/* ── Callouts ── */
+.callout {
+  border-radius: 3px;
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.callout-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+.info { background: var(--forti-info-bg); border: 1px solid var(--forti-info-border); color: var(--forti-info-text); }
+.warn { background: var(--forti-warn-bg); border: 1px solid var(--forti-warn-border); color: var(--forti-warn-text); }
+
+/* ── Radio-style toggle ── */
+.toggle-group { display: flex; gap: 0; border: 1px solid var(--forti-input-border); border-radius: 3px; overflow: hidden; }
+.toggle-btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: white;
+  color: var(--forti-text-secondary);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  border-right: 1px solid var(--forti-input-border);
+}
+.toggle-btn:last-child { border-right: none; }
+.toggle-btn.active { background: var(--forti-red); color: white; }
+
+/* ── Checkbox add-ons ── */
+.addon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--forti-table-stripe);
+}
+.addon-row:last-child { border-bottom: none; }
+.addon-row input[type=checkbox] { margin-top: 2px; flex-shrink: 0; accent-color: var(--forti-red); width: 14px; height: 14px; }
+.addon-label { font-size: 12px; font-weight: 600; color: var(--forti-text); }
+.addon-sku { font-family: 'Courier New', monospace; font-size: 11px; color: #1A4E82; display: block; margin-top: 2px; }
+.addon-note { font-size: 11px; color: var(--forti-text-muted); display: block; margin-top: 1px; }
+.addon-row.disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── Action buttons ── */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, filter .15s;
+}
+button:hover { filter: brightness(.93); }
+.btn-primary { background: var(--forti-red); color: white; }
+.btn-success { background: #2E7D32; color: white; }
+.btn-neutral { background: #E4E7ED; color: var(--forti-text); }
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+#smsg { font-size: 12px; font-weight: 600; }
+
+/* ── BOM Preview Table ── */
+#bom-section { display: none; }
+#bom-section .bom-actions {
+  display: flex; gap: 8px; margin-bottom: 10px; align-items: center;
+}
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  background: var(--forti-table-head);
+  border: 1px solid var(--forti-border);
+  padding: 7px 11px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--forti-text-secondary);
+  text-align: left;
+  white-space: nowrap;
+}
+tbody td {
+  border: 1px solid var(--forti-border);
+  padding: 7px 11px;
+  vertical-align: top;
+}
+tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
+.section-row td {
+  background: #EAECF3 !important;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--forti-text-secondary);
+  padding: 5px 11px;
+  border-top: 2px solid #C5CAD9;
+}
+.sku-cell { font-family: 'Courier New', monospace; font-size: 11px; color: #1A4E82; white-space: nowrap; }
+.nc { color: var(--forti-text-muted); }
+.badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-radius: 2px; padding: 1px 4px; display: inline-block; white-space: nowrap; }
+.badge-req  { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+.badge-opt  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.badge-mand { background:#FFF8EE; color:#8A5800; border:1px solid #F5D9A0; }
+.badge-inc  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+
+/* ── Overview table ── */
+.overview-table-wrap { overflow-x: auto; }
+.overview-table { font-size: 11px; }
+.overview-table th { font-size: 9px; padding: 5px 8px; }
+.overview-table td { padding: 5px 8px; font-size: 11px; }
+.check-yes { color: #1A6B2E; font-weight: 700; }
+.check-no  { color: var(--forti-text-muted); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     PAGE HEADER
+══════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 6h2v12H1zM5 3h2v18H5zM9 8h2v8H9zM13 5h2v14h-2zM17 9h2v6h-2zM21 7h2v10h-2z"/>
+    </svg>
+  </div>
+  <div>
+    <div class="page-title">FortiExtender</div>
+    <div class="page-subtitle">Secure 5G/LTE Gateway BOM Generator · FEX-OG-R17-20250318</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     OVERVIEW TABLE
+══════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Product Comparison</div>
+  <div class="card-body" style="padding:12px 18px;">
+    <div class="overview-table-wrap">
+      <table class="overview-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th colspan="4" style="text-align:center;border-bottom:2px solid var(--forti-red);color:var(--forti-red);">Standard</th>
+            <th colspan="3" style="text-align:center;border-bottom:2px solid #8A5800;color:#8A5800;">Vehicle</th>
+            <th style="text-align:center;border-bottom:2px solid #5B3EA5;color:#5B3EA5;">Rugged</th>
+          </tr>
+          <tr>
+            <th>Spec</th>
+            <th>101G</th>
+            <th>211G</th>
+            <th>511G</th>
+            <th>511G-WiFi</th>
+            <th>211F</th>
+            <th>212F</th>
+            <th>511G</th>
+            <th>511G</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Modem</strong></td>
+            <td>Single</td><td>Single</td><td>Single</td><td>Single</td>
+            <td>Single</td><td>Dual</td><td>Single</td><td>Single</td>
+          </tr>
+          <tr>
+            <td><strong>Category</strong></td>
+            <td>CAT-6/LTE</td><td>CAT-12/LTE</td><td>5G</td><td>5G</td>
+            <td>CAT-12/LTE</td><td>CAT-12/LTE</td><td>5G</td><td>5G</td>
+          </tr>
+          <tr>
+            <td><strong>SIM</strong></td>
+            <td>2+eSIM</td><td>2+eSIM</td><td>2+eSIM</td><td>2+eSIM</td>
+            <td>Dual SIM</td><td>2×Dual SIM</td><td>2+eSIM</td><td>2+eSIM</td>
+          </tr>
+          <tr>
+            <td><strong>WAN</strong></td>
+            <td>1 GE</td><td>1 GE</td><td>1×2.5G</td><td>1×2.5G</td>
+            <td>1 GE</td><td>1 GE</td><td>1×2.5G</td><td>1×2.5G/PoE</td>
+          </tr>
+          <tr>
+            <td><strong>LAN Ports</strong></td>
+            <td>4</td><td>4</td><td>SFP+RJ45+3</td><td>SFP+RJ45+3</td>
+            <td>4</td><td>4</td><td>4</td><td>1</td>
+          </tr>
+          <tr>
+            <td><strong>Wi-Fi</strong></td>
+            <td class="check-no">—</td><td class="check-no">—</td><td class="check-no">—</td><td class="check-yes">Wi-Fi 6</td>
+            <td class="check-yes">Yes</td><td class="check-yes">Yes</td><td class="check-yes">Wi-Fi 6</td><td class="check-yes">Wi-Fi 6</td>
+          </tr>
+          <tr>
+            <td><strong>Region</strong></td>
+            <td>Global</td><td>Global</td><td>Global</td><td>Global</td>
+            <td>NA / EMEA</td><td>NA / EMEA</td><td>Global</td><td>Global</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 1 — SELECT LINE & MODEL
+══════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Step 1 — Select Product Line &amp; Model</div>
+  <div class="card-body">
+
+    <div class="section-label">Product Line</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <div class="toggle-group" style="max-width:460px;width:100%;">
+        <button class="toggle-btn active" id="line-std" onclick="selectLine('standard')">Standard (FEX)</button>
+        <button class="toggle-btn" id="line-veh" onclick="selectLine('vehicle')">Vehicle (FEV)</button>
+        <button class="toggle-btn" id="line-rug" onclick="selectLine('rugged')">Rugged (FER)</button>
+      </div>
+    </div>
+
+    <!-- Standard models -->
+    <div id="models-standard">
+      <div class="section-label">Standard Models — Global SKUs</div>
+      <div class="model-grid">
+        <div class="model-card" id="mc-101G" onclick="selectModel('101G')">
+          <div class="mc-name">FEX-101G</div>
+          <div class="mc-sub">CAT-6/LTE · 4 LAN · No WiFi</div>
+          <span class="mc-badge entry">Entry</span>
+        </div>
+        <div class="model-card" id="mc-211G" onclick="selectModel('211G')">
+          <div class="mc-name">FEX-211G</div>
+          <div class="mc-sub">CAT-12/LTE · 4 LAN · No WiFi</div>
+          <span class="mc-badge mid">Mid-Range</span>
+        </div>
+        <div class="model-card" id="mc-511G" onclick="selectModel('511G')">
+          <div class="mc-name">FEX-511G</div>
+          <div class="mc-sub">5G · SFP+RJ45+3-LAN · No WiFi</div>
+          <span class="mc-badge high">High-End</span>
+        </div>
+        <div class="model-card" id="mc-511GW" onclick="selectModel('511GW')">
+          <div class="mc-name">FEX-511G-WiFi</div>
+          <div class="mc-sub">5G · SFP+RJ45+3-LAN · Wi-Fi 6</div>
+          <span class="mc-badge high">High-End</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle models -->
+    <div id="models-vehicle" style="display:none;">
+      <div class="callout info" style="margin-bottom:12px;">
+        <span class="callout-icon">ℹ</span>
+        <span>FortiExtender Vehicle is IP64-rated for harsh environments. The <strong>212F</strong> has dual modems for active/active wireless connections. NA variants (-AM-) and EMEA variants have separate support SKUs.</span>
+      </div>
+      <div class="section-label">Vehicle Models</div>
+      <div class="model-grid">
+        <div class="model-card" id="mc-V211F" onclick="selectModel('V211F')">
+          <div class="mc-name">FEV-211F</div>
+          <div class="mc-sub">CAT-12/LTE · Single Modem · 4 LAN · WiFi</div>
+          <span class="mc-badge vehicle">Vehicle</span>
+        </div>
+        <div class="model-card" id="mc-V212F" onclick="selectModel('V212F')">
+          <div class="mc-name">FEV-212F</div>
+          <div class="mc-sub">CAT-12/LTE · Dual Modem · 4 LAN · WiFi</div>
+          <span class="mc-badge vehicle">Vehicle · Dual Modem</span>
+        </div>
+        <div class="model-card" id="mc-V511G" onclick="selectModel('V511G')">
+          <div class="mc-name">FEV-511G</div>
+          <div class="mc-sub">5G · Single Modem · 4 LAN · Wi-Fi 6</div>
+          <span class="mc-badge vehicle">Vehicle · 5G</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rugged models -->
+    <div id="models-rugged" style="display:none;">
+      <div class="callout info" style="margin-bottom:12px;">
+        <span class="callout-icon">ℹ</span>
+        <span>FortiExtender Rugged is designed for extreme-environment deployments. The <strong>FER-511G</strong> includes a 2.5G/PoE WAN port and Wi-Fi 6, with a single LAN port.</span>
+      </div>
+      <div class="section-label">Rugged Models — Global SKUs</div>
+      <div class="model-grid">
+        <div class="model-card" id="mc-R511G" onclick="selectModel('R511G')">
+          <div class="mc-name">FER-511G</div>
+          <div class="mc-sub">5G · 1×2.5G/PoE WAN · 1 LAN · Wi-Fi 6</div>
+          <span class="mc-badge rugged">Rugged · 5G</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="model-err" class="err-msg" style="display:none;margin-top:4px;">Please select a model.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 2 — CONFIGURATION
+══════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Step 2 — Configuration</div>
+  <div class="card-body">
+
+    <div class="form-grid">
+      <!-- Quantity -->
+      <div class="form-group">
+        <label>Quantity<span class="req">*</span></label>
+        <input type="number" id="f-qty" value="1" min="1" max="9999" oninput="clearMsg()">
+        <div id="qty-err" class="err-msg">Enter a quantity ≥ 1.</div>
+      </div>
+
+      <!-- Region (shown for Vehicle 211F/212F only) -->
+      <div class="form-group" id="region-group" style="display:none;">
+        <label>Region<span class="req">*</span></label>
+        <select id="f-region" onchange="clearMsg()">
+          <option value="NA">North America (-AM-)</option>
+          <option value="EMEA">EMEA / APAC / LATAM</option>
+        </select>
+        <div id="region-err" class="err-msg">Please select a region.</div>
+      </div>
+    </div>
+
+    <!-- Management mode -->
+    <div style="margin-top:14px;">
+      <div class="section-label">Management Mode</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="toggle-group" style="max-width:460px;width:100%;">
+          <button class="toggle-btn active" id="mgmt-fgt" onclick="selectMgmt('fortigate')">FortiGate-Managed</button>
+          <button class="toggle-btn" id="mgmt-cloud" onclick="selectMgmt('cloud')">FortiEdge Cloud Managed</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;" id="mgmt-info-fgt">
+        <div class="callout info">
+          <span class="callout-icon">ℹ</span>
+          <span>FortiGate-Managed includes <strong>FC Premium Support (247)</strong> per unit. The FortiExtender is managed via a connected FortiGate.</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:none;" id="mgmt-info-cloud">
+        <div class="callout info">
+          <span class="callout-icon">ℹ</span>
+          <span>FortiEdge Cloud Managed includes <strong>FC Support + Cloud Management (583)</strong> per unit. All models use <code style="font-family:'Courier New',monospace;font-size:11px;">FC-10-FEXC2-583-02-DD</code> except FEX-101G and FEX-211G which use <code style="font-family:'Courier New',monospace;font-size:11px;">FC-10-FEXC0-583-02-DD</code>.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ACTION BUTTONS
+══════════════════════════════════════════════ -->
+<div class="action-row">
+  <button class="btn-primary" onclick="generateBOM()">▶ Preview BOM</button>
+  <button class="btn-success" onclick="addToProjectBOM()">＋ Add to Project BOM</button>
+  <button class="btn-neutral" onclick="resetForm()">↺ Reset</button>
+  <span id="smsg"></span>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     BOM PREVIEW
+══════════════════════════════════════════════ -->
+<div id="bom-section" class="card">
+  <div class="card-header">BOM Preview</div>
+  <div class="card-body">
+    <div class="bom-actions">
+      <button class="btn-neutral btn-sm" onclick="copyTSV()">📋 Copy TSV</button>
+      <button class="btn-neutral btn-sm" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div id="bom-meta" style="margin-bottom:10px;font-size:12px;color:var(--forti-text-secondary);"></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Part Number</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Type</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bom-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+// ── State ──────────────────────────────────────
+let _selectedLine  = 'standard';
+let _selectedModel = null;
+let _selectedMgmt  = 'fortigate';
+let _lastRows = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+// ── Model data ─────────────────────────────────
+const MODELS = {
+  // Standard
+  '101G': {
+    hwSku: 'FEX-101G',
+    desc: 'FortiExtender 101G – CAT-6/LTE, Single Modem, Dual SIM+eSIM, 4 LAN, No WiFi',
+    line: 'standard',
+    careCode: 'X101G',    // FortiGate-managed Premium Support model code
+    cloudTier: 'C0',      // FEXC0 = entry/mid
+    region: false,
+  },
+  '211G': {
+    hwSku: 'FEX-211G',
+    desc: 'FortiExtender 211G – CAT-12/LTE, Single Modem, Dual SIM+eSIM, 4 LAN, No WiFi',
+    line: 'standard',
+    careCode: 'X211G',
+    cloudTier: 'C0',
+    region: false,
+  },
+  '511G': {
+    hwSku: 'FEX-511G',
+    desc: 'FortiExtender 511G – 5G, Single Modem, Dual SIM+eSIM, 1-SFP+RJ45+3-LAN, No WiFi',
+    line: 'standard',
+    careCode: 'FX51G',
+    cloudTier: 'C2',
+    region: false,
+  },
+  '511GW': {
+    hwSku: 'FEX-511G-WiFi',
+    desc: 'FortiExtender 511G-WiFi – 5G, Single Modem, Dual SIM+eSIM, 1-SFP+RJ45+3-LAN, Wi-Fi 6',
+    line: 'standard',
+    careCode: 'XW51G',
+    cloudTier: 'C2',
+    region: false,
+    hwSkuNote: 'The "-x" suffix represents the regional WiFi channel variant; confirm with Fortinet/distributor for your locale.',
+  },
+  // Vehicle
+  'V211F': {
+    hwSkuNA:   'FEV-211F-AM',
+    hwSkuEMEA: 'FEV-211F',
+    descNA:   'FortiExtender Vehicle 211F (North America) – CAT-12/LTE, Single Modem, Dual SIM, 4 LAN, WiFi',
+    descEMEA: 'FortiExtender Vehicle 211F (EMEA/APAC/LATAM) – CAT-12/LTE, Single Modem, Dual SIM, 4 LAN, WiFi',
+    line: 'vehicle',
+    careCodeNA:   'FV21F',
+    careCodeEMEA: 'FG21F',
+    cloudTier: 'C2',
+    region: true,
+    hwSkuNote: 'The "-x" suffix represents variant; confirm exact SKU with distributor.',
+  },
+  'V212F': {
+    hwSkuNA:   'FEV-212F-AM',
+    hwSkuEMEA: 'FEV-212F',
+    descNA:   'FortiExtender Vehicle 212F (North America) – CAT-12/LTE, Dual Modem, Two-Dual SIM, 4 LAN, WiFi',
+    descEMEA: 'FortiExtender Vehicle 212F (EMEA/APAC/LATAM) – CAT-12/LTE, Dual Modem, Two-Dual SIM, 4 LAN, WiFi',
+    line: 'vehicle',
+    careCodeNA:   'FV22F',
+    careCodeEMEA: 'FG22F',
+    cloudTier: 'C2',
+    region: true,
+    hwSkuNote: 'The "-x" suffix represents variant; confirm exact SKU with distributor.',
+  },
+  'V511G': {
+    hwSku: 'FEV-511G',
+    desc: 'FortiExtender Vehicle 511G – 5G, Single Modem, Dual SIM+eSIM, 4 LAN, Wi-Fi 6',
+    line: 'vehicle',
+    careCode: 'FV51G',
+    cloudTier: 'C2',
+    region: false,
+    hwSkuNote: 'The "-x" suffix represents variant; confirm exact SKU with distributor.',
+  },
+  // Rugged
+  'R511G': {
+    hwSku: 'FER-511G',
+    desc: 'FortiExtender Rugged 511G – 5G, Single Modem, Dual SIM+eSIM, 1×2.5G/PoE WAN, 1 LAN, Wi-Fi 6',
+    line: 'rugged',
+    careCode: 'XR51G',
+    cloudTier: 'C2',
+    region: false,
+    hwSkuNote: 'The "-x" suffix represents variant; confirm exact SKU with distributor.',
+  },
+};
+
+// ── Line selection ─────────────────────────────
+function selectLine(line) {
+  _selectedLine  = line;
+  _selectedModel = null;
+
+  // toggle buttons
+  document.getElementById('line-std').classList.toggle('active', line === 'standard');
+  document.getElementById('line-veh').classList.toggle('active', line === 'vehicle');
+  document.getElementById('line-rug').classList.toggle('active', line === 'rugged');
+
+  // show/hide model blocks
+  document.getElementById('models-standard').style.display = (line === 'standard') ? '' : 'none';
+  document.getElementById('models-vehicle').style.display  = (line === 'vehicle')  ? '' : 'none';
+  document.getElementById('models-rugged').style.display   = (line === 'rugged')   ? '' : 'none';
+
+  // clear all selected states
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('region-group').style.display = 'none';
+  clearMsg();
+}
+
+// ── Model selection ────────────────────────────
+function selectModel(id) {
+  _selectedModel = id;
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('mc-' + id).classList.add('selected');
+  document.getElementById('model-err').style.display = 'none';
+
+  // show region picker for vehicle 211F / 212F
+  const m = MODELS[id];
+  const needsRegion = m && m.region;
+  document.getElementById('region-group').style.display = needsRegion ? '' : 'none';
+
+  clearMsg();
+}
+
+// ── Mgmt mode selection ────────────────────────
+function selectMgmt(mode) {
+  _selectedMgmt = mode;
+  document.getElementById('mgmt-fgt').classList.toggle('active', mode === 'fortigate');
+  document.getElementById('mgmt-cloud').classList.toggle('active', mode === 'cloud');
+  document.getElementById('mgmt-info-fgt').style.display   = (mode === 'fortigate') ? '' : 'none';
+  document.getElementById('mgmt-info-cloud').style.display = (mode === 'cloud')     ? '' : 'none';
+  clearMsg();
+}
+
+// ── Clear status message ───────────────────────
+function clearMsg() {
+  const el = document.getElementById('smsg');
+  el.textContent = '';
+}
+
+// ── generateBOM ────────────────────────────────
+function generateBOM() {
+  // --- Validate ---
+  let ok = true;
+
+  if (!_selectedModel) {
+    document.getElementById('model-err').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('model-err').style.display = 'none';
+  }
+
+  const qtyEl = document.getElementById('f-qty');
+  const qty = parseInt(qtyEl.value, 10);
+  if (isNaN(qty) || qty < 1) {
+    qtyEl.classList.add('invalid');
+    document.getElementById('qty-err').style.display = 'block';
+    ok = false;
+  } else {
+    qtyEl.classList.remove('invalid');
+    document.getElementById('qty-err').style.display = 'none';
+  }
+
+  const m = _selectedModel ? MODELS[_selectedModel] : null;
+  let region = 'NA';
+  if (m && m.region) {
+    region = document.getElementById('f-region').value;
+  }
+
+  if (!ok) return false;
+
+  // --- Build rows ---
+  const rows = [];
+
+  // Determine hardware SKU and care code
+  let hwSku, hwDesc, careCode;
+  if (m.region) {
+    if (region === 'NA') {
+      hwSku    = m.hwSkuNA + '-x';
+      hwDesc   = m.descNA;
+      careCode = m.careCodeNA;
+    } else {
+      hwSku    = m.hwSkuEMEA + '-x';
+      hwDesc   = m.descEMEA;
+      careCode = m.careCodeEMEA;
+    }
+  } else {
+    hwSku    = m.hwSkuNote ? m.hwSku + '-x' : m.hwSku;
+    hwDesc   = m.desc;
+    careCode = m.careCode;
+  }
+
+  // For models without -x in their SKU (101G, 211G, 511G (std), rugged)
+  // Only the WiFi and vehicle variants have -x regional suffixes
+  const needsXSuffix = !!(m.hwSkuNote);
+  const finalHwSku = needsXSuffix ? hwSku : (m.hwSku || hwSku.replace('-x',''));
+
+  // ── Hardware section ──
+  rows.push({ section: 'Hardware Appliance' });
+  const hwNote = m.hwSkuNote ? m.hwSkuNote : 'Confirm SKU with distributor for region/variant';
+  rows.push({
+    sku:  finalHwSku,
+    desc: hwDesc,
+    qty:  qty,
+    kind: 'req',
+    note: needsXSuffix ? 'Confirm regional variant suffix with distributor' : 'Global SKU',
+  });
+
+  // ── Support / Management section ──
+  rows.push({ section: _selectedMgmt === 'fortigate' ? 'FortiGate-Managed — FC Premium Support (Per Unit)' : 'FortiEdge Cloud — FC Support + Management (Per Unit)' });
+
+  if (_selectedMgmt === 'fortigate') {
+    // FortiGate-managed: FC Premium Support 247
+    // For vehicle 211F/212F, there are TWO SKUs based on region (different variant codes)
+    if (m.region && region === 'NA') {
+      rows.push({
+        sku:  `FC-10-${careCode}-247-02-DD`,
+        desc: `FortiCare Premium Support for ${finalHwSku.split('-x')[0]}`,
+        qty:  qty,
+        kind: 'req',
+        note: 'Co-term -DD · per unit · NA variant',
+      });
+    } else if (m.region && region === 'EMEA') {
+      // Vehicle 211F / 212F EMEA has a different care code
+      rows.push({
+        sku:  `FC-10-${careCode}-247-02-DD`,
+        desc: `FortiCare Premium Support for ${finalHwSku.split('-x')[0]}`,
+        qty:  qty,
+        kind: 'req',
+        note: 'Co-term -DD · per unit · EMEA/APAC/LATAM variant',
+      });
+    } else {
+      rows.push({
+        sku:  `FC-10-${careCode}-247-02-DD`,
+        desc: `FortiCare Premium Support for ${m.hwSku || m.hwSkuNA}`,
+        qty:  qty,
+        kind: 'req',
+        note: 'Co-term -DD · per unit',
+      });
+    }
+  } else {
+    // FortiEdge Cloud managed: 583 SKU
+    const cloudSku = `FC-10-FEXC${m.cloudTier}-583-02-DD`;
+    const cloudDesc = m.cloudTier === 'C0'
+      ? 'FortiEdge Cloud Support + Management (Entry/Mid) for FortiExtender'
+      : 'FortiEdge Cloud Support + Management (Advanced) for FortiExtender';
+    rows.push({
+      sku:  cloudSku,
+      desc: cloudDesc,
+      qty:  qty,
+      kind: 'req',
+      note: 'Co-term -DD · per unit · Includes cloud management',
+    });
+  }
+
+  // ── Informational notes ──
+  rows.push({ section: 'Notes' });
+  rows.push({
+    sku:  '⚠',
+    desc: 'FortiExtender supports up to 2 WAN extensions per connected FortiGate. Plan FortiGate LAN extension capacity accordingly.',
+    qty:  null,
+    kind: 'note',
+    note: '',
+  });
+  if (_selectedModel === '511GW' || _selectedModel === 'V211F' || _selectedModel === 'V212F' || _selectedModel === 'V511G' || _selectedModel === 'R511G') {
+    rows.push({
+      sku:  '⚠',
+      desc: 'Models with regional or variant suffixes (-x, -AM-x): confirm exact SKU with your Fortinet distributor or account team before ordering.',
+      qty:  null,
+      kind: 'note',
+      note: '',
+    });
+  }
+  if (_selectedMgmt === 'fortigate') {
+    rows.push({
+      sku:  '⚠',
+      desc: 'FortiEdge Cloud management (FC-10-FEXC0/C2-583-02-DD) may be added as an optional upgrade if cloud visibility is required alongside FortiGate management.',
+      qty:  null,
+      kind: 'note',
+      note: '',
+    });
+  }
+
+  // --- Build meta ---
+  _lastRows  = rows;
+  _lastLabel = `${finalHwSku} ×${qty} · ${_selectedMgmt === 'fortigate' ? 'FortiGate-Managed' : 'FortiEdge Cloud'}`;
+  _lastMeta  = {
+    Model:      finalHwSku,
+    Quantity:   qty,
+    Management: _selectedMgmt === 'fortigate' ? 'FortiGate-Managed (FC Premium)' : 'FortiEdge Cloud (FC+Mgmt)',
+    Region:     (m.region) ? region : 'Global',
+    Line:       _selectedLine.charAt(0).toUpperCase() + _selectedLine.slice(1),
+  };
+
+  renderBOM(rows);
+  return true;
+}
+
+// ── renderBOM ──────────────────────────────────
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-tbody');
+  tbody.innerHTML = '';
+
+  const badgeMap = {
+    req:  '<span class="badge badge-req">Required</span>',
+    mand: '<span class="badge badge-mand">Mandatory</span>',
+    opt:  '<span class="badge badge-opt">Optional</span>',
+    inc:  '<span class="badge badge-inc">Included</span>',
+    note: '',
+  };
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${r.section}</td>`;
+    } else {
+      tr.innerHTML = `
+        <td class="sku-cell">${esc(r.sku)}</td>
+        <td class="nc">${esc(r.desc)}</td>
+        <td style="text-align:center;">${r.qty !== null ? r.qty : ''}</td>
+        <td>${badgeMap[r.kind] || ''}</td>
+        <td class="nc">${esc(r.note || '')}</td>
+      `;
+    }
+    tbody.appendChild(tr);
+  });
+
+  // Meta bar
+  const meta = _lastMeta;
+  document.getElementById('bom-meta').textContent =
+    `Model: ${meta.Model} · Qty: ${meta.Quantity} · Mgmt: ${meta.Management} · Region: ${meta.Region}`;
+
+  const sec = document.getElementById('bom-section');
+  sec.style.display = '';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── addToProjectBOM ────────────────────────────
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiExtender',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta,
+    }, '*');
+  }
+  const smsg = document.getElementById('smsg');
+  smsg.textContent = '✓ Added to Project BOM.';
+  smsg.style.color = '#2E7D32';
+}
+
+// ── resetForm ─────────────────────────────────
+function resetForm() {
+  selectLine('standard');
+  _selectedModel = null;
+  _selectedMgmt  = 'fortigate';
+  document.getElementById('f-qty').value = '1';
+  document.getElementById('f-qty').classList.remove('invalid');
+  document.getElementById('qty-err').style.display = 'none';
+  document.getElementById('model-err').style.display = 'none';
+  document.getElementById('region-group').style.display = 'none';
+  selectMgmt('fortigate');
+  document.getElementById('bom-section').style.display = 'none';
+  clearMsg();
+}
+
+// ── copyTSV ────────────────────────────────────
+function copyTSV() {
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(r => {
+    if (r.section !== undefined) {
+      lines.push(`### ${r.section}\t\t\t\t`);
+    } else {
+      const kindLabel = { req:'Required', mand:'Mandatory', opt:'Optional', inc:'Included', note:'Note' };
+      lines.push([r.sku, r.desc, r.qty !== null ? r.qty : '', kindLabel[r.kind] || '', r.note || ''].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const smsg = document.getElementById('smsg');
+    smsg.textContent = '✓ TSV copied to clipboard.';
+    smsg.style.color = '#2E7D32';
+    setTimeout(() => { if (smsg.textContent.includes('TSV')) smsg.textContent = ''; }, 3000);
+  });
+}
+
+// ── esc helper ────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

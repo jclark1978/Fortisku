@@ -3,7 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FortiBOM – Project BOM Generator</title>
+<title>FabricBOM</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/pwa-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/pwa-512x512.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1A1D23">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FortiBOM">
 <style>
   :root {
     --forti-red:#EE3124; --forti-dark:#1A1D23; --forti-sidebar:#21252D;
@@ -39,7 +49,7 @@
   #main{display:flex;flex:1;overflow:hidden;}
 
   /* SIDEBAR */
-  #sidebar{width:240px;background:var(--forti-sidebar);border-right:1px solid var(--forti-border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;overflow-x:hidden;}
+  #sidebar{width:240px;background:var(--forti-sidebar);border-right:1px solid var(--forti-border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;overflow-x:hidden;transition:width .25s ease,border .25s ease;}
   #sidebar::-webkit-scrollbar{width:4px;}
   #sidebar::-webkit-scrollbar-thumb{background:var(--forti-border);border-radius:2px;}
   .nsl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--forti-text-muted);padding:20px 16px 8px;}
@@ -56,6 +66,12 @@
   .ni-badge.on{display:block;}
   .n-sep{height:1px;background:var(--forti-border);margin:8px 0;}
   .n-load{padding:12px 16px;font-size:12px;color:var(--forti-text-muted);font-style:italic;}
+  .nav-search-wrap{padding:0 12px 8px;position:relative;}
+  #nav-search-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid var(--forti-border);border-radius:3px;color:var(--forti-text-primary);font-size:12px;padding:6px 26px 6px 10px;outline:none;font-family:inherit;}
+  #nav-search-input::placeholder{color:var(--forti-text-muted);}
+  #nav-search-input:focus{border-color:rgba(238,49,36,.5);background:rgba(255,255,255,.08);}
+  #nav-search-clear{position:absolute;right:18px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--forti-text-muted);font-size:16px;padding:0;line-height:1;display:none;}
+  #nav-search-clear:hover{color:var(--forti-text-secondary);}
 
   /* CONTENT */
   #content{flex:1;background:var(--forti-content-bg);overflow:hidden;display:flex;flex-direction:column;min-height:0;}
@@ -73,6 +89,7 @@
 
   /* PROJECT BOM VIEW */
   #pbv{flex:1;overflow-y:auto;display:none;flex-direction:column;background:var(--forti-content-bg);padding:20px;gap:14px;}
+  #pbv > *{flex-shrink:0;}
   #pbv::-webkit-scrollbar{width:6px;}
   #pbv::-webkit-scrollbar-thumb{background:#C8CDD9;border-radius:3px;}
 
@@ -113,25 +130,48 @@
   .bgp{font-size:12px;font-weight:700;color:var(--c-text);flex:1;}
   .bgm{font-size:11px;color:var(--c-text2);}
   .bg-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;border-radius:2px;padding:1px 6px;}
-  .bg-del{background:#FEF0EE;border:1px solid #F5C6C2;color:#C0392B;font-size:11px;font-weight:600;padding:3px 8px;border-radius:2px;cursor:pointer;font-family:inherit;}
+  .bg-del{background:#FEF0EE;border:1px solid #F5C6C2;color:#C0392B;font-size:11px;font-weight:600;padding:3px 8px;border-radius:2px;cursor:pointer;font-family:inherit;margin-left:auto;}
   .bg-del:hover{background:#F5C6C2;}
 
   /* BOM table */
-  table.bt{width:100%;border-collapse:collapse;font-size:12px;}
+  .bt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table.bt{width:100%;border-collapse:collapse;font-size:12px;min-width:580px;table-layout:fixed;}
   table.bt thead th{background:var(--c-th);border:1px solid var(--c-border);padding:6px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#4A5268;white-space:nowrap;}
   table.bt tbody td{border:1px solid var(--c-border);padding:6px 10px;vertical-align:top;font-size:12px;}
-  table.bt tbody tr:nth-child(even) td{background:var(--c-sh);}
+  table.bt tbody tr.bt-even td{background:var(--c-sh);}
   table.bt tbody tr:hover td{background:#EEF1F6;}
   .sr td{background:#EAECF3!important;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text2);padding:4px 10px;border-top:2px solid #C5CAD9;}
-  .sum-row td{background:#F7F9FC!important;font-weight:700;color:var(--c-text);}
   .sk{font-family:'Courier New',monospace;font-size:11px;color:#1A4E82;font-weight:700;white-space:nowrap;}
   .qc{text-align:center;font-weight:700;color:var(--c-textm);}
   .nc{color:var(--c-textm);font-size:11px;}
-  .mc{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
   .br{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;padding:1px 4px;}
-  .br-r{background:#FEF0EE;color:#C0392B;border:1px solid #F5C6C2;}
+  .br-r{background:#FEE0DE;color:#C0392B;border:1px solid #F5C6C2;}
   .br-o{background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;}
   .br-m{background:#FFF8EE;color:#8A5800;border:1px solid #F5D9A0;}
+
+  /* Responsive column hiding for BOM table */
+  .col-exp{visibility:hidden;width:0;max-width:0;overflow:hidden;padding:0!important;border-width:0!important;}
+  .col-desc{min-width:125px;flex: 1 1 auto;word-wrap: break-word;}
+  .exp-btn{background:none;border:1px solid var(--c-ib);border-radius:2px;color:var(--c-text2);font-size:13px;font-weight:700;width:20px;height:20px;line-height:1;cursor:pointer;padding:0;font-family:inherit;transition:background .12s,color .12s;}
+  .exp-btn:hover,.exp-btn.open{background:var(--forti-red);color:#fff;border-color:var(--forti-red);}
+  .bom-detail{display:none;}
+  table.bt tbody .bom-detail td{padding:8px 12px!important;background:#F0F2F7!important;border-top:none!important;}
+  .det-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+  .det-tbl tr+tr td{border-top:1px solid var(--c-border);}
+  .det-k{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--c-text2);padding:3px 10px 3px 0;width:90px;white-space:nowrap;vertical-align:top;}
+  .det-v{color:var(--c-text);vertical-align:top;padding:3px 0;}
+  .note-clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;cursor:default;}
+  @media (max-width:649px) {
+    .col-notes{display:none;}
+    .col-exp{visibility:visible;width:28px;max-width:28px;overflow:visible;padding:2px 4px!important;border-width:1px!important;}
+    table.bt{min-width:0;}
+  }
+  @media (max-width:624px) {
+    .col-type{display:none;}
+  }
+  @media (max-width:599px) {
+    .col-desc{display:none;}
+  }
 
   /* Empty state */
   .ec{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 20px;text-align:center;color:var(--c-textm);}
@@ -161,9 +201,6 @@
   .bgr-btn:hover{background:var(--c-sh);color:var(--c-text);}
   .bgr-btn.del{border-color:#F5C6C2;color:#C0392B;background:#FEF0EE;}
   .bgr-btn.del:hover{background:#F5C6C2;}
-  .project-total-row{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:14px 18px;margin-top:14px;}
-  .project-total-row .pt-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-text2);}
-  .project-total-row .pt-value{font-size:22px;font-weight:700;color:var(--forti-red);font-variant-numeric:tabular-nums;}
 
   /* Import modal */
   #imp-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);align-items:center;justify-content:center;}
@@ -188,6 +225,55 @@
   #toast{position:fixed;bottom:24px;right:24px;z-index:999;background:#2A2F3A;color:#E8EAF0;font-size:12px;padding:10px 16px;border-radius:4px;border-left:3px solid var(--forti-red);opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:340px;}
   #toast.on{opacity:1;transform:translateY(0);}
 
+  /* Hamburger menu button (always visible) */
+  #menu-btn{display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--forti-text-secondary);flex-shrink:0;border-radius:3px;}
+  #menu-btn:hover{color:var(--forti-text-primary);background:rgba(255,255,255,.06);}
+  #menu-btn svg{display:block;}
+
+  /* Desktop sidebar collapse */
+  #sidebar.collapsed{width:0;overflow:hidden;border-right:none;}
+
+  /* Sidebar backdrop overlay (mobile) */
+  #sidebar-overlay{display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.45);}
+  #sidebar-overlay.on{display:block;}
+
+  /* Mobile responsive sidebar */
+  @media (max-width:768px) {
+    #sidebar{position:fixed;top:var(--hh);left:0;bottom:0;z-index:100;width:240px!important;transform:translateX(-100%);transition:transform .25s ease;}
+    #sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.45);}
+  }
+
+  /* Copy/Export dropdown menu */
+  #copy-menu,#project-menu{display:none;position:fixed;background:#fff;border:1px solid var(--c-border);border-radius:4px;box-shadow:0 6px 20px rgba(0,0,0,.15);min-width:196px;z-index:600;overflow:hidden;padding:4px 0;}
+  #copy-menu.on,#project-menu.on{display:block;}
+  .dm-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--c-textm);padding:6px 12px 2px;}
+  .dm-item{display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:12px;color:var(--c-text);cursor:pointer;white-space:nowrap;font-family:inherit;background:none;border:none;width:100%;text-align:left;}
+  .dm-item:hover{background:var(--c-sh);}
+  .dm-item svg{width:13px;height:13px;flex-shrink:0;color:var(--c-text2);}
+  .dm-sep{height:1px;background:var(--c-border);margin:3px 0;}
+
+  /* Saved Projects view */
+  #spv{flex:1;overflow-y:auto;display:none;flex-direction:column;background:var(--forti-content-bg);padding:20px;gap:14px;}
+  #spv > *{flex-shrink:0;}
+  #spv::-webkit-scrollbar{width:6px;}
+  #spv::-webkit-scrollbar-thumb{background:#C8CDD9;border-radius:3px;}
+  .sp-list{display:flex;flex-direction:column;gap:10px;}
+  .sp-card{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;display:flex;align-items:stretch;overflow:hidden;}
+  .sp-accent{width:4px;background:var(--forti-red);flex-shrink:0;}
+  .sp-body{flex:1;padding:12px 16px;min-width:0;}
+  .sp-name{font-size:14px;font-weight:600;color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sp-meta{font-size:11px;color:var(--c-text2);margin-top:3px;}
+  .sp-actions{display:flex;gap:6px;padding:10px 14px;align-items:center;flex-shrink:0;}
+  .sp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 20px;text-align:center;color:var(--c-textm);}
+  .sp-empty svg{opacity:.2;}
+  .sp-empty h3{font-size:16px;font-weight:500;color:var(--c-text2);}
+  .sp-empty p{font-size:13px;max-width:320px;line-height:1.6;}
+
+  /* Saved Pricing upload drop zone */
+  #pricing-drop{border:2px dashed var(--c-ib);border-radius:4px;padding:32px 20px;text-align:center;color:var(--c-text2);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s;}
+  #pricing-drop:hover,#pricing-drop.over{border-color:var(--forti-red);background:#FFF5F4;}
+  #pricing-drop p{margin-top:6px;font-size:11px;color:var(--c-textm);}
+
   /* Print */
   @media print {
     body{background:#fff;overflow:auto;height:auto;}
@@ -198,13 +284,17 @@
     .lc,.bg{break-inside:avoid;}
   }
 </style>
+<script>var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});</script>
 </head>
 <body>
 
 <div id="top-bar">
+  <button id="menu-btn" onclick="toggleSidebar()" title="Toggle navigation" aria-label="Toggle navigation">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
   <div class="logo-wrap">
     <svg class="logo-icon" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="4" fill="#EE3124"/><path d="M6 8h16v3H6zM6 12.5h10v3H6zM6 17h16v3H6z" fill="white"/></svg>
-    <span class="product-name"><span>Forti</span>BOM</span>
+    <span class="product-name"><span>Fabric</span>BOM</span>
   </div>
   <div class="tb-div"></div>
   <span class="tb-sub">Project BOM Generator</span>
@@ -217,6 +307,7 @@
   <span class="ver-badge">v2.0</span>
 </div>
 
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 <div id="main">
   <nav id="sidebar">
     <div class="nsl" style="padding-bottom:4px;">Project</div>
@@ -225,8 +316,17 @@
       <span class="ni-label">Project BOM</span>
       <span class="ni-badge" id="sb-badge">0</span>
     </div>
+    <div class="ni" id="nav-saved" onclick="showSavedProjects()">
+      <svg class="ni-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><rect x="5" y="2" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="4" y="9" width="10" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/></svg>
+      <span class="ni-label">Saved Projects</span>
+      <span class="ni-badge" id="sp-badge">0</span>
+    </div>
     <div class="n-sep" style="margin-top:8px;"></div>
     <div class="nsl">Products</div>
+    <div class="nav-search-wrap">
+      <input id="nav-search-input" type="text" placeholder="Filter products…" oninput="filterNav(this.value)" autocomplete="off" spellcheck="false">
+      <button id="nav-search-clear" onclick="clearNavSearch()" title="Clear">&times;</button>
+    </div>
     <div id="nav-items"><div class="n-load">Scanning products…</div></div>
     <div class="n-sep"></div>
     <div class="nsl">Info</div>
@@ -238,7 +338,7 @@
 
   <div id="content">
     <div id="ch">
-      <span class="bci">FortiBOM</span>
+      <span class="bci">FabricBOM</span>
       <span class="bcs">›</span>
       <span class="bci cur" id="bc">Select a product</span>
     </div>
@@ -290,11 +390,10 @@
         <div class="si"><div class="sl">Total Units / Licenses</div><div class="sv" id="sum-q">0</div></div>
         <div class="si"><div class="sl">Term Applied</div><div class="sv" id="sum-term" style="font-size:14px;">-DD</div></div>
         <div class="act-row">
-          <button class="btn bp" onclick="exportCSV()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>Export CSV</button>
-          <button class="btn bs" onclick="openImport()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round"/></svg>Import CSV</button>
+          <button class="btn bp" id="project-btn" onclick="toggleProjectMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/></svg>Save / Export<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <button class="btn bs" onclick="openAddGroup()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="4" width="11" height="5" rx="1" stroke="#6B7589" stroke-width="1.1"/><path d="M4 6.5h5M6.5 5.5v2" stroke="#6B7589" stroke-width="1.1" stroke-linecap="round"/></svg>Add Group</button>
           <button class="btn bs" onclick="window.print()"><svg viewBox="0 0 13 13" fill="none"><rect x="1.5" y="4" width="10" height="6" rx="1" stroke="#6B7589" stroke-width="1.1"/><path d="M3.5 4V2h6v2M3.5 10h6" stroke="#6B7589" stroke-width="1.1" stroke-linecap="round"/></svg>Print</button>
-          <button class="btn bs" onclick="copyTSV()"><svg viewBox="0 0 13 13" fill="none"><rect x="3.5" y="1" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/><rect x="1" y="3" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/></svg>Copy TSV</button>
+          <button class="btn bs" id="copy-export-btn" onclick="toggleCopyMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="3.5" y="1" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/><rect x="1" y="3" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/></svg>Copy / Share<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <button class="btn bd" onclick="clearCart()"><svg viewBox="0 0 13 13" fill="none"><path d="M2 3.5h9M5 3.5V2h3v1.5M5.5 6v4M7.5 6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 3.5l.5 7a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Clear All</button>
         </div>
       </div>
@@ -310,10 +409,57 @@
       <!-- BOM groups container -->
       <div id="bgc"></div>
     </div>
+
+    <!-- Saved Projects view -->
+    <div id="spv">
+      <div class="lc">
+        <div class="lch">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="#6B7589" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="#6B7589" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="#6B7589" stroke-width="1.1"/></svg>
+          <h2>Saved Projects</h2>
+        </div>
+        <div id="spv-content" class="lcb"></div>
+      </div>
+      <div class="lc">
+        <div class="lch">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 1h5l6 6-5 5-6-6V1z" stroke="#6B7589" stroke-width="1.1" stroke-linejoin="round"/><circle cx="4" cy="4" r="1" fill="#6B7589"/></svg>
+          <h2>Saved Pricing</h2>
+        </div>
+        <div id="pricing-content" class="lcb"></div>
+      </div>
+    </div>
   </div>
 </div>
 
+<input type="file" id="pricing-file" accept=".csv" style="display:none" onchange="pricingFileChosen(this)">
 <div id="toast"></div>
+
+<!-- Copy/Export dropdown menu (position:fixed so it escapes overflow-y:auto parents) -->
+<div id="copy-menu">
+  <div class="dm-section">Share</div>
+  <button class="dm-item" onclick="shareBOM()"><svg viewBox="0 0 13 13" fill="none"><circle cx="10" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><circle cx="10" cy="10.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><circle cx="3" cy="6.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M8.5 3.5L4.5 5.5M4.5 7.5L8.5 9.5" stroke="currentColor" stroke-width="1.1"/></svg>Share BOM URL</button>
+  <div class="dm-sep"></div>
+  <div class="dm-section">Copy to Clipboard</div>
+  <button class="dm-item" onclick="copyTSV()"><svg viewBox="0 0 13 13" fill="none"><rect x="3.5" y="1" width="8" height="9" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="1" y="3" width="8" height="9" rx="1" stroke="currentColor" stroke-width="1.1"/></svg>Copy TSV</button>
+  <button class="dm-item" onclick="copyBOMCSV()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M1 4.5h11M4.5 4.5v7" stroke="currentColor" stroke-width="1.1"/></svg>Copy CSV</button>
+  <button class="dm-item" onclick="copyMD()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="2.5" width="11" height="8" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 8.5V4.5l2 2.5 2-2.5v4M9.5 8.5V4.5l-1.5 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>Copy Markdown</button>
+</div>
+
+<!-- Save/Export/Import dropdown menu -->
+<div id="project-menu">
+  <div class="dm-section">Project</div>
+  <button class="dm-item" onclick="saveProject();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/></svg>Save Project</button>
+  <div class="dm-sep"></div>
+  <div class="dm-section">File</div>
+  <button class="dm-item" onclick="exportCSV();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Export CSV</button>
+  <button class="dm-item" onclick="openImport();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Import CSV</button>
+  <div id="project-sfdc-section" style="display:none">
+    <div class="dm-sep"></div>
+    <div class="dm-section">SFDC Export (Download CSV)</div>
+    <button class="dm-item" onclick="exportSFDC('AMER');closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Export SFDC-AMER</button>
+    <button class="dm-item" onclick="exportSFDC('EMEA');closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Export SFDC-EMEA</button>
+    <button class="dm-item" onclick="exportSFDC('APAC');closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Export SFDC-APAC</button>
+  </div>
+</div>
 
 <!-- Import CSV Modal -->
 <div id="imp-modal">
@@ -359,33 +505,60 @@
   </div>
 </div>
 
-
+<!-- BOM Share Import confirmation modal -->
+<div id="bom-share-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:5px;width:440px;max-width:95vw;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+    <h3 style="font-size:14px;font-weight:700;color:var(--c-text);padding:16px 18px;border-bottom:1px solid var(--c-border);background:var(--c-sh);display:flex;align-items:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 13 13" fill="none"><circle cx="10" cy="2.5" r="1.5" stroke="#2A2F3A" stroke-width="1.1"/><circle cx="10" cy="10.5" r="1.5" stroke="#2A2F3A" stroke-width="1.1"/><circle cx="3" cy="6.5" r="1.5" stroke="#2A2F3A" stroke-width="1.1"/><path d="M8.5 3.5L4.5 5.5M4.5 7.5L8.5 9.5" stroke="#2A2F3A" stroke-width="1.1"/></svg>
+      Load Shared BOM?
+    </h3>
+    <div style="padding:18px;font-size:13px;color:var(--c-text);line-height:1.6;">
+      <p id="bom-share-msg"></p>
+      <p style="margin-top:10px;font-size:12px;color:#C0392B;background:#FEF0EE;border:1px solid #F5C6C2;border-radius:3px;padding:8px 12px;">
+        Your current Project BOM will be replaced. Consider saving it first.
+      </p>
+    </div>
+    <div style="padding:12px 18px;border-top:1px solid var(--c-border);display:flex;justify-content:flex-end;gap:8px;background:var(--c-sh);">
+      <button class="btn bs" onclick="closeBOMShareModal()">Keep My BOM</button>
+      <button class="btn bp" onclick="confirmBOMShare()">Load Shared BOM</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const CATALOG = [
   { file:'fortigate-bomgen.html',    label:'FortiGate',      cat:'Network Security' },
-  { file:'fortisase-bomgen.html',    label:'FortiSASE',      cat:'Network Security' },
-  { file:'fortisandbox-bomgen.html', label:'FortiSandbox', cat:'Network Security' },
   { file:'fortiadc-bomgen.html', label:'FortiADC', cat:'Network Security' },
   { file:'fortideceptor-bomgen.html', label:'FortiDeceptor', cat:'Network Security' },
+  { file:'fortisandbox-bomgen.html', label:'FortiSandbox', cat:'Network Security' },
   { file:'fortiweb-bomgen.html', label:'FortiWeb', cat:'Network Security' },
+  { file:'fortiappsec-bomgen.html', label:'FortiAppSec Cloud', cat:'Cloud Security' },
+  { file:'forticnapp-bomgen.html', label:'FortiCNAPP', cat:'Cloud Security' },
+  { file:'fortisase-bomgen.html',    label:'FortiSASE',      cat:'Cloud Security' },
+  { file:'fortimail-bomgen.html', label:'FortiMail', cat:'Email Security' },
+  { file:'fortimail-workspace-bomgen.html', label:'FortiMail Workspace', cat:'Email Security' },
   { file:'fortiap-bomgen.html',      label:'FortiAP',        cat:'Network Access' },
+  { file:'fortiextender-bomgen.html', label:'FortiExtender', cat:'Network Access' },
+  { file:'fortipresence-bomgen.html', label:'FortiPresence', cat:'Network Access' },
   { file:'fortiswitch-bomgen.html',  label:'FortiSwitch',    cat:'Network Access' },
   { file:'forticlient-bomgen.html', label:'FortiClient', cat:'Endpoint Security' },
-  { file:'fortinac-bomgen.html',     label:'FortiNAC',       cat:'Access Control' },
+  { file:'fortidlp-bomgen.html', label:'FortiDLP', cat:'Endpoint Security' },
+  { file:'fortiedr-bomgen.html', label:'FortiEDR', cat:'Endpoint Security' },
   { file: 'fortiauthenticator-bomgen.html', label: 'FortiAuthenticator', cat: 'Access Control' },
+  { file:'fortinac-bomgen.html',     label:'FortiNAC',       cat:'Access Control' },
   { file:'fortianalyzer-bomgen.html',label:'FortiAnalyzer',  cat:'Management' },
   { file:'fortimanager-bomgen.html', label:'FortiManager',   cat:'Management' },
   { file: 'fortiaiops-bomgen.html', label: 'FortiAIOps', cat: 'Management' },
   { file:'fortimonitor-bomgen.html', label:'FortiMonitor', cat:'Management' },
+  { file: 'fortirecon-bomgen.html', label: 'FortiRecon', cat: 'Management' },
   { file:'fortisiem-bomgen.html', label:'FortiSIEM', cat:'Management' },
-  { file:'fortiflex-bomgen.html', label:'FortiFlex', cat:'Management' },
-  { file:'custom-sku-bomgen.html', label:'Custom SKU', cat:'Custom' },
-  { file:'placeholder-bomgen.html',  label:'Placeholder',    cat:'Demo' },
+  { file:'fortiflex-bomgen.html', label:'FortiFlex', cat:'Licensing' },
+  { file:'custom-sku-bomgen.html', label:'Search & Custom Entry', cat:'Catalog Search' },
+  //{ file:'placeholder-bomgen.html',  label:'Placeholder',    cat:'Demo' },
 ];
 
 let cart = [], seq = 0, activeNav = null;
-let fortiskuPriceLookup = new Map();
+let savedProjects = [];
 // cart entries are either product-entries {id, product, label, rows, meta}
 // or group-header entries {id, _type:'group', label, note}
 
@@ -405,6 +578,26 @@ function loadCart() {
     cart = saved.cart || [];
     seq  = saved.seq  || 0;
   } catch(e) { /* corrupt data — start fresh */ }
+}
+function saveSaved() {
+  try {
+    localStorage.setItem('fortibom_saved', JSON.stringify(savedProjects));
+  } catch(e) {
+    toast('Could not save — browser storage may be full.');
+  }
+}
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem('fortibom_saved');
+    if (!raw) return;
+    savedProjects = JSON.parse(raw) || [];
+  } catch(e) { savedProjects = []; }
+}
+function updateSavedBadge() {
+  const badge = document.getElementById('sp-badge');
+  const n = savedProjects.length;
+  badge.textContent = n;
+  n > 0 ? badge.classList.add('on') : badge.classList.remove('on');
 }
 
 // ── ICONS ──────────────────────────────────────────────────────────────────
@@ -439,17 +632,50 @@ async function buildNav() {
   if (!any) c.innerHTML = `<div class="n-load">No product files found in products/</div>`;
 }
 async function exists(path) { try { return (await fetch(path,{method:'HEAD'})).ok; } catch { return false; } }
+function filterNav(q) {
+  document.getElementById('nav-search-clear').style.display = q ? 'block' : 'none';
+  const term = q.toLowerCase();
+  document.querySelectorAll('#nav-items .ni').forEach(el => {
+    el.style.display = (!term || el.querySelector('.ni-label').textContent.toLowerCase().includes(term)) ? '' : 'none';
+  });
+  document.querySelectorAll('#nav-items .nsl').forEach(lbl => {
+    let sib = lbl.nextElementSibling, anyVisible = false;
+    while (sib && !sib.classList.contains('nsl')) { if (sib.style.display !== 'none') anyVisible = true; sib = sib.nextElementSibling; }
+    lbl.style.display = anyVisible ? '' : 'none';
+  });
+}
+function clearNavSearch() { const i=document.getElementById('nav-search-input'); i.value=''; filterNav(''); i.focus(); }
+
+// ── SIDEBAR TOGGLE ────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  if (window.innerWidth <= 768) {
+    const open = s.classList.toggle('open');
+    open ? o.classList.add('on') : o.classList.remove('on');
+  } else {
+    s.classList.toggle('collapsed');
+  }
+}
+function closeSidebar() {
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('on');
+  }
+}
 
 // ── NAVIGATION ───────────────────────────────────────────────────────────────
 function setActiveNav(el) {
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   if (el) el.classList.add('active');
   activeNav = el;
+  closeSidebar();
 }
 function loadProduct(path, label, navEl) {
   setActiveNav(navEl);
   document.getElementById('bc').textContent = label;
   document.getElementById('pbv').style.display = 'none';
+  document.getElementById('spv').style.display = 'none';
   document.getElementById('pfw').style.display = 'flex';
   document.getElementById('ws').style.display = 'none';
   const f = document.getElementById('pf');
@@ -460,19 +686,21 @@ function showPBV() {
   setActiveNav(document.getElementById('nav-proj'));
   document.getElementById('bc').textContent = 'Project BOM';
   document.getElementById('pfw').style.display = 'none';
+  document.getElementById('spv').style.display = 'none';
   document.getElementById('pbv').style.display = 'flex';
 }
 function showAbout() {
   setActiveNav(null);
   document.getElementById('bc').textContent = 'About';
   document.getElementById('pbv').style.display = 'none';
+  document.getElementById('spv').style.display = 'none';
   document.getElementById('pfw').style.display = 'flex';
   document.getElementById('pf').style.display = 'none';
   const ws = document.getElementById('ws');
   ws.style.display = 'flex';
   ws.querySelector('h2').textContent = 'FortiBOM v2.0';
   ws.querySelector('p').textContent = 'Cross-product Bill of Materials generator for Fortinet deployments. Build BOMs per product, then combine them into a Project BOM.';
-  ws.querySelector('p').innerHTML += '<br><br>Disclaimer: FortiBOM is not an officially sanctioned Fortinet product. Always validate output against the official Fortinet product ordering guides.';
+  ws.querySelector('p').innerHTML += '<br><br>Disclaimer: FabricBOM is not an officially sanctioned Fortinet product. Always validate output against the official Fortinet product ordering guides.';
   ws.querySelector('p').innerHTML += '<br><br><a href="https://github.com/msalty/FortiBOM/issues" target="_blank" rel="noopener noreferrer">Report an issue on GitHub</a>';
 }
 
@@ -504,10 +732,29 @@ function updateBadges() {
 }
 
 function removeFromCart(id) { cart = cart.filter(c=>c.id!==id); updateBadges(); renderGroups(); saveCart(); }
-function clearCart() { if (!confirm('Clear all items from the Project BOM?')) return; cart=[]; seq=0; updateBadges(); renderGroups(); saveCart(); }
+
+function toggleDetail(btn) {
+  const row = btn.closest('tr');
+  const detail = row.nextElementSibling;
+  if (!detail || !detail.classList.contains('bom-detail')) return;
+  const open = detail.style.display === 'table-row';
+  detail.style.display = open ? '' : 'table-row';
+  btn.classList.toggle('open', !open);
+  btn.textContent = open ? '+' : '−';
+}
+function clearCart() { if (!confirm('Clear all items from the Project BOM?')) return; cart=[]; seq=0; if (location.hash.startsWith('#bom=')) history.replaceState(null, '', location.pathname); updateBadges(); renderGroups(); saveCart(); }
 
 // ── RENDER ───────────────────────────────────────────────────────────────────
-function renderGroups() {
+async function renderGroups() {
+  let priceMap = null;
+  try {
+    const pricingRaw = await getPricingIDB();
+    if (pricingRaw && pricingRaw.rows && pricingRaw.rows.length) {
+      priceMap = new Map(pricingRaw.rows.map(r => [r['SKU'], r['Price']]));
+    }
+  } catch(e) { /* pricing unavailable */ }
+  const hasPricing = priceMap !== null;
+  const colSpan = hasPricing ? 8 : 6;
   const c = document.getElementById('bgc');
   const ec = document.getElementById('ec');
   const sbar = document.getElementById('sbar');
@@ -519,7 +766,7 @@ function renderGroups() {
   }
   ec.style.display = 'none';
   sbar.style.display = 'flex';
-  let totL=0, totQ=0, projectTotal=0;
+  let totL=0, totQ=0;
   c.innerHTML = '';
   for (const entry of cart) {
     if (entry._type === 'group') {
@@ -543,23 +790,28 @@ function renderGroups() {
       addDragListeners(el);
       c.appendChild(el);
     } else {
-      let lines=0, qty=0, groupTotal=0;
+      let lines=0, qty=0;
       const displayRows = rowsWithTerm(entry.rows);
       const rows = displayRows.map(r => {
-        if (r.section!==undefined) return `<tr class="sr"><td colspan="7">${h(r.section)}</td></tr>`;
+        if (r.section!==undefined) return `<tr class="sr"><td colspan="${colSpan}">${h(r.section)}</td></tr>`;
         lines++; if (typeof r.qty==='number') qty+=r.qty;
         const bm={req:'<span class="br br-r">Required</span>',mand:'<span class="br br-m">Mandatory</span>',opt:'<span class="br br-o">Optional</span>',inc:'<span class="br br-o">Included</span>',note:''};
-        const priceInfo = lookupPriceInfo(r.sku);
-        const priceDisplay = priceInfo?.display || '';
-        const qtyValue = typeof r.qty === 'number' && Number.isFinite(r.qty) ? r.qty : null;
-        const lineTotal = priceInfo && qtyValue !== null ? priceInfo.value * qtyValue : null;
-        if (lineTotal !== null) {
-          groupTotal += lineTotal;
-          projectTotal += lineTotal;
+        let priceCells = '';
+        if (hasPricing) {
+          const listPrice = priceMap.get(r.sku || '');
+          const listPriceNum = listPrice ? parseFloat(String(listPrice).replace(/[^0-9.]/g, '')) : NaN;
+          const totalNum = (!isNaN(listPriceNum) && typeof r.qty === 'number') ? listPriceNum * r.qty : NaN;
+          priceCells = `<td class="nc" style="text-align:right;white-space:nowrap;">${listPrice ? h(listPrice) : ''}</td><td class="nc" style="text-align:right;white-space:nowrap;">${!isNaN(totalNum) ? '$'+totalNum.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : ''}</td>`;
         }
-        return `<tr><td><span class="sk">${h(r.sku||'')}</span></td><td class="nc">${h(r.desc||'')}</td><td class="qc">${r.qty??''}</td><td class="nc mc">${h(priceDisplay)}</td><td class="nc mc">${lineTotal !== null ? h(formatCurrency(lineTotal)) : ''}</td><td>${bm[r.kind]||''}</td><td class="nc">${h(r.note||'')}</td></tr>`;
+        const detailRows = [];
+        if (r.desc) detailRows.push(`<tr><td class="det-k">Description</td><td class="det-v nc">${h(r.desc)}</td></tr>`);
+        if (r.kind && bm[r.kind]) detailRows.push(`<tr><td class="det-k">Type</td><td class="det-v">${bm[r.kind]}</td></tr>`);
+        if (r.note) detailRows.push(`<tr><td class="det-k">Notes</td><td class="det-v nc">${h(r.note)}</td></tr>`);
+        const expCell = detailRows.length ? `<td class="col-exp"><button class="exp-btn" onclick="toggleDetail(this)" title="Show details">+</button></td>` : `<td class="col-exp"></td>`;
+        const detailTr = detailRows.length ? `<tr class="bom-detail"><td colspan="100"><table class="det-tbl"><tbody>${detailRows.join('')}</tbody></table></td></tr>` : '';
+        const evenCls = lines%2===0 ? ' class="bt-even"' : '';
+        return `<tr${evenCls}><td><span class="sk">${h(r.sku||'')}</span></td><td class="nc col-desc"><span class="note-clamp" title="${h(r.desc||'')}">${h(r.desc||'')}</span></td><td class="qc">${r.qty??''}</td><td class="col-type">${bm[r.kind]||''}</td><td class="nc col-notes"><span class="note-clamp" title="${h(r.note||'')}">${h(r.note||'')}</span></td>${priceCells}${expCell}</tr>${detailTr}`;
       }).join('');
-      const summaryRow = `<tr class="sum-row"><td colspan="4">Group Total</td><td class="mc">${groupTotal ? h(formatCurrency(groupTotal)) : ''}</td><td colspan="2"></td></tr>`;
       totL+=lines; totQ+=qty;
       const el = document.createElement('div');
       el.className = 'bg';
@@ -573,18 +825,15 @@ function renderGroups() {
           <span class="bg-tag">${h(entry.product)}</span>
           <button class="bg-del" onclick="removeFromCart(${entry.id})">✕ Remove</button>
         </div>
-        <table class="bt"><thead><tr>
-          <th style="width:200px;">Part Number</th><th>Description</th>
-          <th style="width:50px;text-align:center;">Qty</th><th style="width:110px;">Unit Price</th><th style="width:120px;">Line Total</th><th style="width:80px;">Type</th><th>Notes</th>
-        </tr></thead><tbody>${rows}${summaryRow}</tbody></table>`;
+        <div class="bt-wrap"><table class="bt"><thead><tr>
+          <th style="width:200px;">Part Number</th><th class="col-desc">Description</th>
+          <th style="width:50px;text-align:center;">Qty</th><th class="col-type" style="width:100px;">Type</th><th class="col-notes" style="width:125px;">Notes</th>${hasPricing ? '<th style="width:110px;text-align:right;">List Price</th><th style="width:120px;text-align:right;">Total Price</th>' : ''}
+          <th class="col-exp"></th>
+        </tr></thead><tbody>${rows}</tbody></table></div>`;
       addDragListeners(el);
       c.appendChild(el);
     }
   }
-  const totalRow = document.createElement('div');
-  totalRow.className = 'project-total-row';
-  totalRow.innerHTML = `<span class="pt-label">Project Total</span><span class="pt-value">${formatCurrency(projectTotal)}</span>`;
-  c.appendChild(totalRow);
   const prodCount = cart.filter(e=>!e._type).length;
   document.getElementById('sum-g').textContent = prodCount;
   document.getElementById('sum-l').textContent = totL;
@@ -682,28 +931,11 @@ function saveGroupRow() {
 
 // Allow Enter key in group modal inputs
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeGroupModal(); closeImport(); }
+  if (e.key === 'Escape') { closeGroupModal(); closeImport(); closeBOMShareModal(); }
   if (e.key === 'Enter' && document.getElementById('grp-modal').classList.contains('on')) saveGroupRow();
 });
 
 function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function normalizeSkuForLookup(value) { return String(value || '').trim().replace(/\s+/g,'').toUpperCase(); }
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value);
-}
-function lookupPriceInfo(sku) {
-  if (!sku) return null;
-  return fortiskuPriceLookup.get(normalizeSkuForLookup(sku)) || null;
-}
-function setFortiSkuPriceLookup(nextLookup) {
-  fortiskuPriceLookup = nextLookup instanceof Map ? nextLookup : new Map();
-  renderGroups();
-}
 
 // ── TERM REPLACEMENT ──────────────────────────────────────────────────────────
 // All product pages emit -DD SKUs. applyTerm() is called when the term selector
@@ -732,6 +964,94 @@ function rowsWithTerm(rows) {
   });
 }
 
+// ── SAVED PROJECTS ────────────────────────────────────────────────────────────
+function saveProject() {
+  if (!cart.length) { toast('⚠ Nothing to save — add items to the BOM first'); return; }
+  const meta = getMeta();
+  const snapshot = {
+    id: 'save_' + Date.now(),
+    savedAt: new Date().toISOString(),
+    meta,
+    cart: JSON.parse(JSON.stringify(cart)),
+    seq
+  };
+  savedProjects.unshift(snapshot);
+  saveSaved();
+  updateSavedBadge();
+  toast(`✓ Project saved: "${meta.cust || 'Unnamed'}"`);
+}
+
+function showSavedProjects() {
+  setActiveNav(document.getElementById('nav-saved'));
+  document.getElementById('bc').textContent = 'Saved Projects';
+  document.getElementById('pfw').style.display = 'none';
+  document.getElementById('pbv').style.display = 'none';
+  document.getElementById('spv').style.display = 'flex';
+  renderSavedProjects();
+  renderPricingSection();
+}
+
+function renderSavedProjects() {
+  const content = document.getElementById('spv-content');
+  if (!savedProjects.length) {
+    content.innerHTML = `<div class="sp-empty">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="6" y="6" width="36" height="36" rx="5" stroke="#9BA5BA" stroke-width="2"/><rect x="16" y="6" width="16" height="14" rx="2" stroke="#9BA5BA" stroke-width="2"/><rect x="12" y="26" width="24" height="12" rx="2" stroke="#9BA5BA" stroke-width="2"/></svg>
+      <h3>No saved projects yet</h3>
+      <p>Use the <strong>Save Project</strong> button in your Project BOM to save a snapshot you can resume later.</p>
+    </div>`;
+    return;
+  }
+  const cards = savedProjects.map(p => {
+    const prodCount = p.cart.filter(c => !c._type).length;
+    const lineCount = p.cart.filter(c => !c._type).reduce((s, c) => s + (c.rows ? c.rows.filter(r => r.section === undefined).length : 0), 0);
+    const when = new Date(p.savedAt).toLocaleString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+    const opp  = p.meta.opp  ? `<div class="sp-meta">Opp: ${h(p.meta.opp)}</div>`  : '';
+    const eng  = p.meta.eng  ? `<div class="sp-meta">SE: ${h(p.meta.eng)}</div>`   : '';
+    return `<div class="sp-card">
+      <div class="sp-accent"></div>
+      <div class="sp-body">
+        <div class="sp-name">${h(p.meta.cust || 'Unnamed Project')}</div>
+        <div class="sp-meta">${when} &middot; ${prodCount} product group${prodCount !== 1 ? 's' : ''} &middot; ${lineCount} line item${lineCount !== 1 ? 's' : ''}</div>
+        ${opp}${eng}
+      </div>
+      <div class="sp-actions">
+        <button class="btn bs" onclick="loadSavedProject('${p.id}')">Load</button>
+        <button class="btn bd" onclick="deleteSavedProject('${p.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  content.innerHTML = `<div class="sp-list">${cards}</div>`;
+}
+
+function loadSavedProject(id) {
+  const snap = savedProjects.find(p => p.id === id);
+  if (!snap) return;
+  if (cart.length && !confirm(`Load "${snap.meta.cust || 'this project'}"? Your current Project BOM will be replaced.`)) return;
+  cart = JSON.parse(JSON.stringify(snap.cart));
+  seq  = snap.seq;
+  document.getElementById('pi-cust').value  = snap.meta.cust  || '';
+  document.getElementById('pi-opp').value   = snap.meta.opp   || '';
+  document.getElementById('pi-eng').value   = snap.meta.eng   || '';
+  document.getElementById('pi-date').value  = snap.meta.date  || '';
+  document.getElementById('pi-notes').value = snap.meta.notes || '';
+  document.getElementById('pi-term').value  = snap.meta.term  || 'DD';
+  updateBadges();
+  renderGroups();
+  saveCart();
+  toast(`✓ Loaded: "${snap.meta.cust || 'Unnamed'}"`);
+  showPBV();
+}
+
+function deleteSavedProject(id) {
+  const snap = savedProjects.find(p => p.id === id);
+  if (!confirm(`Delete saved project "${snap?.meta?.cust || 'this project'}"?`)) return;
+  savedProjects = savedProjects.filter(p => p.id !== id);
+  saveSaved();
+  updateSavedBadge();
+  renderSavedProjects();
+  toast('✓ Saved project deleted');
+}
+
 // ── EXPORT ───────────────────────────────────────────────────────────────────
 function getMeta() {
   return {
@@ -743,11 +1063,71 @@ function getMeta() {
     term:  document.getElementById('pi-term').value,
   };
 }
+// ── URL SHARING ───────────────────────────────────────────────────────────────
+function serializeBOM() {
+  const m = getMeta();
+  const items = cart.map(entry => {
+    if (entry._type === 'group') {
+      return { g: 1, l: entry.label, n: entry.note || '' };
+    }
+    const rows = entry.rows.map(r =>
+      r.section !== undefined
+        ? { s: r.section }
+        : [r.sku || '', r.desc || '', r.qty ?? null, r.kind || '', r.note || '']
+    );
+    return { p: entry.product, l: entry.label, r: rows };
+  });
+  return JSON.stringify({
+    v: 1,
+    m: { c: m.cust, o: m.opp, e: m.eng, d: m.date, n: m.notes, t: m.term },
+    i: items
+  });
+}
+
+function deserializeBOM(json) {
+  const obj = JSON.parse(json);
+  if (!obj || obj.v !== 1) throw new Error('Unknown BOM version');
+  const m = obj.m || {};
+  const meta = { cust: m.c||'', opp: m.o||'', eng: m.e||'', date: m.d||'', notes: m.n||'', term: m.t||'DD' };
+  const items = (obj.i || []).map(item => {
+    if (item.g) {
+      return { _type: 'group', label: item.l || '', note: item.n || '' };
+    }
+    const rows = (item.r || []).map(r =>
+      Array.isArray(r)
+        ? { sku: r[0]||'', desc: r[1]||'', qty: r[2] ?? undefined, kind: r[3]||'', note: r[4]||'' }
+        : { section: r.s }
+    );
+    return { product: item.p || item.l || '', label: item.l || '', rows };
+  });
+  const prodCount = items.filter(i => !i._type).length;
+  const grpCount  = items.filter(i => i._type === 'group').length;
+  return { ok: true, meta, items, prodCount, grpCount };
+}
+
+function shareBOM() {
+  closeCopyMenu();
+  if (!cart.length) { toast('Nothing to share — add items first'); return; }
+  let compressed;
+  try {
+    compressed = LZString.compressToEncodedURIComponent(serializeBOM());
+  } catch(e) {
+    toast('Could not generate share URL: ' + e.message);
+    return;
+  }
+  if (compressed.length > 100000) {
+    toast('Warning: BOM is very large — URL may not work in all browsers.');
+  }
+  const url = location.origin + location.pathname + '#bom=' + compressed;
+  clipboardWrite(url, '✓ Share URL copied to clipboard');
+  history.replaceState(null, '', '#bom=' + compressed);
+}
+
 function exportCSV() {
   const p = getMeta();
   const termLabel = {DD:'Co-term (-DD)',12:'1 Year (-12)',36:'3 Years (-36)',60:'5 Years (-60)'}[p.term];
   const rows = [
-    ['FortiBOM Project Export'],
+    ['FabricBOM Project Export'],
     [`Customer:${p.cust}`,`Opportunity:${p.opp}`,`Engineer:${p.eng}`,`Date:${p.date}`,`Term:${termLabel}`],
     [],
     ['Product Group','Part Number','Description','Qty','Type','Notes'],
@@ -767,20 +1147,109 @@ function exportCSV() {
   const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
-  a.download=`FortiBOM_${p.cust.replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download=`FabricBOM_${p.cust.replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); toast('✓ CSV exported');
 }
-function copyTSV() {
-  const lines=['Product Group\tPart Number\tDescription\tQty\tType\tNotes'];
-  for (const entry of cart) {
-    lines.push(`${entry.label}\t\t\t\t\t`);
-    for (const r of rowsWithTerm(entry.rows)) {
-      if (r.section!==undefined) lines.push(`\t--- ${r.section} ---\t\t\t\t`);
-      else lines.push(`\t${r.sku||''}\t${r.desc||''}\t${r.qty??''}\t${r.kind||''}\t${r.note||''}`);
-    }
-    lines.push('');
+// ── COPY / EXPORT DROPDOWN ───────────────────────────────────────────────────
+function toggleCopyMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('copy-menu');
+  if (menu.classList.contains('on')) { menu.classList.remove('on'); return; }
+  const rect = e.currentTarget.getBoundingClientRect();
+  menu.style.top  = (rect.bottom + 4) + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.classList.add('on');
+}
+function closeCopyMenu() { document.getElementById('copy-menu').classList.remove('on'); }
+async function toggleProjectMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('project-menu');
+  if (menu.classList.contains('on')) { menu.classList.remove('on'); return; }
+  const btn = e.currentTarget;
+  try {
+    const pricing = await getPricingIDB();
+    const sfdc = document.getElementById('project-sfdc-section');
+    if (sfdc) sfdc.style.display = (pricing && pricing.rows && pricing.rows.length) ? '' : 'none';
+  } catch(_) {}
+  const rect = btn.getBoundingClientRect();
+  menu.style.top  = (rect.bottom + 4) + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.classList.add('on');
+}
+function closeProjectMenu() { document.getElementById('project-menu').classList.remove('on'); }
+document.addEventListener('click', function(e) {
+  const m = document.getElementById('copy-menu');
+  if (m && !m.contains(e.target) && e.target.id !== 'copy-export-btn') m.classList.remove('on');
+  const p = document.getElementById('project-menu');
+  if (p && !p.contains(e.target) && e.target.id !== 'project-btn') p.classList.remove('on');
+});
+
+function clipboardWrite(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast(msg), () => clipboardFallback(text, msg));
+  } else {
+    clipboardFallback(text, msg);
   }
-  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('✓ Copied to clipboard'));
+}
+function clipboardFallback(text, msg) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); toast(msg); }
+  catch(e) { toast('⚠ Copy failed — please copy manually'); }
+  document.body.removeChild(ta);
+}
+
+function bomDataRows() {
+  const out = [];
+  for (const entry of cart) {
+    if (entry._type === 'group') continue;
+    for (const r of rowsWithTerm(entry.rows)) {
+      if (r.section !== undefined || r.kind === 'note') continue;
+      out.push(r);
+    }
+  }
+  return out;
+}
+
+function copyTSV() {
+  closeCopyMenu();
+  const lines = ['Part Number\tDescription\tQty\tNotes'];
+  for (const r of bomDataRows()) lines.push(`${r.sku||''}\t${r.desc||''}\t${r.qty??''}\t${r.note||''}`);
+  clipboardWrite(lines.join('\n'), '✓ TSV copied to clipboard');
+}
+function copyBOMCSV() {
+  closeCopyMenu();
+  const rows = [['Part Number','Description','Qty','Notes']];
+  for (const r of bomDataRows()) rows.push([r.sku||'', r.desc||'', r.qty??'', r.note||'']);
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  clipboardWrite(csv, '✓ CSV copied to clipboard');
+}
+function copyMD() {
+  closeCopyMenu();
+  const hdrs = ['Part Number','Description','Qty','Notes'];
+  const lines = ['| ' + hdrs.join(' | ') + ' |', '| ' + hdrs.map(() => '---').join(' | ') + ' |'];
+  for (const r of bomDataRows()) {
+    const cells = [r.sku||'', r.desc||'', String(r.qty??''), r.note||''];
+    lines.push('| ' + cells.map(c => c.replace(/\|/g,'\\|')).join(' | ') + ' |');
+  }
+  clipboardWrite(lines.join('\n'), '✓ Markdown copied to clipboard');
+}
+function exportSFDC(region) {
+  closeCopyMenu();
+  const rows = [['UID','Quantity','Disti Discount','Quote Line Item Notes']];
+  for (const r of bomDataRows()) {
+    if (!r.sku) continue;
+    rows.push([`${r.sku}-${region}`, r.qty??'', 28, r.note||'']);
+  }
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `SFDC_${region}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast(`✓ SFDC-${region} CSV exported`);
 }
 
 // ── IMPORT CSV ───────────────────────────────────────────────────────────────
@@ -839,7 +1308,7 @@ function parseCSV(text) {
   }
   const lines = rawLines.map(parseLine);
   // Validate header
-  if (!lines[0] || lines[0][0] !== 'FortiBOM Project Export') return {ok:false, error:'Not a FortiBOM CSV export (missing header).'};
+  if (!lines[0] || lines[0][0] !== 'FabricBOM Project Export') return {ok:false, error:'Not a FabricBOM CSV export (missing header).'};
   // Row 1: meta
   const metaRow = lines[1] || [];
   function mval(cell) { return cell ? cell.replace(/^[^:]+:/,'').trim() : ''; }
@@ -874,7 +1343,9 @@ function parseCSV(text) {
     }
     if (currentEntry && sku) {
       const qn = qty !== '' ? (isNaN(Number(qty)) ? qty : Number(qty)) : undefined;
-      currentEntry.rows.push({ sku, desc, qty:qn, kind, note });
+      // Normalize SKU back to -DD so term substitution works after import
+      const normSku = meta.term !== 'DD' ? sku.replace(new RegExp(`-${meta.term}$`, 'i'), '-DD') : sku;
+      currentEntry.rows.push({ sku: normSku, desc, qty:qn, kind, note });
     }
   }
   const prodCount = items.filter(i=>!i._type).length;
@@ -912,6 +1383,271 @@ function doImport() {
   showPBV();
 }
 
+// ── BOM URL SHARE LOAD ────────────────────────────────────────────────────────
+let _pendingSharedBOM = null;
+
+function applySharedBOM(parsed) {
+  const { meta, items } = parsed;
+  if (meta.cust)  document.getElementById('pi-cust').value  = meta.cust;
+  if (meta.opp)   document.getElementById('pi-opp').value   = meta.opp;
+  if (meta.eng)   document.getElementById('pi-eng').value   = meta.eng;
+  if (meta.date)  document.getElementById('pi-date').value  = meta.date;
+  if (meta.notes) document.getElementById('pi-notes').value = meta.notes;
+  if (meta.term)  document.getElementById('pi-term').value  = meta.term;
+  cart = []; seq = 0;
+  for (const item of items) {
+    if (item._type === 'group') {
+      cart.push({ id: ++seq, _type: 'group', label: item.label, note: item.note || '' });
+    } else {
+      cart.push({ id: ++seq, product: item.product, label: item.label, rows: item.rows, meta: {} });
+    }
+  }
+  updateBadges();
+  renderGroups();
+  saveCart();
+}
+
+function showBOMFragmentConfirm(parsed, name, summary) {
+  _pendingSharedBOM = parsed;
+  document.getElementById('bom-share-msg').textContent =
+    `A shared BOM was found in the URL: "${name}" — ${summary}.`;
+  const modal = document.getElementById('bom-share-modal');
+  modal.style.display = 'flex';
+}
+
+function closeBOMShareModal() {
+  document.getElementById('bom-share-modal').style.display = 'none';
+  _pendingSharedBOM = null;
+}
+
+function confirmBOMShare() {
+  if (!_pendingSharedBOM) return;
+  const parsed = _pendingSharedBOM;
+  closeBOMShareModal();
+  applySharedBOM(parsed);
+  toast(`✓ Loaded shared BOM: "${parsed.meta.cust || 'Unnamed'}"`);
+  showPBV();
+}
+
+function checkBOMFragment() {
+  const hash = location.hash;
+  if (!hash.startsWith('#bom=')) return;
+  const encoded = hash.slice(5);
+  if (!encoded) return;
+  history.replaceState(null, '', location.pathname);
+  let parsed;
+  try {
+    const json = LZString.decompressFromEncodedURIComponent(encoded);
+    if (!json) throw new Error('Decompression returned empty — URL may be truncated or corrupt.');
+    parsed = deserializeBOM(json);
+  } catch(e) {
+    console.error('BOM share URL error:', e.message);
+    toast('Could not load shared BOM — URL may be corrupt or truncated.');
+    return;
+  }
+  const name = parsed.meta.cust || 'Unnamed Project';
+  const prodCount = parsed.prodCount;
+  const grpCount  = parsed.grpCount;
+  const summary = [
+    prodCount ? `${prodCount} product group${prodCount !== 1 ? 's' : ''}` : '',
+    grpCount  ? `${grpCount} group header${grpCount !== 1 ? 's' : ''}` : ''
+  ].filter(Boolean).join(' + ') || 'no items';
+  if (cart.length) {
+    showBOMFragmentConfirm(parsed, name, summary);
+  } else {
+    applySharedBOM(parsed);
+    toast(`✓ Loaded shared BOM: "${name}" (${summary})`);
+    showPBV();
+  }
+}
+
+// ── PRICING (IndexedDB) ────────────────────────────────────────────────────────
+let _pricingDb = null;
+
+function openPricingDB() {
+  if (_pricingDb) return Promise.resolve(_pricingDb);
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('fabricbom_pricing', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('pricing');
+    req.onsuccess = e => { _pricingDb = e.target.result; resolve(_pricingDb); };
+    req.onerror = e => reject(e.target.error);
+  });
+}
+async function savePricingIDB(data) {
+  const db = await openPricingDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('pricing', 'readwrite');
+    tx.objectStore('pricing').put(data, 'current');
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+async function getPricingIDB() {
+  const db = await openPricingDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('pricing', 'readonly');
+    const req = tx.objectStore('pricing').get('current');
+    req.onsuccess = e => resolve(e.target.result || null);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+async function deletePricingIDB() {
+  const db = await openPricingDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('pricing', 'readwrite');
+    tx.objectStore('pricing').delete('current');
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function parsePricingLine(line) {
+  const cells = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else { cur += c; }
+    } else {
+      if (c === '"') { inQ = true; }
+      else if (c === ',') { cells.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+  }
+  cells.push(cur);
+  return cells;
+}
+
+function parsePricingCSV(text) {
+  const rawLines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  let name = '', effectiveDate = '', headerRowIdx = -1, foundDate = false;
+
+  for (let i = 0; i < Math.min(rawLines.length, 30); i++) {
+    const cells = parsePricingLine(rawLines[i]);
+    const first = cells[0].trim();
+
+    if (first.startsWith('Effective Date:')) {
+      effectiveDate = first.replace('Effective Date:', '').trim();
+      foundDate = true;
+      continue;
+    }
+    // Name row: before effective date, first cell non-empty, all others empty
+    if (!name && !foundDate && first && cells.slice(1).every(c => !c.trim())) {
+      name = first;
+      continue;
+    }
+    // Header row: first cell is "Comments" and row contains "SKU"
+    const lc = cells.map(c => c.trim().toLowerCase());
+    if (lc[0] === 'comments' && lc.includes('sku')) {
+      headerRowIdx = i;
+      break;
+    }
+  }
+
+  if (headerRowIdx === -1) {
+    return { ok: false, error: 'Could not find the pricing header row. Please verify this is a Fortinet price list CSV.' };
+  }
+
+  const headers = parsePricingLine(rawLines[headerRowIdx]).map(h => h.trim());
+  const rows = [];
+  for (let i = headerRowIdx + 1; i < rawLines.length; i++) {
+    if (!rawLines[i].trim()) continue;
+    const cells = parsePricingLine(rawLines[i]);
+    if (cells.every(c => !c.trim())) continue;
+    const row = {};
+    headers.forEach((hdr, idx) => { if (hdr) row[hdr] = (cells[idx] || '').trim(); });
+    rows.push(row);
+  }
+
+  if (!rows.length) {
+    return { ok: false, error: 'No pricing data rows found after the header row.' };
+  }
+
+  return {
+    ok: true,
+    name: name || 'Fortinet Price List',
+    effectiveDate: effectiveDate || '',
+    headers,
+    rows,
+    uploadedAt: new Date().toISOString()
+  };
+}
+
+async function renderPricingSection() {
+  const el = document.getElementById('pricing-content');
+  if (!el) return;
+  try {
+    const data = await getPricingIDB();
+    if (!data) {
+      el.innerHTML = `
+        <div id="pricing-drop" onclick="document.getElementById('pricing-file').click()"
+             ondragover="pricingDragOver(event)" ondragleave="pricingDragLeave(event)" ondrop="pricingDrop(event)">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="opacity:.35"><rect x="4" y="4" width="24" height="24" rx="3" stroke="#6B7589" stroke-width="1.5"/><path d="M10 16h12M16 10v12" stroke="#6B7589" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop a Fortinet Pricing CSV here or click to browse</div>
+          <p>The price list name and effective date will be read automatically from the file header.</p>
+        </div>`;
+    } else {
+      const when = new Date(data.uploadedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+      const rowCount = data.rows.length.toLocaleString();
+      el.innerHTML = `
+        <div class="sp-list">
+          <div class="sp-card">
+            <div class="sp-accent"></div>
+            <div class="sp-body">
+              <div class="sp-name">${h(data.name)}</div>
+              <div class="sp-meta">Effective: ${h(data.effectiveDate || '—')} &middot; ${rowCount} items &middot; Uploaded ${when}</div>
+            </div>
+            <div class="sp-actions">
+              <button class="btn bd" onclick="deletePricing()">
+                <svg viewBox="0 0 13 13" fill="none"><path d="M2 3.5h9M5 3.5V2h3v1.5M5.5 6v4M7.5 6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 3.5l.5 7a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+  } catch(e) {
+    el.innerHTML = `<div style="font-size:12px;color:#C0392B;padding:12px;">Error loading pricing data: ${h(e.message)}</div>`;
+  }
+}
+
+function pricingDragOver(e) { e.preventDefault(); const d=document.getElementById('pricing-drop'); if(d) d.classList.add('over'); }
+function pricingDragLeave() { const d=document.getElementById('pricing-drop'); if(d) d.classList.remove('over'); }
+function pricingDrop(e) { e.preventDefault(); const d=document.getElementById('pricing-drop'); if(d) d.classList.remove('over'); const f=e.dataTransfer.files[0]; if(f) handlePricingFile(f); }
+function pricingFileChosen(inp) { if(inp.files[0]) handlePricingFile(inp.files[0]); inp.value=''; }
+
+function handlePricingFile(file) {
+  const el = document.getElementById('pricing-content');
+  if (el) el.innerHTML = `<div style="padding:20px;text-align:center;font-size:13px;color:var(--c-text2);">Processing pricing data…</div>`;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const result = parsePricingCSV(ev.target.result);
+    if (!result.ok) { toast('⚠ ' + result.error); renderPricingSection(); return; }
+    try {
+      await savePricingIDB(result);
+      toast(`✓ Pricing saved: "${result.name}"`);
+      renderPricingSection();
+    } catch(e) {
+      toast('⚠ Could not save pricing data: ' + e.message);
+      renderPricingSection();
+    }
+  };
+  reader.onerror = () => { toast('⚠ Could not read file.'); renderPricingSection(); };
+  reader.readAsText(file);
+}
+
+async function deletePricing() {
+  if (!confirm('Delete the saved pricing data?')) return;
+  try {
+    await deletePricingIDB();
+    toast('✓ Pricing data deleted');
+    renderPricingSection();
+  } catch(e) {
+    toast('⚠ Could not delete pricing data: ' + e.message);
+  }
+}
+
 // ── TOAST ────────────────────────────────────────────────────────────────────
 let tt=null;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');if(tt)clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3000);}
@@ -919,57 +1655,19 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.getElementById('pi-date').value = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
 loadCart();
+loadSaved();
 updateBadges();
+updateSavedBadge();
 renderGroups();
 if (cart.length) showPBV();
 buildNav();
-</script>
-<script type="module">
-import { loadPersisted } from "../../src/shared/data/storage.js";
+checkBOMFragment();
 
-function formatModuleCurrency(value) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value);
-}
-
-function buildPriceLookup(rows) {
-  const lookup = new Map();
-  for (const row of Array.isArray(rows) ? rows : []) {
-    const sku = String(row?.sku || '').trim();
-    if (!sku) continue;
-    const key = sku.replace(/\s+/g, '').toUpperCase();
-
-    let display = "";
-    let value = null;
-    if (typeof row?.price === "number" && Number.isFinite(row.price)) {
-      value = row.price;
-      display = formatModuleCurrency(row.price);
-    } else if (row?.price_display) {
-      display = String(row.price_display).trim();
-      const numeric = Number(String(row.price_display).replace(/[^0-9.-]/g, ""));
-      if (Number.isFinite(numeric)) {
-        value = numeric;
-      }
-    }
-
-    if (display) {
-      lookup.set(key, { display, value });
-    }
-  }
-  return lookup;
-}
-
-try {
-  const persisted = await loadPersisted();
-  if (typeof window.setFortiSkuPriceLookup === "function") {
-    window.setFortiSkuPriceLookup(buildPriceLookup(persisted?.rows || []));
-  }
-} catch (error) {
-  console.warn("Unable to load FortiSKU price data for Project BOM.", error);
+// ── SERVICE WORKER REGISTRATION ───────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
 }
 </script>
 </body>

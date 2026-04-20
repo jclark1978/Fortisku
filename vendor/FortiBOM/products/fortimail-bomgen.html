@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiMail BOM Generator</title>
+<style>
+:root {
+  --forti-red:    #EE3124;
+  --forti-border: #DDE1E9;
+  --forti-bg:     #F2F4F7;
+  --forti-white:  #FFFFFF;
+  --forti-text:   #2A2F3A;
+  --forti-text-secondary: #6B7589;
+  --forti-text-muted:     #9BA5BA;
+  --forti-section-header: #F7F9FC;
+  --forti-input-border:   #C8CDD9;
+  --forti-table-head:     #EEF1F6;
+  --forti-table-stripe:   #F7F9FC;
+  --forti-info-bg:    #EEF3FF;
+  --forti-info-border:#B8CBF5;
+  --forti-info-text:  #3557A5;
+  --forti-warn-bg:    #FFF8EE;
+  --forti-warn-border:#F5D9A0;
+  --forti-warn-text:  #8A5800;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size: 13px; color: var(--forti-text); background: var(--forti-bg); padding: 20px; line-height: 1.5; }
+
+/* Page header */
+.page-header { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+.page-icon { width:44px; height:44px; background:var(--forti-red); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.page-icon svg { fill:white; width:26px; height:26px; }
+.page-title h1 { font-size:20px; font-weight:700; color:var(--forti-text); }
+.page-title p { font-size:11px; color:var(--forti-text-muted); margin-top:2px; }
+
+/* Cards */
+.card { background:var(--forti-white); border:1px solid var(--forti-border); border-radius:4px; margin-bottom:14px; overflow:hidden; }
+.card-header { background:var(--forti-section-header); border-bottom:1px solid var(--forti-border); padding:9px 18px; font-weight:600; font-size:12px; color:var(--forti-text-secondary); text-transform:uppercase; letter-spacing:.04em; }
+.card-body { padding:14px 18px; }
+
+/* Form elements */
+label { display:block; font-size:12px; font-weight:600; color:var(--forti-text); margin-bottom:4px; }
+label .req { color:var(--forti-red); }
+input[type=number], select {
+  background:white; border:1px solid var(--forti-input-border); border-radius:3px;
+  padding:6px 9px; font-size:13px; width:100%; color:var(--forti-text);
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type=number]:focus, select:focus {
+  outline:none; border-color:var(--forti-red); box-shadow:0 0 0 2px rgba(238,49,36,.1);
+}
+input[type=number].invalid, select.invalid { border-color:var(--forti-red) !important; }
+.err { display:none; font-size:11px; color:var(--forti-red); margin-top:3px; }
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.field { margin-bottom:12px; }
+.field:last-child { margin-bottom:0; }
+
+/* Deployment tabs */
+.dep-tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.dep-tab { padding:7px 16px; border:1px solid var(--forti-input-border); border-radius:3px; cursor:pointer; font-size:12px; font-weight:600; color:var(--forti-text-secondary); background:white; transition:all .15s; }
+.dep-tab:hover { border-color:var(--forti-red); color:var(--forti-red); }
+.dep-tab.active { border-color:var(--forti-red); background:#FEF8F8; color:var(--forti-red); }
+
+/* Model cards */
+.model-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; margin-bottom:12px; }
+.model-card { border:1px solid var(--forti-border); border-radius:4px; padding:10px 12px; cursor:pointer; background:white; transition:all .15s; }
+.model-card:hover { border-color:var(--forti-red); }
+.model-card.selected { border:2px solid var(--forti-red); background:#FEF8F8; }
+.model-card .mc-name { font-weight:700; font-size:13px; color:var(--forti-text); }
+.model-card .mc-sub { font-size:11px; color:var(--forti-text-secondary); margin-top:3px; }
+
+/* Band indicator */
+.band-indicator { display:none; background:var(--forti-info-bg); border:1px solid var(--forti-info-border); border-radius:3px; padding:5px 10px; font-size:12px; color:var(--forti-info-text); margin-top:5px; }
+.band-indicator code { font-family:'Courier New',monospace; font-weight:700; }
+
+/* Callout */
+.callout { border-radius:3px; padding:9px 12px; font-size:12px; line-height:1.6; display:flex; gap:8px; margin-bottom:12px; }
+.info { background:var(--forti-info-bg); border:1px solid var(--forti-info-border); color:var(--forti-info-text); }
+.warn { background:var(--forti-warn-bg); border:1px solid var(--forti-warn-border); color:var(--forti-warn-text); }
+
+/* Add-ons */
+.addon-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.addon-item { display:flex; align-items:flex-start; gap:8px; padding:9px 11px; border:1px solid var(--forti-border); border-radius:3px; background:white; cursor:pointer; transition:border-color .15s; }
+.addon-item:hover { border-color:var(--forti-input-border); }
+.addon-item input[type=checkbox] { margin-top:2px; flex-shrink:0; cursor:pointer; accent-color:var(--forti-red); }
+.addon-item label { font-size:12px; font-weight:600; color:var(--forti-text); cursor:pointer; margin:0; }
+.addon-item .addon-sub { font-size:11px; color:var(--forti-text-secondary); margin-top:1px; }
+.addon-item.disabled { opacity:0.4; pointer-events:none; }
+
+/* Action buttons */
+.actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.btn { padding:8px 18px; border:none; border-radius:3px; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s; }
+.btn:hover { opacity:.88; }
+.btn-primary { background:var(--forti-red); color:white; }
+.btn-green   { background:#2E7D32; color:white; }
+.btn-grey    { background:#6B7589; color:white; }
+.btn-sm      { padding:5px 12px; font-size:11px; }
+#smsg { font-size:12px; color:#2E7D32; }
+
+/* BOM Preview */
+#bom-section { display:none; }
+.bom-actions { display:flex; gap:8px; margin-bottom:10px; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+thead th { background:var(--forti-table-head); border:1px solid var(--forti-border); padding:7px 11px; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--forti-text-secondary); }
+tbody td { border:1px solid var(--forti-border); padding:7px 11px; vertical-align:top; }
+tbody tr:nth-child(even) td { background:var(--forti-table-stripe); }
+.section-row td { background:#EAECF3 !important; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--forti-text-secondary); padding:5px 11px; border-top:2px solid #C5CAD9; }
+.sku-mono { font-family:'Courier New',monospace; font-size:11px; color:#1A4E82; }
+.nc { color:var(--forti-text-muted); }
+.badge { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:2px; padding:1px 4px; display:inline-block; }
+.badge-req  { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+.badge-opt  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.badge-mand { background:#FFF8EE; color:#8A5800; border:1px solid #F5D9A0; }
+.badge-inc  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+
+/* Overview table */
+.ov-table { font-size:11px; }
+.ov-table th { font-size:10px; }
+.ov-table td { padding:5px 9px; }
+.check { color:#2E7D32; font-size:13px; }
+.dash  { color:var(--forti-text-muted); }
+
+/* Section hide/show */
+.dep-section { display:none; }
+.dep-section.active { display:block; }
+
+@media print { .actions, .bom-actions { display:none; } }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+    </svg>
+  </div>
+  <div class="page-title">
+    <h1>FortiMail</h1>
+    <p>Email Security BOM Generator &nbsp;·&nbsp; FML-OG-R21-20260202</p>
+  </div>
+</div>
+
+<!-- OVERVIEW TABLE -->
+<div class="card">
+  <div class="card-header">Product Overview</div>
+  <div class="card-body" style="overflow-x:auto;">
+    <p style="font-size:12px;color:var(--forti-text-secondary);margin-bottom:10px;">FortiMail is licensed per device + feature bundle (Appliance/VM) or per mailbox (FortiMail Cloud). Select your deployment type below to configure the BOM.</p>
+    <table class="ov-table">
+      <thead>
+        <tr>
+          <th>Deployment</th>
+          <th>Models / Tiers</th>
+          <th>Licensing Model</th>
+          <th>Base Security</th>
+          <th>Cloud Sandbox</th>
+          <th>Cloud API (M365/Google)</th>
+          <th>MSSP / Advanced Admin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Cloud GW</strong></td>
+          <td>FC1–FC5 mailbox bands</td>
+          <td>Per mailbox / yr</td>
+          <td class="check">✔</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td>
+        </tr>
+        <tr>
+          <td><strong>Cloud GW Premium</strong></td>
+          <td>FC1–FC5 mailbox bands</td>
+          <td>Per mailbox / yr</td>
+          <td class="check">✔</td><td class="check">✔</td><td class="dash">—</td><td class="dash">Add-on</td>
+        </tr>
+        <tr>
+          <td><strong>Cloud GW Premium + API</strong></td>
+          <td>FC1–FC5 mailbox bands</td>
+          <td>Per mailbox / yr</td>
+          <td class="check">✔</td><td class="check">✔</td><td class="check">✔</td><td class="dash">Add-on</td>
+        </tr>
+        <tr>
+          <td><strong>Cloud GW Prem + API + Adv Mgmt</strong></td>
+          <td>FC3–FC5 (1001+ mailboxes)</td>
+          <td>Per mailbox / yr</td>
+          <td class="check">✔</td><td class="check">✔</td><td class="check">✔</td><td class="check">✔</td>
+        </tr>
+        <tr>
+          <td><strong>Cloud GW Prem for MSSP</strong></td>
+          <td>FC1–FC3 mailbox bands</td>
+          <td>Per mailbox / yr</td>
+          <td class="check">✔</td><td class="check">✔</td><td class="dash">—</td><td class="check">✔ (up to 1000 domains)</td>
+        </tr>
+        <tr>
+          <td><strong>VM S-Series Sub</strong></td>
+          <td>VM01–VM32 (6 tiers)</td>
+          <td>OPEX subscription</td>
+          <td class="dash">Base Bundle</td><td class="dash">ATP Bundle</td><td class="dash">Add-on (VM02+)</td><td class="dash">Add-on (VM02+)</td>
+        </tr>
+        <tr>
+          <td><strong>Hardware Appliance</strong></td>
+          <td>200F / 400F / 900F / 2000F / 3000F / 3000FH</td>
+          <td>CAPEX + renewal</td>
+          <td class="dash">Basic or Advanced Bundle</td><td class="dash">Advanced Bundle</td><td class="dash">Add-on (400F+)</td><td class="dash">Add-on (400F+)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DEPLOYMENT TYPE SELECTOR -->
+<div class="card">
+  <div class="card-header">Deployment Type</div>
+  <div class="card-body">
+    <div class="dep-tabs">
+      <div class="dep-tab active" onclick="setDeployment('cloud-gw')">☁ Cloud GW</div>
+      <div class="dep-tab" onclick="setDeployment('cloud-server')">☁ Cloud Server</div>
+      <div class="dep-tab" onclick="setDeployment('cloud-mssp')">☁ Cloud MSSP</div>
+      <div class="dep-tab" onclick="setDeployment('cloud-edu')">☁ Cloud Education</div>
+      <div class="dep-tab" onclick="setDeployment('vm')">⬡ VM S-Series</div>
+      <div class="dep-tab" onclick="setDeployment('hw')">▤ Hardware</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CLOUD GW section -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="sec-cloud-gw" class="dep-section active">
+      <div class="callout info">ℹ Billing is per mailbox per year. SKU selected automatically based on the declared mailbox count (customer declaration). Up to 10 protected domains per subscription.</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Cloud GW Tier <span class="req">*</span></label>
+          <select id="gw-tier" onchange="updateGWBand()">
+            <option value="414">Cloud GW (AntiVirus + AntiSpam)</option>
+            <option value="1293">Cloud GW Premium (+ CDR, IBE, Cloud Sandbox)</option>
+            <option value="1294">Cloud GW Premium + Cloud API Connector (M365/Google)</option>
+            <option value="1295">Cloud GW Premium + API Connector + Advanced Mgmt (1001+ mailboxes)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Number of Mailboxes <span class="req">*</span></label>
+          <input type="number" id="gw-mailboxes" min="25" placeholder="e.g. 500" oninput="updateGWBand()">
+          <div id="gw-err-mb" class="err">Enter a mailbox count (minimum 25).</div>
+          <div id="gw-band-indicator" class="band-indicator">Band: <code id="gw-band-text">FC2</code> · <span id="gw-band-range">101–1000 mailboxes</span></div>
+        </div>
+      </div>
+      <div id="gw-1295-warn" class="callout warn" style="display:none;">⚠ Cloud GW Premium + API + Adv Mgmt is only available for 1001+ mailboxes (FC3–FC5).</div>
+      <!-- Add-ons -->
+      <div class="field" style="margin-top:4px;">
+        <label style="margin-bottom:8px;">Add-on Services</label>
+        <div class="addon-grid">
+          <div class="addon-item" id="addon-gw-continuity">
+            <input type="checkbox" id="chk-gw-continuity">
+            <div>
+              <label for="chk-gw-continuity">Email Continuity</label>
+              <div class="addon-sub">Emergency mailbox service · FC-10-FMLCO-309-02-DD · gateway mode only</div>
+            </div>
+          </div>
+          <div class="addon-item" id="addon-gw-qs">
+            <input type="checkbox" id="chk-gw-qs">
+            <div>
+              <label for="chk-gw-qs">Deployment QuickStart Service</label>
+              <div class="addon-sub">Expert go-live assistance · FP-10-PS001-765-01-03</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CLOUD SERVER section -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="sec-cloud-server" class="dep-section">
+      <div class="callout info">ℹ FortiMail Cloud — Hosted email and email filtering service (Inbound/Outbound, AS/AV). Per mailbox per year.</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Cloud Server Tier <span class="req">*</span></label>
+          <select id="srv-tier" onchange="updateSrvBand()">
+            <option value="416">Cloud Server (25–100 mailboxes only)</option>
+            <option value="1296">Cloud Server Premium</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Number of Mailboxes <span class="req">*</span></label>
+          <input type="number" id="srv-mailboxes" min="25" placeholder="e.g. 80" oninput="updateSrvBand()">
+          <div id="srv-err-mb" class="err">Enter a mailbox count (minimum 25).</div>
+          <div id="srv-band-indicator" class="band-indicator">Band: <code id="srv-band-text">FC1</code> · <span id="srv-band-range">25–100 mailboxes</span></div>
+        </div>
+      </div>
+      <div id="srv-416-warn" class="callout warn" style="display:none;">⚠ Cloud Server (Basic) is only available for 25–100 mailboxes.</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CLOUD MSSP section -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="sec-cloud-mssp" class="dep-section">
+      <div class="callout info">ℹ FortiMail Cloud Gateway Premium for MSSPs — up to 1000 protected domains. Per mailbox per year.</div>
+      <div class="field" style="max-width:320px;">
+        <label>Number of Mailboxes <span class="req">*</span></label>
+        <input type="number" id="mssp-mailboxes" min="500" placeholder="e.g. 2000" oninput="updateMsspBand()">
+        <div id="mssp-err-mb" class="err">Enter a mailbox count (minimum 500).</div>
+        <div id="mssp-band-indicator" class="band-indicator">Band: <code id="mssp-band-text">FC1</code> · <span id="mssp-band-range">500–1000 mailboxes</span></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CLOUD EDUCATION section -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="sec-cloud-edu" class="dep-section">
+      <div class="callout info">ℹ Low-resource user SKU specifically for students of learning institutions. Add-on to an existing FortiMail Cloud subscription.</div>
+      <div class="field" style="max-width:320px;">
+        <label>Number of Student Mailboxes <span class="req">*</span></label>
+        <input type="number" id="edu-mailboxes" min="1" placeholder="e.g. 1000" oninput="clearErr('edu-err-mb','edu-mailboxes')">
+        <div id="edu-err-mb" class="err">Enter the number of student mailboxes.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- VM S-SERIES section -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="sec-vm" class="dep-section">
+      <div class="callout info">ℹ VM S-Series subscription (OPEX). Select the VM tier that matches your protected domain and mailbox capacity needs. Band (FC1–FC6) maps to VM01–VM32.</div>
+      <div class="field">
+        <label>VM Tier <span class="req">*</span></label>
+        <div class="model-grid" id="vm-model-grid">
+          <div class="model-card selected" id="vmc-VM01" onclick="selectVM('VM01')">
+            <div class="mc-name">VM01</div>
+            <div class="mc-sub">20 domains · 150 mailboxes</div>
+          </div>
+          <div class="model-card" id="vmc-VM02" onclick="selectVM('VM02')">
+            <div class="mc-name">VM02</div>
+            <div class="mc-sub">70 domains · 400 mailboxes</div>
+          </div>
+          <div class="model-card" id="vmc-VM04" onclick="selectVM('VM04')">
+            <div class="mc-name">VM04</div>
+            <div class="mc-sub">500 domains · 1,500 mailboxes</div>
+          </div>
+          <div class="model-card" id="vmc-VM08" onclick="selectVM('VM08')">
+            <div class="mc-name">VM08</div>
+            <div class="mc-sub">1,000 domains · 2,000 mailboxes</div>
+          </div>
+          <div class="model-card" id="vmc-VM16" onclick="selectVM('VM16')">
+            <div class="mc-name">VM16</div>
+            <div class="mc-sub">1,500 domains · 3,000 mailboxes</div>
+          </div>
+          <div class="model-card" id="vmc-VM32" onclick="selectVM('VM32')">
+            <div class="mc-name">VM32</div>
+            <div class="mc-sub">2,000 domains · 3,000 mailboxes</div>
+          </div>
+        </div>
+        <div id="vm-err-model" class="err">Select a VM tier.</div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>License Bundle <span class="req">*</span></label>
+          <select id="vm-bundle">
+            <option value="646">FortiGuard Base Bundle (AV, AS, VOP)</option>
+            <option value="1292">FortiGuard Enterprise ATP Bundle (Base + Cloud Sandbox)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Quantity <span class="req">*</span></label>
+          <input type="number" id="vm-qty" min="1" value="1">
+          <div id="vm-err-qty" class="err">Quantity must be at least 1.</div>
+        </div>
+      </div>
+      <!-- Add-ons -->
+      <div class="field">
+        <label style="margin-bottom:8px;">Add-on Subscriptions</label>
+        <div class="addon-grid">
+          <div class="addon-item" id="addon-vm-api">
+            <input type="checkbox" id="chk-vm-api">
+            <div>
+              <label for="chk-vm-api">Cloud Email API Add-on</label>
+              <div class="addon-sub">Microsoft 365 / Google Workspace integration · VM02+ only</div>
+            </div>
+          </div>
+          <div class="addon-item" id="addon-vm-mssp">
+            <input type="checkbox" id="chk-vm-mssp">
+            <div>
+              <label for="chk-vm-mssp">Advanced Admin &amp; MSSP License</label>
+              <div class="addon-sub">Multitenancy/MSSP features · VM02+ only</div>
+            </div>
+          </div>
+          <div class="addon-item" id="addon-vm-continuity">
+            <input type="checkbox" id="chk-vm-continuity">
+            <div>
+              <label for="chk-vm-continuity">Email Continuity Add-on</label>
+              <div class="addon-sub">Emergency mailbox service · available all tiers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- HARDWARE section -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="sec-hw" class="dep-section">
+      <div class="callout info">ℹ Hardware appliances (CAPEX). Purchase as a bundle SKU (hardware + initial license). Choose Basic or Advanced bundle. Renewals ordered separately.</div>
+      <div class="field">
+        <label>Appliance Model <span class="req">*</span></label>
+        <div class="model-grid" id="hw-model-grid">
+          <div class="model-card selected" id="hwc-200F" onclick="selectHW('200F')">
+            <div class="mc-name">FML-200F</div>
+            <div class="mc-sub">VM01-equivalent</div>
+          </div>
+          <div class="model-card" id="hwc-400F" onclick="selectHW('400F')">
+            <div class="mc-name">FML-400F</div>
+            <div class="mc-sub">VM02-equivalent</div>
+          </div>
+          <div class="model-card" id="hwc-900F" onclick="selectHW('900F')">
+            <div class="mc-name">FML-900F</div>
+            <div class="mc-sub">VM04-equivalent</div>
+          </div>
+          <div class="model-card" id="hwc-2000F" onclick="selectHW('2000F')">
+            <div class="mc-name">FML-2000F</div>
+            <div class="mc-sub">VM08-equivalent</div>
+          </div>
+          <div class="model-card" id="hwc-3000F" onclick="selectHW('3000F')">
+            <div class="mc-name">FML-3000F</div>
+            <div class="mc-sub">VM16-equivalent</div>
+          </div>
+          <div class="model-card" id="hwc-3000FH" onclick="selectHW('3000FH')">
+            <div class="mc-name">FML-3000FH</div>
+            <div class="mc-sub">VM32-equivalent · High-perf</div>
+          </div>
+        </div>
+        <div id="hw-err-model" class="err">Select an appliance model.</div>
+      </div>
+      <div class="grid3">
+        <div class="field">
+          <label>License Bundle <span class="req">*</span></label>
+          <select id="hw-bundle">
+            <option value="640">Basic Bundle (AV, AS, VOP + 24×7)</option>
+            <option value="1290">Advanced Bundle (+ Cloud Sandbox, CDR)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Purchase Type <span class="req">*</span></label>
+          <select id="hw-type" onchange="updateHWType()">
+            <option value="new">New (Hardware + Initial License)</option>
+            <option value="renewal">Renewal (License Only)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Quantity <span class="req">*</span></label>
+          <input type="number" id="hw-qty" min="1" value="1">
+          <div id="hw-err-qty" class="err">Quantity must be at least 1.</div>
+        </div>
+      </div>
+      <!-- Add-ons -->
+      <div class="field">
+        <label style="margin-bottom:8px;">Add-on Licenses</label>
+        <div class="addon-grid">
+          <div class="addon-item" id="addon-hw-api">
+            <input type="checkbox" id="chk-hw-api">
+            <div>
+              <label for="chk-hw-api">Cloud Email API License</label>
+              <div class="addon-sub">M365 / Google Workspace integration · FML-400F and above only</div>
+            </div>
+          </div>
+          <div class="addon-item" id="addon-hw-mssp">
+            <input type="checkbox" id="chk-hw-mssp">
+            <div>
+              <label for="chk-hw-mssp">Advanced Admin &amp; MSSP License</label>
+              <div class="addon-sub">Multitenancy/MSSP features · FML-400F and above only</div>
+            </div>
+          </div>
+          <div class="addon-item" id="addon-hw-disk">
+            <input type="checkbox" id="chk-hw-disk">
+            <div>
+              <label for="chk-hw-disk">Replacement Disk</label>
+              <div class="addon-sub">Spare HDD · applicable to 900F / 2000F / 3000F / 3000FH</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+  <button class="btn btn-primary" onclick="generateBOM()">Preview BOM</button>
+  <button class="btn btn-green"   onclick="addToProjectBOM()">Add to Project BOM</button>
+  <button class="btn btn-grey"    onclick="resetForm()">Reset</button>
+  <span id="smsg"></span>
+</div>
+
+<!-- BOM PREVIEW -->
+<div id="bom-section" class="card">
+  <div class="card-header">BOM Preview</div>
+  <div class="card-body">
+    <div class="bom-actions">
+      <button class="btn btn-grey btn-sm" onclick="copyTSV()">Copy TSV</button>
+      <button class="btn btn-grey btn-sm" onclick="window.print()">Print</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="bom-table">
+        <thead>
+          <tr>
+            <th style="width:200px;">Part Number</th>
+            <th>Description</th>
+            <th style="width:50px;">Qty</th>
+            <th style="width:80px;">Type</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bom-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let _lastRows  = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+let _deployment = 'cloud-gw';
+let _selectedVM = 'VM01';
+let _selectedHW = '200F';
+
+// ─── Data Models ──────────────────────────────────────────────────────────────
+
+// FortiMail Cloud mailbox band selector: returns {band, sku, desc}
+const CLOUD_BANDS = {
+  414: [
+    { band:'FC1', min:25,    max:100,   sku:'FC1-10-FECLD-414-02-DD',  desc:'FortiMail Cloud — Gateway (25–100 Mailboxes)' },
+    { band:'FC2', min:101,   max:1000,  sku:'FC2-10-FECLD-414-02-DD',  desc:'FortiMail Cloud — Gateway (101–1000 Mailboxes)' },
+    { band:'FC3', min:1001,  max:5000,  sku:'FC3-10-FECLD-414-02-DD',  desc:'FortiMail Cloud — Gateway (1001–5000 Mailboxes)' },
+    { band:'FC4', min:5001,  max:10000, sku:'FC4-10-FECLD-414-02-DD',  desc:'FortiMail Cloud — Gateway (5001–10000 Mailboxes)' },
+    { band:'FC5', min:10001, max:null,  sku:'FC5-10-FECLD-414-02-DD',  desc:'FortiMail Cloud — Gateway (10000+ Mailboxes)' },
+  ],
+  1293: [
+    { band:'FC1', min:25,    max:100,   sku:'FC1-10-FECLD-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium (25–100 Mailboxes)' },
+    { band:'FC2', min:101,   max:1000,  sku:'FC2-10-FECLD-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium (101–1000 Mailboxes)' },
+    { band:'FC3', min:1001,  max:5000,  sku:'FC3-10-FECLD-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium (1001–5000 Mailboxes)' },
+    { band:'FC4', min:5001,  max:10000, sku:'FC4-10-FECLD-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium (5001–10000 Mailboxes)' },
+    { band:'FC5', min:10001, max:null,  sku:'FC5-10-FECLD-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium (10000+ Mailboxes)' },
+  ],
+  1294: [
+    { band:'FC1', min:25,    max:100,   sku:'FC1-10-FECLD-1294-02-DD', desc:'FortiMail Cloud — Gateway Premium w/ Cloud API (25–100 Mailboxes)' },
+    { band:'FC2', min:101,   max:1000,  sku:'FC2-10-FECLD-1294-02-DD', desc:'FortiMail Cloud — Gateway Premium w/ Cloud API (101–1000 Mailboxes)' },
+    { band:'FC3', min:1001,  max:5000,  sku:'FC3-10-FECLD-1294-02-DD', desc:'FortiMail Cloud — Gateway Premium w/ Cloud API (1001–5000 Mailboxes)' },
+    { band:'FC4', min:5001,  max:10000, sku:'FC4-10-FECLD-1294-02-DD', desc:'FortiMail Cloud — Gateway Premium w/ Cloud API (5001–10000 Mailboxes)' },
+    { band:'FC5', min:10001, max:null,  sku:'FC5-10-FECLD-1294-02-DD', desc:'FortiMail Cloud — Gateway Premium w/ Cloud API (10000+ Mailboxes)' },
+  ],
+  1295: [
+    { band:'FC3', min:1001,  max:5000,  sku:'FC3-10-FECLD-1295-02-DD', desc:'FortiMail Cloud — GW Premium w/ API + Advanced Mgmt (1001–5000 Mailboxes)' },
+    { band:'FC4', min:5001,  max:10000, sku:'FC4-10-FECLD-1295-02-DD', desc:'FortiMail Cloud — GW Premium w/ API + Advanced Mgmt (5001–10000 Mailboxes)' },
+    { band:'FC5', min:10001, max:null,  sku:'FC5-10-FECLD-1295-02-DD', desc:'FortiMail Cloud — GW Premium w/ API + Advanced Mgmt (10000+ Mailboxes)' },
+  ],
+};
+
+const MSSP_BANDS = [
+  { band:'FC1', min:500,   max:1000,  sku:'FC1-10-EVMSP-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium for MSSP (500–1000 Mailboxes)' },
+  { band:'FC2', min:1001,  max:10000, sku:'FC2-10-EVMSP-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium for MSSP (1001–10000 Mailboxes)' },
+  { band:'FC3', min:10001, max:null,  sku:'FC3-10-EVMSP-1293-02-DD', desc:'FortiMail Cloud — Gateway Premium for MSSP (10000+ Mailboxes)' },
+];
+
+// VM S-series: band FC1=VM01, FC2=VM02, FC3=VM04, FC4=VM08, FC5=VM16, FC6=VM32
+const VM_MODELS = {
+  VM01: { band:'FC1', label:'VM01 S-Series', domains:20,    mailboxes:150 },
+  VM02: { band:'FC2', label:'VM02 S-Series', domains:70,    mailboxes:400 },
+  VM04: { band:'FC3', label:'VM04 S-Series', domains:500,   mailboxes:1500 },
+  VM08: { band:'FC4', label:'VM08 S-Series', domains:1000,  mailboxes:2000 },
+  VM16: { band:'FC5', label:'VM16 S-Series', domains:1500,  mailboxes:3000 },
+  VM32: { band:'FC6', label:'VM32 S-Series', domains:2000,  mailboxes:3000 },
+};
+
+// VM SKUs: band + code + -02-DD
+function vmSku(band, code) { return `${band}-10-FEVVS-${code}-02-DD`; }
+
+const VM_BUNDLE_DESC = {
+  646:  'FortiGuard Base Bundle (AV, AntiSpam, VOP)',
+  1292: 'FortiGuard Enterprise ATP Bundle (Base + Cloud Sandbox)',
+};
+
+// Hardware models
+const HW_MODELS = {
+  '200F':  { label:'FML-200F',  code:'FE2HF',  api:false, mssp:false, diskSku:null },
+  '400F':  { label:'FML-400F',  code:'FE4HF',  api:true,  mssp:true,  diskSku:null },
+  '900F':  { label:'FML-900F',  code:'FE9HF',  api:true,  mssp:true,  diskSku:'SP-FML900F-HDD' },
+  '2000F': { label:'FML-2000F', code:'FE2KF',  api:true,  mssp:true,  diskSku:'SP-D2TE' },
+  '3000F': { label:'FML-3000F', code:'FE3KF',  api:true,  mssp:true,  diskSku:'SP-D2TE' },
+  '3000FH':{ label:'FML-3000FH',code:'FE3KFH', api:true,  mssp:true,  diskSku:'SP-D2TE' },
+};
+
+// ─── Deployment switching ──────────────────────────────────────────────────────
+function setDeployment(dep) {
+  _deployment = dep;
+  document.querySelectorAll('.dep-tab').forEach((t,i) => {
+    const deps = ['cloud-gw','cloud-server','cloud-mssp','cloud-edu','vm','hw'];
+    t.classList.toggle('active', deps[i] === dep);
+  });
+  document.querySelectorAll('.dep-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + dep).classList.add('active');
+  clearStatus();
+  hideBOM();
+}
+
+// ─── Band helpers ─────────────────────────────────────────────────────────────
+function getBandForMailboxes(bands, count) {
+  return bands.find(b => count >= b.min && (b.max === null || count <= b.max));
+}
+
+function updateGWBand() {
+  const mb   = parseInt(document.getElementById('gw-mailboxes').value) || 0;
+  const tier = parseInt(document.getElementById('gw-tier').value);
+  const ind  = document.getElementById('gw-band-indicator');
+  const warn = document.getElementById('gw-1295-warn');
+  warn.style.display = (tier === 1295 && mb < 1001) ? 'flex' : 'none';
+  if (mb < 25) { ind.style.display = 'none'; return; }
+  const bands = CLOUD_BANDS[tier];
+  const b = getBandForMailboxes(bands, mb);
+  if (b) {
+    document.getElementById('gw-band-text').textContent  = b.band;
+    document.getElementById('gw-band-range').textContent = b.min + (b.max ? '–' + b.max : '+') + ' mailboxes';
+    ind.style.display = 'block';
+  } else { ind.style.display = 'none'; }
+  clearErr('gw-err-mb', 'gw-mailboxes');
+}
+
+function updateSrvBand() {
+  const mb   = parseInt(document.getElementById('srv-mailboxes').value) || 0;
+  const tier = document.getElementById('srv-tier').value;
+  const ind  = document.getElementById('srv-band-indicator');
+  const warn = document.getElementById('srv-416-warn');
+  const isBasic = (tier === '416');
+  warn.style.display = (isBasic && mb > 100) ? 'flex' : 'none';
+  if (mb < 25) { ind.style.display = 'none'; return; }
+  let band = '', range = '';
+  if (isBasic) { band = 'FC1'; range = '25–100'; }
+  else { band = mb <= 100 ? 'FC1' : 'FC2'; range = mb <= 100 ? '25–100' : '101–1000'; }
+  document.getElementById('srv-band-text').textContent  = band;
+  document.getElementById('srv-band-range').textContent = range + ' mailboxes';
+  ind.style.display = 'block';
+  clearErr('srv-err-mb', 'srv-mailboxes');
+}
+
+function updateMsspBand() {
+  const mb  = parseInt(document.getElementById('mssp-mailboxes').value) || 0;
+  const ind = document.getElementById('mssp-band-indicator');
+  if (mb < 500) { ind.style.display = 'none'; return; }
+  const b = getBandForMailboxes(MSSP_BANDS, mb);
+  if (b) {
+    document.getElementById('mssp-band-text').textContent  = b.band;
+    document.getElementById('mssp-band-range').textContent = b.min + (b.max ? '–' + b.max : '+') + ' mailboxes';
+    ind.style.display = 'block';
+  } else { ind.style.display = 'none'; }
+  clearErr('mssp-err-mb', 'mssp-mailboxes');
+}
+
+// ─── VM selection ─────────────────────────────────────────────────────────────
+function selectVM(id) {
+  _selectedVM = id;
+  document.querySelectorAll('.model-card[id^="vmc-"]').forEach(c => c.classList.remove('selected'));
+  document.getElementById('vmc-' + id).classList.add('selected');
+  // Disable API/MSSP add-ons for VM01
+  const isVM01 = (id === 'VM01');
+  ['addon-vm-api','addon-vm-mssp'].forEach(aid => {
+    const el = document.getElementById(aid);
+    el.classList.toggle('disabled', isVM01);
+    if (isVM01) el.querySelector('input').checked = false;
+  });
+  clearErr('vm-err-model', null);
+}
+
+// ─── HW selection ─────────────────────────────────────────────────────────────
+function selectHW(id) {
+  _selectedHW = id;
+  document.querySelectorAll('.model-card[id^="hwc-"]').forEach(c => c.classList.remove('selected'));
+  document.getElementById('hwc-' + id).classList.add('selected');
+  const m = HW_MODELS[id];
+  // API/MSSP only for 400F+
+  ['addon-hw-api','addon-hw-mssp'].forEach(aid => {
+    const el = document.getElementById(aid);
+    const allowed = (aid === 'addon-hw-api' || aid === 'addon-hw-mssp') ? m.api : true;
+    el.classList.toggle('disabled', !allowed);
+    if (!allowed) el.querySelector('input').checked = false;
+  });
+  // Disk only for models that have it
+  const diskEl = document.getElementById('addon-hw-disk');
+  diskEl.classList.toggle('disabled', !m.diskSku);
+  if (!m.diskSku) diskEl.querySelector('input').checked = false;
+  clearErr('hw-err-model', null);
+}
+
+function updateHWType() { /* nothing special needed */ }
+
+// ─── Validation helper ────────────────────────────────────────────────────────
+function showErr(fieldId, errId) {
+  if (fieldId) document.getElementById(fieldId).classList.add('invalid');
+  if (errId)   document.getElementById(errId).style.display = 'block';
+}
+function clearErr(errId, fieldId) {
+  if (errId)   document.getElementById(errId).style.display = 'none';
+  if (fieldId) document.getElementById(fieldId).classList.remove('invalid');
+}
+
+// ─── generateBOM ─────────────────────────────────────────────────────────────
+function generateBOM() {
+  const rows = [];
+  let valid = true;
+
+  if (_deployment === 'cloud-gw') {
+    const mb   = parseInt(document.getElementById('gw-mailboxes').value) || 0;
+    const tier = parseInt(document.getElementById('gw-tier').value);
+    if (mb < 25) { showErr('gw-mailboxes','gw-err-mb'); valid = false; }
+    if (tier === 1295 && mb < 1001) { showErr('gw-mailboxes','gw-err-mb'); valid = false; }
+    if (!valid) return false;
+    clearErr('gw-err-mb','gw-mailboxes');
+    const b = getBandForMailboxes(CLOUD_BANDS[tier], mb);
+    if (!b) { showErr('gw-mailboxes','gw-err-mb'); return false; }
+    rows.push({ section: 'FortiMail Cloud — Gateway Subscription' });
+    rows.push({ sku: b.sku, desc: b.desc, qty: mb, kind: 'req', note: `${b.band} · per mailbox · annual` });
+    // Add-ons
+    if (document.getElementById('chk-gw-continuity').checked) {
+      rows.push({ section: 'Add-on Services' });
+      rows.push({ sku:'FC-10-FMLCO-309-02-DD', desc:'FortiMail Cloud — Email Continuity Service', qty: mb, kind:'opt', note:'Per mailbox · gateway mode required' });
+    }
+    if (document.getElementById('chk-gw-qs').checked) {
+      if (rows[rows.length-1] && !rows[rows.length-1].section) rows.push({ section: 'Add-on Services' });
+      rows.push({ sku:'FP-10-PS001-765-01-03', desc:'FortiMail Cloud Deployment QuickStart Service', qty:1, kind:'opt', note:'Fixed fee · no term suffix' });
+    }
+    const tierLabels = {414:'Cloud GW',1293:'Cloud GW Premium',1294:'Cloud GW Prem + API',1295:'Cloud GW Prem + API + Adv Mgmt'};
+    _lastLabel = `FortiMail ${tierLabels[tier]} · ${mb} mailboxes`;
+    _lastMeta  = { 'Deployment':'FortiMail Cloud — Hosted', 'Tier': tierLabels[tier], 'Mailboxes': mb, 'Band': b.band };
+
+  } else if (_deployment === 'cloud-server') {
+    const mb   = parseInt(document.getElementById('srv-mailboxes').value) || 0;
+    const tier = document.getElementById('srv-tier').value;
+    if (mb < 25) { showErr('srv-mailboxes','srv-err-mb'); return false; }
+    if (tier === '416' && mb > 100) { showErr('srv-mailboxes','srv-err-mb'); document.getElementById('srv-err-mb').textContent='Cloud Server (Basic) is limited to 25–100 mailboxes.'; return false; }
+    if (tier === '1296' && mb > 1000) { showErr('srv-mailboxes','srv-err-mb'); document.getElementById('srv-err-mb').textContent='Cloud Server Premium is available for up to 1000 mailboxes.'; return false; }
+    clearErr('srv-err-mb','srv-mailboxes');
+    let sku, desc;
+    if (tier === '416') {
+      sku  = 'FC1-10-FECLD-416-02-DD';
+      desc = 'FortiMail Cloud — Server (25–100 Mailboxes)';
+    } else {
+      const band = mb <= 100 ? 'FC1' : 'FC2';
+      sku  = `${band}-10-FECLD-1296-02-DD`;
+      desc = `FortiMail Cloud — Server Premium (${mb <= 100 ? '25–100' : '101–1000'} Mailboxes)`;
+    }
+    rows.push({ section: 'FortiMail Cloud — Server Subscription' });
+    rows.push({ sku, desc, qty: mb, kind:'req', note:'Per mailbox · annual' });
+    _lastLabel = `FortiMail Cloud Server${tier==='1296'?' Premium':''} · ${mb} mailboxes`;
+    _lastMeta  = { 'Deployment':'FortiMail Cloud — Server', 'Mailboxes': mb };
+
+  } else if (_deployment === 'cloud-mssp') {
+    const mb = parseInt(document.getElementById('mssp-mailboxes').value) || 0;
+    if (mb < 500) { showErr('mssp-mailboxes','mssp-err-mb'); return false; }
+    clearErr('mssp-err-mb','mssp-mailboxes');
+    const b = getBandForMailboxes(MSSP_BANDS, mb);
+    if (!b) { showErr('mssp-mailboxes','mssp-err-mb'); return false; }
+    rows.push({ section: 'FortiMail Cloud — Gateway Premium for MSSP' });
+    rows.push({ sku: b.sku, desc: b.desc, qty: mb, kind:'req', note:`${b.band} · per mailbox · up to 1000 protected domains` });
+    _lastLabel = `FortiMail Cloud GW Prem MSSP · ${mb} mailboxes`;
+    _lastMeta  = { 'Deployment':'FortiMail Cloud — MSSP', 'Mailboxes': mb, 'Band': b.band };
+
+  } else if (_deployment === 'cloud-edu') {
+    const mb = parseInt(document.getElementById('edu-mailboxes').value) || 0;
+    if (mb < 1) { showErr('edu-mailboxes','edu-err-mb'); return false; }
+    clearErr('edu-err-mb','edu-mailboxes');
+    rows.push({ section: 'FortiMail Cloud — Education Add-on' });
+    rows.push({ sku:'FC10-FECLD-599-02-DD', desc:'FortiMail Cloud — Low Resource User for Education (per student mailbox)', qty: mb, kind:'req', note:'Add-on to existing FortiMail Cloud subscription' });
+    rows.push({ sku:'⚠', desc:'Requires an existing FortiMail Cloud subscription on the same account.', qty:null, kind:'note', note:'' });
+    _lastLabel = `FortiMail Cloud Education · ${mb} student mailboxes`;
+    _lastMeta  = { 'Deployment':'FortiMail Cloud — Education', 'Student Mailboxes': mb };
+
+  } else if (_deployment === 'vm') {
+    const qty  = parseInt(document.getElementById('vm-qty').value) || 0;
+    const bund = document.getElementById('vm-bundle').value;
+    if (qty < 1) { showErr('vm-qty','vm-err-qty'); return false; }
+    clearErr('vm-err-qty','vm-qty');
+    const m = VM_MODELS[_selectedVM];
+    rows.push({ section: 'FortiMail VM S-Series Subscription' });
+    rows.push({
+      sku:  vmSku(m.band, bund),
+      desc: `FortiMail ${_selectedVM} S-Series — ${VM_BUNDLE_DESC[bund]}`,
+      qty,
+      kind: 'req',
+      note: `${m.band} · ${m.domains} protected domains · ${m.mailboxes.toLocaleString()} server mailboxes`
+    });
+    // Add-ons
+    const addons = [];
+    if (document.getElementById('chk-vm-api').checked && _selectedVM !== 'VM01') {
+      addons.push({ sku: vmSku(m.band,'409'), desc:'FortiMail VM — Cloud Email API Add-on (M365 / Google Workspace)', note:'Per VM instance' });
+    }
+    if (document.getElementById('chk-vm-mssp').checked && _selectedVM !== 'VM01') {
+      addons.push({ sku: vmSku(m.band,'408'), desc:'FortiMail VM — Advanced Admin & MSSP License', note:'Per VM instance' });
+    }
+    if (document.getElementById('chk-vm-continuity').checked) {
+      addons.push({ sku: vmSku(m.band,'309'), desc:'FortiMail VM — Email Continuity Add-on', note:'Per VM instance' });
+    }
+    if (addons.length) {
+      rows.push({ section: 'VM Add-on Subscriptions' });
+      addons.forEach(a => rows.push({ sku: a.sku, desc: a.desc, qty, kind:'opt', note: a.note }));
+    }
+    _lastLabel = `FortiMail ${_selectedVM} S-Series Sub ×${qty}`;
+    _lastMeta  = { 'Deployment':'VM S-Series (OPEX)', 'VM Tier': _selectedVM, 'Bundle': bund === '646' ? 'Base' : 'Enterprise ATP', 'Qty': qty };
+
+  } else if (_deployment === 'hw') {
+    const qty    = parseInt(document.getElementById('hw-qty').value) || 0;
+    const bundle = document.getElementById('hw-bundle').value;
+    const hwtype = document.getElementById('hw-type').value;
+    if (qty < 1) { showErr('hw-qty','hw-err-qty'); return false; }
+    clearErr('hw-err-qty','hw-qty');
+    const m = HW_MODELS[_selectedHW];
+    rows.push({ section: 'FortiMail Hardware Appliance' });
+    if (hwtype === 'new') {
+      // Bundle SKU = model-BDL{code}-DD
+      const hwBundleSku = `${m.label}-BDL${bundle}-DD`;
+      const bundleDesc  = bundle === '640' ? 'Basic Bundle (AV, AntiSpam, VOP, 24×7 Support)' : 'Advanced Bundle (+ Cloud Sandbox, CDR, IBE)';
+      rows.push({ sku: hwBundleSku, desc: `${m.label} ${bundleDesc}`, qty, kind:'req', note:'Hardware + initial license bundle' });
+    } else {
+      // Renewal only — no hardware
+      const renewCode   = bundle === '640' ? '640' : '641';
+      const renewSku    = `FC-10-${m.code}-${renewCode}-02-DD`;
+      const bundleLabel = bundle === '640' ? 'Basic Bundle Renewal' : 'Advanced Bundle Renewal';
+      rows.push({ sku: renewSku, desc: `${m.label} FortiGuard ${bundleLabel}`, qty, kind:'req', note:'License renewal only · no hardware' });
+    }
+    // Add-ons
+    const hwAddons = [];
+    if (document.getElementById('chk-hw-api').checked && m.api) {
+      hwAddons.push({ sku:`FC-10-${m.code}-409-02-DD`, desc:`${m.label} Cloud Email API License (M365 / Google Workspace)`, note:'Per appliance' });
+    }
+    if (document.getElementById('chk-hw-mssp').checked && m.mssp) {
+      hwAddons.push({ sku:`FC-10-${m.code}-408-02-DD`, desc:`${m.label} Advanced Admin & MSSP License`, note:'Per appliance' });
+    }
+    if (document.getElementById('chk-hw-disk').checked && m.diskSku) {
+      hwAddons.push({ sku: m.diskSku, desc:`${m.label} Replacement Disk`, note:'Spare HDD · no term required' });
+    }
+    if (hwAddons.length) {
+      rows.push({ section: 'Hardware Add-on Licenses' });
+      hwAddons.forEach(a => {
+        // Disk SKU has no -DD — emit as-is
+        const isDisk = !a.sku.includes('FC-10');
+        rows.push({ sku: a.sku, desc: a.desc, qty: isDisk ? qty : qty, kind:'opt', note: a.note });
+      });
+    }
+    const bundleLabel = bundle === '640' ? 'Basic Bundle' : 'Advanced Bundle';
+    _lastLabel = `FortiMail ${m.label} ${bundleLabel} ×${qty}${hwtype==='renewal'?' (renewal)':''}`;
+    _lastMeta  = { 'Deployment':'Hardware (CAPEX)', 'Model': m.label, 'Bundle': bundleLabel, 'Type': hwtype === 'new' ? 'New Purchase' : 'Renewal', 'Qty': qty };
+  }
+
+  _lastRows = rows;
+  renderBOM(rows);
+  return true;
+}
+
+// ─── renderBOM ────────────────────────────────────────────────────────────────
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-tbody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${r.section}</td>`;
+    } else {
+      const badgeMap = { req:'badge-req', opt:'badge-opt', mand:'badge-mand', inc:'badge-inc', note:'' };
+      const labelMap = { req:'Required', opt:'Optional', mand:'Mandatory', inc:'Included', note:'' };
+      const badgeCls = badgeMap[r.kind] || '';
+      const badgeTxt = labelMap[r.kind] || '';
+      const badge    = badgeCls ? `<span class="badge ${badgeCls}">${badgeTxt}</span>` : '';
+      tr.innerHTML = `
+        <td><code class="sku-mono">${r.sku}</code></td>
+        <td class="nc">${r.desc}</td>
+        <td style="text-align:center;">${r.qty !== null ? r.qty : ''}</td>
+        <td>${badge}</td>
+        <td class="nc">${r.note || ''}</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+  const sec = document.getElementById('bom-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ─── addToProjectBOM ──────────────────────────────────────────────────────────
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiMail',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta
+    }, '*');
+  }
+  const s = document.getElementById('smsg');
+  s.textContent = '✓ Added to Project BOM.';
+  s.style.color = '#2E7D32';
+}
+
+// ─── resetForm ────────────────────────────────────────────────────────────────
+function resetForm() {
+  // Cloud GW
+  document.getElementById('gw-tier').value = '414';
+  document.getElementById('gw-mailboxes').value = '';
+  document.getElementById('gw-band-indicator').style.display = 'none';
+  document.getElementById('gw-1295-warn').style.display = 'none';
+  document.getElementById('chk-gw-continuity').checked = false;
+  document.getElementById('chk-gw-qs').checked = false;
+  // Cloud Server
+  document.getElementById('srv-tier').value = '416';
+  document.getElementById('srv-mailboxes').value = '';
+  document.getElementById('srv-band-indicator').style.display = 'none';
+  document.getElementById('srv-416-warn').style.display = 'none';
+  // MSSP
+  document.getElementById('mssp-mailboxes').value = '';
+  document.getElementById('mssp-band-indicator').style.display = 'none';
+  // Education
+  document.getElementById('edu-mailboxes').value = '';
+  // VM
+  selectVM('VM01');
+  document.getElementById('vm-bundle').value = '646';
+  document.getElementById('vm-qty').value = '1';
+  document.getElementById('chk-vm-api').checked = false;
+  document.getElementById('chk-vm-mssp').checked = false;
+  document.getElementById('chk-vm-continuity').checked = false;
+  // HW
+  selectHW('200F');
+  document.getElementById('hw-bundle').value = '640';
+  document.getElementById('hw-type').value = 'new';
+  document.getElementById('hw-qty').value = '1';
+  document.getElementById('chk-hw-api').checked = false;
+  document.getElementById('chk-hw-mssp').checked = false;
+  document.getElementById('chk-hw-disk').checked = false;
+  // Clear errors
+  document.querySelectorAll('.err').forEach(e => e.style.display = 'none');
+  document.querySelectorAll('.invalid').forEach(e => e.classList.remove('invalid'));
+  hideBOM();
+  clearStatus();
+}
+
+function hideBOM() {
+  document.getElementById('bom-section').style.display = 'none';
+}
+
+function clearStatus() {
+  document.getElementById('smsg').textContent = '';
+}
+
+// ─── copyTSV ─────────────────────────────────────────────────────────────────
+function copyTSV() {
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(r => {
+    if (r.section !== undefined) {
+      lines.push(`\t### ${r.section} ###\t\t\t`);
+    } else {
+      const kindLabel = { req:'Required', opt:'Optional', mand:'Mandatory', inc:'Included', note:'' };
+      lines.push([r.sku, r.desc, r.qty !== null ? r.qty : '', kindLabel[r.kind] || '', r.note || ''].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const s = document.getElementById('smsg');
+    s.textContent = '✓ TSV copied to clipboard.';
+    s.style.color = '#2E7D32';
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+selectVM('VM01');
+selectHW('200F');
+</script>
+</body>
+</html>

@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiMail Workspace — BOM Generator</title>
+<style>
+:root {
+  --forti-red:    #EE3124;
+  --forti-border: #DDE1E9;
+  --forti-bg:     #F2F4F7;
+  --forti-white:  #FFFFFF;
+  --forti-text:   #2A2F3A;
+  --forti-text-secondary: #6B7589;
+  --forti-text-muted:     #9BA5BA;
+  --forti-section-header: #F7F9FC;
+  --forti-input-border:   #C8CDD9;
+  --forti-table-head:     #EEF1F6;
+  --forti-table-stripe:   #F7F9FC;
+  --forti-info-bg:    #EEF3FF;
+  --forti-info-border:#B8CBF5;
+  --forti-info-text:  #3557A5;
+  --forti-warn-bg:    #FFF8EE;
+  --forti-warn-border:#F5D9A0;
+  --forti-warn-text:  #8A5800;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--forti-text);
+  background: var(--forti-bg);
+  padding: 20px;
+  margin: 0;
+}
+a { color: var(--forti-info-text); }
+
+/* Page header */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.page-icon {
+  width: 42px; height: 42px;
+  background: var(--forti-red);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.page-icon svg { width: 24px; height: 24px; fill: white; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--forti-text); margin: 0; }
+.page-subtitle { font-size: 11px; color: var(--forti-text-muted); margin: 2px 0 0; }
+
+/* Cards */
+.card {
+  background: var(--forti-white);
+  border: 1px solid var(--forti-border);
+  border-radius: 4px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-header {
+  background: var(--forti-section-header);
+  border-bottom: 1px solid var(--forti-border);
+  padding: 9px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-header h3 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--forti-text-secondary);
+  margin: 0;
+}
+.card-body { padding: 16px 18px; }
+
+/* Form elements */
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--forti-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 5px;
+}
+label .req { color: var(--forti-red); }
+input[type=number], select {
+  background: white;
+  border: 1px solid var(--forti-input-border);
+  border-radius: 3px;
+  padding: 6px 9px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  color: var(--forti-text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type=number]:focus, select:focus {
+  border-color: var(--forti-red);
+  box-shadow: 0 0 0 2px rgba(238,49,36,.1);
+}
+input.invalid, select.invalid {
+  border-color: var(--forti-red) !important;
+}
+.err {
+  display: none;
+  color: var(--forti-red);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+/* Grid */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* Callouts */
+.callout {
+  border-radius: 3px;
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  display: flex;
+  gap: 8px;
+}
+.info { background: var(--forti-info-bg); border: 1px solid var(--forti-info-border); color: var(--forti-info-text); }
+.warn { background: var(--forti-warn-bg); border: 1px solid var(--forti-warn-border); color: var(--forti-warn-text); }
+.callout-icon { flex-shrink: 0; font-size: 14px; line-height: 1.4; }
+
+/* Band indicator */
+.band-indicator {
+  display: none;
+  background: var(--forti-info-bg);
+  border: 1px solid var(--forti-info-border);
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--forti-info-text);
+  margin-top: 5px;
+}
+
+/* Mode tabs */
+.mode-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--forti-border);
+  margin-bottom: 18px;
+  gap: 0;
+}
+.mode-tab {
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forti-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+  user-select: none;
+}
+.mode-tab:hover { color: var(--forti-text); }
+.mode-tab.active {
+  color: var(--forti-red);
+  border-bottom-color: var(--forti-red);
+}
+.mode-panel { display: none; }
+.mode-panel.active { display: block; }
+
+/* Bundle cards */
+.bundle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.bundle-card {
+  border: 2px solid var(--forti-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: white;
+}
+.bundle-card:hover { border-color: #B8CBF5; background: #FAFBFF; }
+.bundle-card.selected { border-color: var(--forti-red); background: #FEF8F8; }
+.bundle-card .bc-name { font-weight: 700; font-size: 12px; color: var(--forti-text); }
+.bundle-card .bc-desc { font-size: 11px; color: var(--forti-text-muted); margin-top: 3px; line-height: 1.45; }
+.bundle-card .bc-code { font-family: 'Courier New', monospace; font-size: 10px; color: #1A4E82; margin-top: 5px; }
+
+/* Collaboration apps */
+.collab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.collab-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--forti-border);
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .15s;
+}
+.collab-item:hover { border-color: #B8CBF5; }
+.collab-item input[type=checkbox] { width: auto; cursor: pointer; accent-color: var(--forti-red); }
+.collab-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forti-text);
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
+  cursor: pointer;
+  line-height: 1.3;
+}
+.collab-item .ci-code { font-family: 'Courier New', monospace; font-size: 10px; color: #1A4E82; display: block; margin-top: 1px; }
+
+/* Action buttons */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+button {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+button:hover { opacity: .88; }
+.btn-primary { background: var(--forti-red); color: white; }
+.btn-success { background: #2E7D32; color: white; }
+.btn-ghost { background: var(--forti-bg); color: var(--forti-text-secondary); border: 1px solid var(--forti-border); }
+#smsg { font-size: 12px; font-weight: 600; color: var(--forti-text-muted); }
+
+/* BOM section */
+#bom-section { display: none; margin-top: 6px; }
+.bom-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  background: var(--forti-table-head);
+  border: 1px solid var(--forti-border);
+  padding: 7px 11px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--forti-text-secondary);
+  white-space: nowrap;
+  text-align: left;
+}
+tbody td {
+  border: 1px solid var(--forti-border);
+  padding: 7px 11px;
+  vertical-align: top;
+}
+tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
+.section-row td {
+  background: #EAECF3 !important;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--forti-text-secondary);
+  padding: 5px 11px;
+  border-top: 2px solid #C5CAD9;
+}
+.sku { font-family: 'Courier New', monospace; font-size: 11px; color: #1A4E82; }
+.nc { color: var(--forti-text-muted); }
+.badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-radius: 2px; padding: 1px 4px; display: inline-block; white-space: nowrap; }
+.badge-req  { background: #FEF0EE; color: #C0392B; border: 1px solid #F5C6C2; }
+.badge-opt  { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+.badge-mand { background: #FFF8EE; color: #8A5800; border: 1px solid #F5D9A0; }
+.badge-inc  { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+
+/* Feature comparison table */
+.feat-table { font-size: 11px; margin-bottom: 0; }
+.feat-table thead th { font-size: 10px; }
+.feat-table td { padding: 5px 10px; }
+.feat-table .check { color: #2E7D32; font-size: 13px; text-align: center; }
+.feat-table .addon { color: var(--forti-warn-text); font-size: 10px; text-align: center; font-style: italic; }
+.feat-table .cross { color: #ccc; text-align: center; }
+.col-feature { font-weight: 600; color: var(--forti-text); width: 38%; }
+.col-tier { text-align: center; width: 20.6%; }
+
+hr.section-sep { border: none; border-top: 1px solid var(--forti-border); margin: 14px 0; }
+
+/* Field group */
+.field-group { margin-bottom: 14px; }
+.field-group:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+    </svg>
+  </div>
+  <div>
+    <div class="page-title">FortiMail Workspace</div>
+    <div class="page-subtitle">BOM Generator &nbsp;·&nbsp; Ordering Guide FMW-OG-R04-20260112 &nbsp;·&nbsp; Cloud SaaS · Browser Security · Collaboration Security</div>
+  </div>
+</div>
+
+<!-- Product Overview -->
+<div class="card">
+  <div class="card-header"><h3>Product Overview — FortiMail Cloud SaaS Feature Comparison</h3></div>
+  <div class="card-body" style="padding:0 0 1px 0; overflow-x:auto;">
+    <table class="feat-table">
+      <thead>
+        <tr>
+          <th class="col-feature" style="padding-left:14px;">Feature</th>
+          <th class="col-tier">Inbound Email<br>Security</th>
+          <th class="col-tier">Internal Email<br>Security</th>
+          <th class="col-tier">Full Email Security<br>Bundle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-feature" style="padding-left:14px;font-weight:700;font-size:10px;text-transform:uppercase;color:#6B7589;background:#f7f9fc;" colspan="4">Security Services</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Inbound Email Security</td><td class="check">✓</td><td class="cross">—</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Internal Email Security</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Threat Intelligence</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Static File Analysis</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Anti-Phishing / Anti-BEC</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Account TakeOver Protection (M365)</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Dynamic File Analysis (HAP Sandbox)</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;font-weight:700;font-size:10px;text-transform:uppercase;color:#6B7589;background:#f7f9fc;" colspan="4">Additional Services</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">24×7 Support &amp; Incident Response</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Advanced Collaboration Security</td><td class="addon">Add-on / app</td><td class="addon">Add-on / app</td><td class="addon">Add-on / app</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Advanced Browser Security (Governance &amp; DLP)</td><td class="addon">Add-on</td><td class="addon">Add-on</td><td class="addon">Add-on</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">99.99% SLA / Reporting / URL Dynamic Analysis</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">Internal Email Scanning</td><td class="addon">Add-on</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td class="col-feature" style="padding-left:14px;">VIP Protection / Email Disclaimers</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Billing note -->
+<div class="callout info" style="margin-bottom:14px;">
+  <span class="callout-icon">ℹ</span>
+  <div><strong>Billing basis:</strong> Active mailboxes declared by the customer to Fortinet. Fortinet uses internal methods to validate declared user counts. Minimum tier is 25 users (FC1).</div>
+</div>
+
+<!-- Configuration Form -->
+<div class="card">
+  <div class="card-header"><h3>Step 1 — User Count</h3></div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="field-group">
+        <label for="f-users">Number of Active Mailboxes / Users <span class="req">*</span></label>
+        <input type="number" id="f-users" min="25" placeholder="e.g. 250" oninput="updateBandIndicator()">
+        <div class="err" id="err-users">Enter a valid user count (minimum 25).</div>
+        <div class="band-indicator" id="band-indicator">
+          Band: <code id="band-text">FC2</code> &nbsp;·&nbsp; <span id="band-range">101–1,000 users</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;padding-top:20px;">
+        <div class="callout info" style="font-size:11px;margin:0;">
+          <span class="callout-icon">💡</span>
+          <div>The band (FC1–FC5) is auto-selected based on your user count and applied to all SKUs below.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>Step 2 — Email Security / Workspace Bundle</h3></div>
+  <div class="card-body">
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <div>Select <strong>one</strong> Email Security or Workspace Bundle SKU, or select <strong>None</strong> if the customer is ordering Collaboration Security or Browser Security only.</div>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <div class="mode-tab active" onclick="switchTab('email')">Email Security</div>
+      <div class="mode-tab" onclick="switchTab('workspace')">Workspace Bundles</div>
+      <div class="mode-tab" onclick="switchTab('none-email')">None / Skip</div>
+    </div>
+
+    <!-- Email Security tab -->
+    <div class="mode-panel active" id="tab-email">
+      <div class="bundle-grid" id="email-bundle-grid"></div>
+    </div>
+
+    <!-- Workspace bundles tab -->
+    <div class="mode-panel" id="tab-workspace">
+      <div class="bundle-grid" id="ws-bundle-grid"></div>
+      <div class="callout warn" style="margin-top:10px;">
+        <span class="callout-icon">⚠</span>
+        <div>Workspace bundles include Email Security and one or more collaboration/browser components. Do <strong>not</strong> add individual collaboration app SKUs for components already included in the bundle.</div>
+      </div>
+    </div>
+
+    <!-- None tab -->
+    <div class="mode-panel" id="tab-none-email">
+      <div class="callout info">
+        <span class="callout-icon">ℹ</span>
+        <div>No Email Security or Workspace Bundle SKU will be added. Proceed to add Collaboration Security and/or Browser Security individually below.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Browser Security -->
+<div class="card">
+  <div class="card-header"><h3>Step 3 — Browser Security (Optional)</h3></div>
+  <div class="card-body">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <input type="checkbox" id="cb-browser" style="width:auto;accent-color:var(--forti-red);cursor:pointer;" onchange="toggleBrowserNote()">
+      <label for="cb-browser" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:var(--forti-text);margin:0;cursor:pointer;">
+        Add FortiMail Browser Security &nbsp;<span class="badge badge-opt">Optional</span>
+      </label>
+    </div>
+    <div id="browser-note" style="display:none;" class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <div>Browser Security (<code>FC{band}-10-PVMCL-1198-02-DD</code>) secures web browsing via a lightweight browser extension. Backed by 24×7 managed Incident Response. Available for Chrome, Edge, Firefox, Safari, and any Chromium-based browser on Windows, macOS, ChromeOS, and Linux.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Collaboration Security -->
+<div class="card">
+  <div class="card-header"><h3>Step 4 — Collaboration Security Add-ons (Optional)</h3></div>
+  <div class="card-body">
+    <p style="color:var(--forti-text-secondary);font-size:12px;margin:0 0 12px;">
+      Select the collaboration applications to protect. Each application is licensed separately (per user, per app). Microsoft 365 covers <strong>SharePoint + OneDrive + Teams</strong> under a single SKU.
+    </p>
+    <div class="collab-grid" id="collab-grid"></div>
+    <div id="collab-api-section" style="margin-top:14px;">
+      <hr class="section-sep">
+      <div style="margin-bottom:8px;">
+        <label style="margin-bottom:4px;display:block;">
+          <input type="checkbox" id="cb-api" style="width:auto;accent-color:var(--forti-red);cursor:pointer;" onchange="toggleApiSection()">
+          &nbsp;Add API / Next-Gen API Security (scan-volume based)
+        </label>
+      </div>
+      <div id="api-detail" style="display:none;">
+        <div class="callout warn" style="margin-bottom:10px;">
+          <span class="callout-icon">⚠</span>
+          <div>The API SKU is billed by scan volume, <strong>not</strong> by user count. The band prefix (FC1–FC5) maps to scan volume tiers below — select independently of the user count above.</div>
+        </div>
+        <div class="field-group" style="max-width:280px;">
+          <label for="api-tier">API Scan Volume Tier <span class="req">*</span></label>
+          <select id="api-tier">
+            <option value="">— Select tier —</option>
+            <option value="FC1">&lt;100k scans/year (FC1)</option>
+            <option value="FC2">&lt;250k scans/year (FC2)</option>
+            <option value="FC3">&lt;500k scans/year (FC3)</option>
+            <option value="FC4">&lt;1,000k scans/year (FC4)</option>
+            <option value="FC5">Over 1,000k scans/year (FC5)</option>
+          </select>
+          <div class="err" id="err-api">Select an API scan volume tier.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="card">
+  <div class="card-body">
+    <div class="actions">
+      <button class="btn-primary" onclick="generateBOM()">Preview BOM</button>
+      <button class="btn-success" onclick="addToProjectBOM()">Add to Project BOM</button>
+      <button class="btn-ghost" onclick="resetForm()">Reset</button>
+      <span id="smsg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- BOM Preview -->
+<div id="bom-section" class="card">
+  <div class="card-header">
+    <h3>BOM Preview</h3>
+  </div>
+  <div class="card-body">
+    <div class="bom-actions">
+      <button class="btn-ghost" onclick="copyTSV()" style="font-size:12px;padding:5px 12px;">Copy TSV</button>
+      <button class="btn-ghost" onclick="window.print()" style="font-size:12px;padding:5px 12px;">Print</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="bom-table">
+        <thead>
+          <tr>
+            <th style="width:210px;">Part Number</th>
+            <th>Description</th>
+            <th style="width:50px;text-align:center;">Qty</th>
+            <th style="width:80px;text-align:center;">Type</th>
+            <th style="width:200px;">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bom-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA MODEL ──────────────────────────────────────────────────────────────
+
+const BANDS = [
+  { band: 'FC1', min: 25,    max: 100,   label: '25–100 users' },
+  { band: 'FC2', min: 101,   max: 1000,  label: '101–1,000 users' },
+  { band: 'FC3', min: 1001,  max: 5000,  label: '1,001–5,000 users' },
+  { band: 'FC4', min: 5001,  max: 10000, label: '5,001–10,000 users' },
+  { band: 'FC5', min: 10001, max: Infinity, label: '10,000+ users' },
+];
+
+function getBand(users) {
+  for (const b of BANDS) if (users >= b.min && users <= b.max) return b;
+  return null;
+}
+
+function makeSku(band, code) {
+  return `${band}-10-PVMCL-${code}-02-DD`;
+}
+
+// Email / Workspace bundle definitions
+const EMAIL_BUNDLES = [
+  {
+    id: 'inbound',
+    name: 'Inbound Email Security',
+    code: '1194',
+    desc: 'Inbound email — phishing, BEC, malware, ATO prevention. 24×7 Incident Response included.',
+    tab: 'email',
+  },
+  {
+    id: 'full-email',
+    name: 'Full Email Security Bundle',
+    code: '1195',
+    desc: 'Inbound + Internal email security. Comprehensive coverage for M365, Google Workspace, and others.',
+    tab: 'email',
+  },
+];
+
+const WS_BUNDLES = [
+  { id: 'email-google', name: 'Email + Google Workspace Bundle', code: '1220', desc: 'Email Security + Google Drive Storage.', tab: 'workspace' },
+  { id: 'email-ms',     name: 'Email + MS Package Bundle',       code: '1219', desc: 'Email Security + MS Package (Teams/SharePoint/OneDrive).', tab: 'workspace' },
+  { id: 'email-web',    name: 'Email + Web Security Bundle',     code: '1221', desc: 'Email Security + Browser Web Extension.', tab: 'workspace' },
+  { id: 'full-ms',      name: 'Full Email + MS Package Bundle',  code: '1216', desc: 'Email + Internal Email + MS Package.', tab: 'workspace' },
+  { id: 'full-google',  name: 'Full Email + Google Workspace Bundle', code: '1217', desc: 'Email + Internal Email + Google Drive Storage.', tab: 'workspace' },
+  { id: 'ult-google-web', name: 'Ultimate Email, Google & Web Bundle', code: '1214', desc: 'Email + Internal + Google Drive + Web Extension.', tab: 'workspace' },
+  { id: 'ult-ms-web',   name: 'Ultimate Email, MS Package & Web Bundle', code: '1215', desc: 'Email + Internal + MS Package + Web Extension.', tab: 'workspace' },
+];
+
+const COLLAB_APPS = [
+  { id: 'ms365',    name: 'Microsoft 365',     subname: 'Teams, OneDrive & SharePoint', code: '1210' },
+  { id: 'gdrive',   name: 'Google Drive',       subname: 'Google Drive storage',         code: '1211' },
+  { id: 'box',      name: 'Box',                subname: 'Box cloud storage',             code: '1207' },
+  { id: 'dropbox',  name: 'DropBox',            subname: 'DropBox storage',               code: '1208' },
+  { id: 'slack',    name: 'Slack',              subname: 'Slack collaboration',           code: '1209' },
+  { id: 'zendesk',  name: 'Zendesk',            subname: 'Zendesk integration',           code: '1212' },
+  { id: 'salesforce', name: 'Salesforce',       subname: 'Salesforce integration',        code: '1213' },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let _selectedBundle = null; // id from EMAIL_BUNDLES or WS_BUNDLES, or null
+let _selectedTab = 'email'; // 'email' | 'workspace' | 'none-email'
+let _lastRows = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(function init() {
+  // Render email bundle cards
+  const eg = document.getElementById('email-bundle-grid');
+  EMAIL_BUNDLES.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'bundle-card';
+    el.id = 'bc-' + b.id;
+    el.innerHTML = `<div class="bc-name">${b.name}</div>
+      <div class="bc-desc">${b.desc}</div>
+      <div class="bc-code">FC{band}-10-PVMCL-${b.code}-02-DD</div>`;
+    el.onclick = () => selectBundle(b.id);
+    eg.appendChild(el);
+  });
+
+  // Render workspace bundle cards
+  const wg = document.getElementById('ws-bundle-grid');
+  WS_BUNDLES.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'bundle-card';
+    el.id = 'bc-' + b.id;
+    el.innerHTML = `<div class="bc-name">${b.name}</div>
+      <div class="bc-desc">${b.desc}</div>
+      <div class="bc-code">FC{band}-10-PVMCL-${b.code}-02-DD</div>`;
+    el.onclick = () => selectBundle(b.id);
+    wg.appendChild(el);
+  });
+
+  // Render collab app checkboxes
+  const cg = document.getElementById('collab-grid');
+  COLLAB_APPS.forEach(a => {
+    const el = document.createElement('div');
+    el.className = 'collab-item';
+    el.innerHTML = `<input type="checkbox" id="cb-${a.id}" style="width:auto;accent-color:var(--forti-red);cursor:pointer;">
+      <label for="cb-${a.id}">
+        ${a.name}
+        <span class="ci-code">…-${a.code}-02-DD</span>
+        <span style="font-size:10px;color:var(--forti-text-muted);font-weight:400;">${a.subname}</span>
+      </label>`;
+    el.querySelector('input').addEventListener('change', clearStatus);
+    el.onclick = (e) => { if (e.target.tagName !== 'INPUT') el.querySelector('input').click(); };
+    cg.appendChild(el);
+  });
+})();
+
+// ─── UI HELPERS ──────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  _selectedTab = tab;
+  document.querySelectorAll('.mode-tab').forEach((t, i) => {
+    t.classList.toggle('active', ['email','workspace','none-email'][i] === tab);
+  });
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  // Clear selection if switching tabs
+  if (_selectedBundle) {
+    const allBundles = [...EMAIL_BUNDLES, ...WS_BUNDLES];
+    const sel = allBundles.find(b => b.id === _selectedBundle);
+    if (sel && sel.tab !== tab) {
+      document.getElementById('bc-' + _selectedBundle)?.classList.remove('selected');
+      _selectedBundle = null;
+    }
+  }
+  clearStatus();
+}
+
+function selectBundle(id) {
+  if (_selectedBundle) {
+    document.getElementById('bc-' + _selectedBundle)?.classList.remove('selected');
+  }
+  _selectedBundle = (_selectedBundle === id) ? null : id;
+  if (_selectedBundle) {
+    document.getElementById('bc-' + _selectedBundle)?.classList.add('selected');
+  }
+  clearStatus();
+}
+
+function updateBandIndicator() {
+  const u = parseInt(document.getElementById('f-users').value);
+  const bi = document.getElementById('band-indicator');
+  if (isNaN(u) || u < 25) { bi.style.display = 'none'; return; }
+  const b = getBand(u);
+  if (b) {
+    document.getElementById('band-text').textContent = b.band;
+    document.getElementById('band-range').textContent = b.label;
+    bi.style.display = 'block';
+  } else {
+    bi.style.display = 'none';
+  }
+  clearStatus();
+}
+
+function toggleBrowserNote() {
+  document.getElementById('browser-note').style.display =
+    document.getElementById('cb-browser').checked ? 'flex' : 'none';
+  clearStatus();
+}
+
+function toggleApiSection() {
+  document.getElementById('api-detail').style.display =
+    document.getElementById('cb-api').checked ? 'block' : 'none';
+  clearStatus();
+}
+
+function clearStatus() {
+  const s = document.getElementById('smsg');
+  s.textContent = '';
+}
+
+function setStatus(msg, color) {
+  const s = document.getElementById('smsg');
+  s.textContent = msg;
+  s.style.color = color || 'var(--forti-text-muted)';
+}
+
+// ─── VALIDATION ──────────────────────────────────────────────────────────────
+function showErr(fieldId, errId, show) {
+  const f = document.getElementById(fieldId);
+  const e = document.getElementById(errId);
+  if (show) {
+    f?.classList.add('invalid');
+    if (e) e.style.display = 'block';
+  } else {
+    f?.classList.remove('invalid');
+    if (e) e.style.display = 'none';
+  }
+  return !show;
+}
+
+// ─── BOM GENERATION ──────────────────────────────────────────────────────────
+function generateBOM() {
+  let valid = true;
+
+  // Validate users
+  const usersVal = parseInt(document.getElementById('f-users').value);
+  const usersOk = !isNaN(usersVal) && usersVal >= 25;
+  if (!showErr('f-users', 'err-users', !usersOk)) valid = false;
+
+  // Get band
+  const bandObj = usersOk ? getBand(usersVal) : null;
+  if (usersOk && !bandObj) {
+    showErr('f-users', 'err-users', true);
+    valid = false;
+  }
+
+  // Validate API tier if checked
+  const hasApi = document.getElementById('cb-api').checked;
+  if (hasApi) {
+    const apiTier = document.getElementById('api-tier').value;
+    if (!apiTier) {
+      showErr('api-tier', 'err-api', true);
+      valid = false;
+    } else {
+      showErr('api-tier', 'err-api', false);
+    }
+  }
+
+  if (!valid) {
+    setStatus('Please fix the errors above.', 'var(--forti-red)');
+    return false;
+  }
+
+  const band = bandObj.band;
+  const bandLabel = bandObj.label;
+
+  // Check at least one product selected
+  const hasBrowser = document.getElementById('cb-browser').checked;
+  const collabSelected = COLLAB_APPS.filter(a => document.getElementById('cb-' + a.id)?.checked);
+  const hasBundle = _selectedTab !== 'none-email' && _selectedBundle !== null;
+
+  if (!hasBundle && !hasBrowser && collabSelected.length === 0 && !hasApi) {
+    setStatus('Select at least one product or service.', 'var(--forti-red)');
+    return false;
+  }
+
+  const rows = [];
+  const labelParts = [];
+
+  // ── Email / Workspace Bundle ──
+  if (hasBundle && _selectedBundle) {
+    const allBundles = [...EMAIL_BUNDLES, ...WS_BUNDLES];
+    const bdef = allBundles.find(b => b.id === _selectedBundle);
+    if (bdef) {
+      rows.push({ section: 'Email / Workspace Bundle' });
+      rows.push({
+        sku:  makeSku(band, bdef.code),
+        desc: bdef.name,
+        qty:  1,
+        kind: 'req',
+        note: `${band} · ${bandLabel}`,
+      });
+      labelParts.push(bdef.name);
+    }
+  }
+
+  // ── Browser Security ──
+  if (hasBrowser) {
+    rows.push({ section: 'Browser Security' });
+    rows.push({
+      sku:  makeSku(band, '1198'),
+      desc: 'FortiMail Browser Security — web threat prevention via browser extension with 24×7 IR',
+      qty:  1,
+      kind: 'opt',
+      note: `${band} · ${bandLabel}`,
+    });
+    labelParts.push('Browser Security');
+  }
+
+  // ── Collaboration Security ──
+  if (collabSelected.length > 0) {
+    rows.push({ section: 'Collaboration Security' });
+    collabSelected.forEach(a => {
+      rows.push({
+        sku:  makeSku(band, a.code),
+        desc: `FortiMail Collaboration Security — ${a.name} (${a.subname})`,
+        qty:  1,
+        kind: 'opt',
+        note: `${band} · ${bandLabel} · per user`,
+      });
+    });
+    labelParts.push(`Collab (${collabSelected.map(a => a.name).join(', ')})`);
+  }
+
+  // ── API Security ──
+  if (hasApi) {
+    const apiTier = document.getElementById('api-tier').value;
+    const apiTierLabel = {
+      FC1: '<100k scans', FC2: '<250k scans', FC3: '<500k scans',
+      FC4: '<1,000k scans', FC5: 'Over 1,000k scans',
+    }[apiTier] || apiTier;
+    rows.push({ section: 'API / Next-Gen API Security' });
+    rows.push({
+      sku:  makeSku(apiTier, '1225'),
+      desc: 'FortiMail Collaboration Security — API (next-gen API security, scan-volume based)',
+      qty:  1,
+      kind: 'opt',
+      note: `${apiTier} · ${apiTierLabel}`,
+    });
+    // Note: API tier is independent of user band
+    rows.push({
+      sku:  '⚠',
+      desc: 'API SKU uses scan-volume band (FC1–FC5), independent of the user count band above.',
+      qty:  null,
+      kind: 'note',
+      note: '',
+    });
+    labelParts.push('API Security');
+  }
+
+  _lastRows  = rows;
+  _lastLabel = `FortiMail Workspace — ${labelParts.join(' + ')} (${bandLabel})`;
+  _lastMeta  = {
+    'Users':       usersVal.toLocaleString(),
+    'Band':        band,
+    'User Tier':   bandLabel,
+    'Email SKU':   hasBundle && _selectedBundle ? (() => { const b = [...EMAIL_BUNDLES,...WS_BUNDLES].find(x=>x.id===_selectedBundle); return b ? `PVMCL-${b.code}` : '—'; })() : '—',
+    'Browser Sec': hasBrowser ? 'Yes' : 'No',
+    'Collab Apps': collabSelected.length > 0 ? collabSelected.map(a => a.name).join(', ') : 'None',
+    'API Security': hasApi ? document.getElementById('api-tier').options[document.getElementById('api-tier').selectedIndex].text : 'No',
+  };
+
+  renderBOM(rows);
+  document.getElementById('bom-section').style.display = 'block';
+  document.getElementById('bom-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setStatus('');
+  return true;
+}
+
+// ─── RENDER BOM ──────────────────────────────────────────────────────────────
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-body');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${r.section}</td>`;
+    } else {
+      const badgeMap = {
+        req:  '<span class="badge badge-req">Required</span>',
+        mand: '<span class="badge badge-mand">Mandatory</span>',
+        opt:  '<span class="badge badge-opt">Optional</span>',
+        inc:  '<span class="badge badge-inc">Included</span>',
+        note: '',
+      };
+      tr.innerHTML = `
+        <td><span class="sku">${r.sku || ''}</span></td>
+        <td class="nc">${r.desc || ''}</td>
+        <td style="text-align:center;">${r.qty !== null && r.qty !== undefined ? r.qty : ''}</td>
+        <td style="text-align:center;">${badgeMap[r.kind] || ''}</td>
+        <td class="nc">${r.note || ''}</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── ADD TO PROJECT BOM ───────────────────────────────────────────────────────
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiMail Workspace',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta,
+    }, '*');
+    setStatus('✓ Added to Project BOM.', '#2E7D32');
+  } else {
+    setStatus('✓ BOM ready (open in FortiBOM to add to Project BOM).', '#2E7D32');
+  }
+}
+
+// ─── COPY TSV ────────────────────────────────────────────────────────────────
+function copyTSV() {
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(r => {
+    if (r.section !== undefined) {
+      lines.push(`### ${r.section}\t\t\t\t`);
+    } else {
+      lines.push([r.sku, r.desc, r.qty ?? '', r.kind, r.note].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    setStatus('✓ Copied to clipboard.', '#2E7D32');
+  }).catch(() => {
+    setStatus('Copy failed — please copy manually.', 'var(--forti-red)');
+  });
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('f-users').value = '';
+  document.getElementById('band-indicator').style.display = 'none';
+  document.getElementById('f-users').classList.remove('invalid');
+  document.getElementById('err-users').style.display = 'none';
+
+  // Clear bundle selection
+  if (_selectedBundle) {
+    document.getElementById('bc-' + _selectedBundle)?.classList.remove('selected');
+    _selectedBundle = null;
+  }
+  switchTab('email');
+
+  // Browser
+  document.getElementById('cb-browser').checked = false;
+  document.getElementById('browser-note').style.display = 'none';
+
+  // Collab
+  COLLAB_APPS.forEach(a => {
+    const cb = document.getElementById('cb-' + a.id);
+    if (cb) cb.checked = false;
+  });
+
+  // API
+  document.getElementById('cb-api').checked = false;
+  document.getElementById('api-detail').style.display = 'none';
+  document.getElementById('api-tier').value = '';
+  document.getElementById('api-tier').classList.remove('invalid');
+  document.getElementById('err-api').style.display = 'none';
+
+  // BOM
+  document.getElementById('bom-section').style.display = 'none';
+  document.getElementById('bom-body').innerHTML = '';
+  _lastRows = []; _lastLabel = ''; _lastMeta = {};
+  setStatus('');
+}
+</script>
+</body>
+</html>

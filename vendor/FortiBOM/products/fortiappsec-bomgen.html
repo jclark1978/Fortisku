@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiAppSec Cloud — BOM Generator</title>
+<style>
+:root {
+  --forti-red:    #EE3124;
+  --forti-border: #DDE1E9;
+  --forti-bg:     #F2F4F7;
+  --forti-white:  #FFFFFF;
+  --forti-text:   #2A2F3A;
+  --forti-text-secondary: #6B7589;
+  --forti-text-muted:     #9BA5BA;
+  --forti-section-header: #F7F9FC;
+  --forti-input-border:   #C8CDD9;
+  --forti-table-head:     #EEF1F6;
+  --forti-table-stripe:   #F7F9FC;
+  --forti-info-bg:    #EEF3FF;
+  --forti-info-border:#B8CBF5;
+  --forti-info-text:  #3557A5;
+  --forti-warn-bg:    #FFF8EE;
+  --forti-warn-border:#F5D9A0;
+  --forti-warn-text:  #8A5800;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--forti-text);
+  background: var(--forti-bg);
+  padding: 20px;
+}
+a { color: var(--forti-info-text); }
+
+/* ── Header ── */
+.page-header { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+.hdr-icon {
+  width:42px; height:42px; border-radius:6px;
+  background:var(--forti-red); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.hdr-icon svg { width:24px; height:24px; fill:#fff; }
+.hdr-title { font-size:20px; font-weight:700; color:var(--forti-text); line-height:1.2; }
+.hdr-sub   { font-size:11px; color:var(--forti-text-muted); margin-top:2px; }
+
+/* ── Cards ── */
+.card { background:var(--forti-white); border:1px solid var(--forti-border); border-radius:4px; margin-bottom:14px; overflow:hidden; }
+.card-hdr { background:var(--forti-section-header); border-bottom:1px solid var(--forti-border); padding:9px 18px; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--forti-text-secondary); display:flex; align-items:center; gap:8px; }
+.card-body { padding:16px 18px; }
+
+/* ── Grid ── */
+.grid-2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr)); gap:14px; }
+.grid-3 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(170px,100%),1fr)); gap:10px; }
+label { display:block; font-size:11px; font-weight:600; color:var(--forti-text-secondary); text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+label .req { color:var(--forti-red); margin-left:2px; }
+input[type=number], select {
+  background:#fff; border:1px solid var(--forti-input-border); border-radius:3px;
+  padding:6px 9px; font-size:13px; width:100%; color:var(--forti-text);
+  transition:border-color .15s, box-shadow .15s;
+}
+input[type=number]:focus, select:focus {
+  outline:none; border-color:var(--forti-red); box-shadow:0 0 0 2px rgba(238,49,36,.1);
+}
+input.invalid, select.invalid { border-color:var(--forti-red) !important; box-shadow:0 0 0 2px rgba(238,49,36,.15); }
+.err-msg { display:none; font-size:11px; color:var(--forti-red); margin-top:3px; }
+
+/* ── Plan cards ── */
+.plan-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(180px,100%),1fr)); gap:8px; }
+.plan-card {
+  border:2px solid var(--forti-border); border-radius:4px; padding:12px 14px;
+  cursor:pointer; transition:border-color .15s, background .15s; user-select:none;
+}
+.plan-card:hover { border-color:#aab0c3; background:#fafbfc; }
+.plan-card.selected { border-color:var(--forti-red); background:#FEF8F8; }
+.plan-card .plan-name { font-weight:700; font-size:13px; color:var(--forti-text); }
+.plan-card .plan-desc { font-size:11px; color:var(--forti-text-secondary); margin-top:3px; line-height:1.4; }
+.plan-card .plan-badge { display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:2px; padding:1px 5px; margin-top:5px; }
+.pb-std  { background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; }
+.pb-adv  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.pb-ent  { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+
+/* ── Band indicator ── */
+.band-indicator {
+  display:none; background:var(--forti-info-bg); border:1px solid var(--forti-info-border);
+  border-radius:3px; padding:4px 10px; font-size:12px; color:var(--forti-info-text); margin-top:5px;
+}
+
+/* ── Add-on checkboxes ── */
+.addon-row {
+  display:flex; align-items:flex-start; gap:10px; padding:10px 0;
+  border-bottom:1px solid var(--forti-border);
+}
+.addon-row:last-child { border-bottom:none; }
+.addon-row input[type=checkbox] { margin-top:2px; flex-shrink:0; width:15px; height:15px; cursor:pointer; accent-color:var(--forti-red); }
+.addon-row.disabled { opacity:0.4; pointer-events:none; }
+.addon-label { font-size:13px; font-weight:600; color:var(--forti-text); }
+.addon-sub   { font-size:11px; color:var(--forti-text-secondary); margin-top:1px; line-height:1.4; }
+.addon-sku   { font-size:10px; font-family:'Courier New',monospace; color:#1A4E82; margin-top:2px; }
+.addon-qty-row { margin-top:6px; display:flex; align-items:center; gap:8px; }
+.addon-qty-row label { text-transform:none; letter-spacing:0; font-size:12px; color:var(--forti-text-secondary); margin-bottom:0; white-space:nowrap; }
+.addon-qty-row input { width:80px !important; }
+
+/* ── Callout ── */
+.callout { border-radius:3px; padding:9px 12px; font-size:12px; line-height:1.6; display:flex; gap:8px; margin-bottom:10px; }
+.callout-icon { flex-shrink:0; font-size:14px; margin-top:1px; }
+.info { background:var(--forti-info-bg); border:1px solid var(--forti-info-border); color:var(--forti-info-text); }
+.warn { background:var(--forti-warn-bg); border:1px solid var(--forti-warn-border); color:var(--forti-warn-text); }
+
+/* ── Action buttons ── */
+.actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+.btn {
+  padding:8px 16px; border:none; border-radius:3px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:opacity .15s;
+}
+.btn:hover { opacity:.85; }
+.btn-primary  { background:var(--forti-red);   color:#fff; }
+.btn-success  { background:#2E7D32; color:#fff; }
+.btn-default  { background:#fff; color:var(--forti-text); border:1px solid var(--forti-input-border); }
+.btn-sm       { padding:5px 10px; font-size:11px; }
+#smsg { font-size:12px; font-weight:600; }
+
+/* ── BOM Preview table ── */
+#bom-section { display:none; }
+.bom-actions { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+thead th { background:var(--forti-table-head); border:1px solid var(--forti-border); padding:7px 11px; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--forti-text-secondary); text-align:left; }
+tbody td { border:1px solid var(--forti-border); padding:7px 11px; vertical-align:top; }
+tbody tr:nth-child(even) td { background:var(--forti-table-stripe); }
+.section-row td { background:#EAECF3 !important; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--forti-text-secondary); padding:5px 11px; border-top:2px solid #C5CAD9; }
+.sku-cell { font-family:'Courier New',monospace; font-size:11px; color:#1A4E82; white-space:nowrap; }
+.nc { color:var(--forti-text-muted); }
+.badge { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:2px; padding:1px 4px; display:inline-block; }
+.badge-req  { background:#FEF0EE; color:#C0392B; border:1px solid #F5C6C2; }
+.badge-opt  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+.badge-mand { background:#FFF8EE; color:#8A5800; border:1px solid #F5D9A0; }
+.badge-inc  { background:#EEF3FF; color:#3557A5; border:1px solid #B8CBF5; }
+
+/* ── Comparison table ── */
+.cmp-table { width:100%; border-collapse:collapse; font-size:12px; }
+.cmp-table th { background:var(--forti-table-head); border:1px solid var(--forti-border); padding:7px 11px; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--forti-text-secondary); text-align:left; }
+.cmp-table td { border:1px solid var(--forti-border); padding:6px 11px; vertical-align:middle; }
+.cmp-table tr:nth-child(even) td { background:var(--forti-table-stripe); }
+.cmp-table .cat-row td { background:#EAECF3; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--forti-text-secondary); padding:4px 11px; border-top:2px solid #C5CAD9; }
+.cmp-table .chk { color:#2E7D32; font-size:14px; text-align:center; }
+.cmp-table .dash { color:var(--forti-text-muted); text-align:center; }
+.cmp-table .avail { font-size:10px; color:var(--forti-text-secondary); text-align:center; font-style:italic; }
+.cmp-table th.plan-hdr-std  { color:#2E7D32; }
+.cmp-table th.plan-hdr-adv  { color:#3557A5; }
+.cmp-table th.plan-hdr-ent  { color:#C0392B; }
+.feat-name { font-size:12px; color:var(--forti-text); }
+
+@media print {
+  .actions, .bom-actions { display:none !important; }
+  #bom-section { display:block !important; }
+  .card, body { background:#fff !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE HEADER
+══════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="hdr-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+      <path d="M12 1a11 11 0 1 0 0 22A11 11 0 0 0 12 1zm0 2a9 9 0 1 1 0 18A9 9 0 0 1 12 3z" opacity=".3"/>
+      <path d="M19.5 12c0 4.14-3.36 7.5-7.5 7.5S4.5 16.14 4.5 12 7.86 4.5 12 4.5s7.5 3.36 7.5 7.5zM12 7l-1.5 4.5H7l3 2.25-1.5 4.5L12 15.75l3.5 2.5L14 13.75l3-2.25h-3.5L12 7z"/>
+    </svg>
+  </div>
+  <div>
+    <div class="hdr-title">FortiAppSec Cloud</div>
+    <div class="hdr-sub">Web &amp; API Security BOM Generator &nbsp;·&nbsp; Ordering Guide UCA-OG-R10-20251204</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PLAN COMPARISON TABLE
+══════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-hdr">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--forti-text-secondary)"><path d="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h12v2H3v-2zm0 4h12v2H3v-2zm0 4h18v2H3v-2z"/></svg>
+    Plan Feature Comparison
+  </div>
+  <div class="card-body" style="padding:0; overflow-x:auto;">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th style="width:38%;">Feature</th>
+          <th class="plan-hdr-std" style="width:20.6%; text-align:center;">Standard</th>
+          <th class="plan-hdr-adv" style="width:20.6%; text-align:center;">Advanced</th>
+          <th class="plan-hdr-ent" style="width:20.6%; text-align:center;">Enterprise</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="cat-row"><td colspan="4">Web Application Protection</td></tr>
+        <tr><td class="feat-name">Signature-based + IP/GEO Threat Intelligence</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Custom Security Rules, HTTP Compliance, Cookie &amp; URL Protection</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">AV for File Uploads</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Sandboxing for File Uploads</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">ML-based Zero Day / Anomaly Detection</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr class="cat-row"><td colspan="4">API Security</td></tr>
+        <tr><td class="feat-name">Schema Enforcement (OpenAPI, XML, JSON)</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">API Gateway, Mobile API Protection, ML-based Discovery &amp; PII</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr class="cat-row"><td colspan="4">Bot Defense &amp; Account Takeover</td></tr>
+        <tr><td class="feat-name">Signature, Threshold, Biometric &amp; Deception Bot Defense</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">ML-based Bot Defense</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Advanced Bot Protection</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Account Takeover (User Tracking, Credential Stuffing)</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr class="cat-row"><td colspan="4">Client Security</td></tr>
+        <tr><td class="feat-name">HTTP Header + CSRF/MiTB Protection</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Automated Client-Side Security (PCI DSS 4.0)</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✔</td></tr>
+        <tr class="cat-row"><td colspan="4">DDoS &amp; Application Delivery</td></tr>
+        <tr><td class="feat-name">Layer 3–4 &amp; Layer 7 DDoS Mitigation</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">CDN (Global &amp; Limited GEO), Load Balancing, SSL</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Origin Server Content Routing, Waiting Room</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr class="cat-row"><td colspan="4">DAST &amp; Threat Analytics</td></tr>
+        <tr><td class="feat-name">Web Vulnerability Scanning (DAST) + API Scanning</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">Threat Analytics AI</td><td class="dash">—</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">FortiAI Assist (Beta)</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr class="cat-row"><td colspan="4">Global Server Load Balancing (GSLB)</td></tr>
+        <tr><td class="feat-name">DNS Load Balancing, DNSSEC, Health Checks</td><td class="avail">Add-on</td><td class="avail">Add-on</td><td class="chk">✔ Included</td></tr>
+        <tr class="cat-row"><td colspan="4">Services</td></tr>
+        <tr><td class="feat-name">24×7 Support</td><td class="chk">✔</td><td class="chk">✔</td><td class="chk">✔</td></tr>
+        <tr><td class="feat-name">SOC-as-a-Service (SOCaaS)</td><td class="avail">Add-on</td><td class="avail">Add-on</td><td class="chk">✔ Included</td></tr>
+        <tr><td class="feat-name">Dedicated WAF Environment</td><td class="avail">Add-on</td><td class="avail">Add-on</td><td class="avail">Add-on</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 1 — PLAN SELECTION
+══════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-hdr">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--forti-text-secondary)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    1 · Plan Selection <span style="color:var(--forti-red);margin-left:3px;">*</span>
+  </div>
+  <div class="card-body">
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <span>You must choose the <strong>same plan</strong> for both Bandwidth and Applications SKUs. Mix-and-match between plans is not permitted.</span>
+    </div>
+    <div class="plan-grid" id="plan-grid">
+      <div class="plan-card" id="plan-std" onclick="selectPlan('standard')">
+        <div class="plan-name">Standard</div>
+        <div class="plan-desc">Core WAF &amp; API security, signature-based protection, DDoS, CDN</div>
+        <span class="plan-badge pb-std">Standard</span>
+      </div>
+      <div class="plan-card" id="plan-adv" onclick="selectPlan('advanced')">
+        <div class="plan-name">Advanced</div>
+        <div class="plan-desc">Adds ML WAF/API, DAST scanning, Threat Analytics, Bot Defense</div>
+        <span class="plan-badge pb-adv">Advanced</span>
+      </div>
+      <div class="plan-card" id="plan-ent" onclick="selectPlan('enterprise')">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-desc">Full platform — adds Client-Side Security, Advanced Bot, GSLB, SOCaaS</div>
+        <span class="plan-badge pb-ent">Enterprise</span>
+      </div>
+    </div>
+    <div id="plan-err" class="err-msg" style="margin-top:6px;">Please select a plan.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 2 — BANDWIDTH
+══════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-hdr">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--forti-text-secondary)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+    2 · Bandwidth
+  </div>
+  <div class="card-body">
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <span>Each bandwidth seat = <strong>25 Mbps</strong>. The first seat (FC1) covers up to 25 Mbps. For more bandwidth, select FC2 (50–99 Mbps) or FC3 (100+ Mbps) and enter the required seat quantity.</span>
+    </div>
+    <div class="grid-2">
+      <div>
+        <label>Required Bandwidth (Mbps) <span class="req">*</span></label>
+        <input type="number" id="f-bw" min="1" placeholder="e.g. 100" oninput="updateBwIndicator()">
+        <div id="bw-err" class="err-msg">Enter required bandwidth in Mbps.</div>
+        <div id="bw-indicator" class="band-indicator"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+        <div class="callout info" style="margin-bottom:0;font-size:11px;">
+          <span>Bandwidth SKUs: FC1 = 1 seat (25 Mbps) · FC2/FC3 = qty × 25 Mbps. The generator calculates seats automatically.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 3 — APPLICATIONS
+══════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-hdr">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--forti-text-secondary)"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+    3 · Web Applications
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div>
+        <label>Number of Applications (Domains) <span class="req">*</span></label>
+        <input type="number" id="f-apps" min="1" placeholder="e.g. 10" oninput="updateAppsIndicator()">
+        <div id="apps-err" class="err-msg">Enter the number of web applications to protect.</div>
+        <div id="apps-indicator" class="band-indicator"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+        <div class="callout info" style="margin-bottom:0;font-size:11px;">
+          <span>Application seat = 1 app/domain. The band (FC1–FC4 for Standard, FC1–FC3 for Advanced/Enterprise) is chosen automatically based on total application count.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 4 — ADD-ONS
+══════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-hdr">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--forti-text-secondary)"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 3a4 4 0 110 8 4 4 0 010-8zm0 10c-4.42 0-8 1.79-8 4v1h16v-1c0-2.21-3.58-4-8-4z"/></svg>
+    4 · Add-ons &amp; Standalone Services
+  </div>
+  <div class="card-body">
+
+    <!-- SOCaaS -->
+    <div class="addon-row" id="addon-socaas-row">
+      <input type="checkbox" id="addon-socaas" onchange="updateAddons()">
+      <div>
+        <div class="addon-label">SOC-as-a-Service (SOCaaS)</div>
+        <div class="addon-sub">24×7 cloud-based managed log monitoring, incident triage &amp; SOC escalation. <strong>Requires Cloud WAF SKUs. Must be purchased for all applications in account.</strong></div>
+        <div class="addon-sku" id="socaas-sku-hint">Band determined by app count (FC1: 1–4 apps · FC2: 5+ apps)</div>
+        <div id="socaas-ent-warn" style="display:none;" class="callout warn" style="margin-top:6px;font-size:11px;">
+          <span class="callout-icon">⚠</span>SOCaaS is <strong>included</strong> in the Enterprise Plan — no separate SKU needed.
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated WAF Environment -->
+    <div class="addon-row" id="addon-dedwaf-row">
+      <input type="checkbox" id="addon-dedwaf" onchange="updateAddons()">
+      <div>
+        <div class="addon-label">Dedicated WAF Environment</div>
+        <div class="addon-sub">Yearly subscription for a dedicated FortiAppSec WAF environment. Available for all plans including Enterprise.</div>
+        <div class="addon-sku">FC1-10-UCAPF-1232-02-DD</div>
+      </div>
+    </div>
+
+    <!-- GSLB -->
+    <div class="addon-row" id="addon-gslb-row">
+      <input type="checkbox" id="addon-gslb" onchange="updateAddons()">
+      <div>
+        <div class="addon-label">Global Server Load Balancing (GSLB) — Standalone</div>
+        <div class="addon-sub">DNS load balancing, DNSSEC, and synthetic health checks. <strong>Does NOT require Cloud WAF SKUs.</strong> Enterprise Plan includes GSLB; add here if purchasing GSLB standalone with Standard/Advanced.</div>
+        <div id="gslb-ent-warn" style="display:none;" class="callout warn" style="margin-top:6px;font-size:11px;">
+          <span class="callout-icon">⚠</span>GSLB is <strong>included</strong> in the Enterprise Plan — these standalone SKUs are only needed if purchased separately without a Cloud WAF subscription.
+        </div>
+        <div id="gslb-inputs" style="display:none; margin-top:8px;">
+          <div class="grid-2">
+            <div>
+              <label>DNS QPS Required</label>
+              <input type="number" id="f-gslb-qps" min="0" value="0" placeholder="0" oninput="updateGslbHint()">
+              <div style="font-size:11px;color:var(--forti-text-muted);margin-top:3px;">Seats = QPS ÷ 100 (rounded up) · SKU: FC1-10-UCAPF-330-02-DD</div>
+            </div>
+            <div>
+              <label>Health Checks Required</label>
+              <input type="number" id="f-gslb-hc" min="0" value="0" placeholder="0" oninput="updateGslbHint()">
+              <div style="font-size:11px;color:var(--forti-text-muted);margin-top:3px;">Seats = Health Checks ÷ 10 (rounded up) · SKU: FC1-10-UCAPF-332-02-DD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ACTION BUTTONS
+══════════════════════════════════════════════════════ -->
+<div class="actions">
+  <button class="btn btn-primary" onclick="generateBOM()">Preview BOM</button>
+  <button class="btn btn-success" onclick="addToProjectBOM()">Add to Project BOM</button>
+  <button class="btn btn-default" onclick="resetForm()">Reset</button>
+  <span id="smsg"></span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     BOM PREVIEW
+══════════════════════════════════════════════════════ -->
+<div id="bom-section" class="card">
+  <div class="card-hdr">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--forti-text-secondary)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+    BOM Preview
+    <span id="bom-label" style="margin-left:10px;font-size:11px;font-weight:400;color:var(--forti-text-secondary);"></span>
+  </div>
+  <div class="card-body">
+    <div class="bom-actions">
+      <button class="btn btn-default btn-sm" onclick="copyTSV()">📋 Copy TSV</button>
+      <button class="btn btn-default btn-sm" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="bom-table">
+        <thead>
+          <tr>
+            <th style="width:22%;">Part Number</th>
+            <th style="width:36%;">Description</th>
+            <th style="width:6%;text-align:center;">Qty</th>
+            <th style="width:10%;">Type</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bom-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA MODEL
+═══════════════════════════════════════════════════════ */
+
+// Bandwidth SKU map: plan → band → { sku, bwPerSeat }
+const BW_SKUS = {
+  standard: {
+    FC1: { sku:'FC1-10-UCAPF-1114-02-DD', desc:'FortiAppSec Cloud WAF, 25 Mbps, Standard Plan (Seat 1). Includes FortiCare Premium.', maxMbps:25 },
+    FC2: { sku:'FC2-10-UCAPF-1114-02-DD', desc:'FortiAppSec Cloud WAF, 50–99 Mbps, Standard Plan (25 Mbps/seat). Includes FortiCare Premium.', maxMbps:99 },
+    FC3: { sku:'FC3-10-UCAPF-1114-02-DD', desc:'FortiAppSec Cloud WAF, 100+ Mbps, Standard Plan (25 Mbps/seat). Includes FortiCare Premium.', minMbps:100 }
+  },
+  advanced: {
+    FC1: { sku:'FC1-10-UCAPF-1115-02-DD', desc:'FortiAppSec Cloud WAF, 25 Mbps, Advanced Plan (Seat 1). Includes FortiCare Premium.', maxMbps:25 },
+    FC2: { sku:'FC2-10-UCAPF-1115-02-DD', desc:'FortiAppSec Cloud WAF, 50–99 Mbps, Advanced Plan (25 Mbps/seat). Includes FortiCare Premium.', maxMbps:99 },
+    FC3: { sku:'FC3-10-UCAPF-1115-02-DD', desc:'FortiAppSec Cloud WAF, 100+ Mbps, Advanced Plan (25 Mbps/seat). Includes FortiCare Premium.', minMbps:100 }
+  },
+  enterprise: {
+    FC1: { sku:'FC1-10-UCAPF-1254-02-DD', desc:'FortiAppSec Cloud WAF, 25 Mbps, Enterprise Plan (Seat 1). Includes FortiCare Premium.', maxMbps:25 },
+    FC2: { sku:'FC2-10-UCAPF-1254-02-DD', desc:'FortiAppSec Cloud WAF, 50–99 Mbps, Enterprise Plan (25 Mbps/seat). Includes FortiCare Premium.', maxMbps:99 },
+    FC3: { sku:'FC3-10-UCAPF-1254-02-DD', desc:'FortiAppSec Cloud WAF, 100+ Mbps, Enterprise Plan (25 Mbps/seat). Includes FortiCare Premium.', minMbps:100 }
+  }
+};
+
+// Application SKU map: plan → band → { sku, minApps, maxApps }
+const APP_SKUS = {
+  standard: [
+    { band:'FC1', sku:'FC1-10-UCAPF-1116-02-DD', desc:'FortiAppSec Cloud WAF, 1–4 Applications, Standard Plan. Includes FortiCare Premium.',   minApps:1,  maxApps:4  },
+    { band:'FC2', sku:'FC2-10-UCAPF-1116-02-DD', desc:'FortiAppSec Cloud WAF, 5–24 Applications, Standard Plan. Includes FortiCare Premium.',  minApps:5,  maxApps:24 },
+    { band:'FC3', sku:'FC3-10-UCAPF-1116-02-DD', desc:'FortiAppSec Cloud WAF, 25–74 Applications, Standard Plan. Includes FortiCare Premium.', minApps:25, maxApps:74 },
+    { band:'FC4', sku:'FC4-10-UCAPF-1116-02-DD', desc:'FortiAppSec Cloud WAF, 74+ Applications, Standard Plan. Includes FortiCare Premium.',   minApps:75, maxApps:Infinity }
+  ],
+  advanced: [
+    { band:'FC1', sku:'FC1-10-UCAPF-1257-02-DD', desc:'FortiAppSec Cloud WAF, 1–4 Applications, Advanced Plan. Includes FortiCare Premium.',  minApps:1,  maxApps:4  },
+    { band:'FC2', sku:'FC2-10-UCAPF-1257-02-DD', desc:'FortiAppSec Cloud WAF, 5–24 Applications, Advanced Plan. Includes FortiCare Premium.', minApps:5,  maxApps:24 },
+    { band:'FC3', sku:'FC3-10-UCAPF-1257-02-DD', desc:'FortiAppSec Cloud WAF, 25+ Applications, Advanced Plan. Includes FortiCare Premium.',  minApps:25, maxApps:Infinity }
+  ],
+  enterprise: [
+    { band:'FC1', sku:'FC1-10-UCAPF-1256-02-DD', desc:'FortiAppSec Cloud WAF, 1–4 Applications, Enterprise Plan. Includes FortiCare Premium.',  minApps:1,  maxApps:4  },
+    { band:'FC2', sku:'FC2-10-UCAPF-1256-02-DD', desc:'FortiAppSec Cloud WAF, 5–24 Applications, Enterprise Plan. Includes FortiCare Premium.', minApps:5,  maxApps:24 },
+    { band:'FC3', sku:'FC3-10-UCAPF-1256-02-DD', desc:'FortiAppSec Cloud WAF, 25+ Applications, Enterprise Plan. Includes FortiCare Premium.',  minApps:25, maxApps:Infinity }
+  ]
+};
+
+// SOCaaS SKU map: band by app count
+const SOCAAS_SKUS = [
+  { band:'FC1', sku:'FC1-10-UCAPF-464-02-DD', desc:'SOCaaS for FortiAppSec Cloud WAF, 1–4 Applications (per application). 24×7 managed log monitoring & incident triage.',   minApps:1, maxApps:4 },
+  { band:'FC2', sku:'FC2-10-UCAPF-464-02-DD', desc:'SOCaaS for FortiAppSec Cloud WAF, 5+ Applications (per application). 24×7 managed log monitoring & incident triage.',    minApps:5, maxApps:Infinity }
+];
+
+const DEDWAF_SKU = { sku:'FC1-10-UCAPF-1232-02-DD', desc:'FortiAppSec Cloud dedicated WAF Environment yearly subscription. FortiCare Premium Support included.' };
+const GSLB_QPS_SKU = { sku:'FC1-10-UCAPF-330-02-DD', desc:'FortiAppSec Cloud GSLB, 100 DNS QPS (queries per second). Includes FortiCare Premium.' };
+const GSLB_HC_SKU  = { sku:'FC1-10-UCAPF-332-02-DD', desc:'FortiAppSec Cloud GSLB, 10 Health Checks (Synthetic Testing). Includes FortiCare Premium.' };
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let _selectedPlan = null;
+let _lastRows = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+/* ═══════════════════════════════════════════════════════
+   PLAN SELECTION
+═══════════════════════════════════════════════════════ */
+function selectPlan(plan) {
+  _selectedPlan = plan;
+  ['standard','advanced','enterprise'].forEach(p => {
+    const el = document.getElementById('plan-' + p.substring(0,3));
+    el.classList.toggle('selected', p === plan);
+  });
+  document.getElementById('plan-err').style.display = 'none';
+  updateAddons();
+  updateBwIndicator();
+  updateAppsIndicator();
+}
+
+/* ═══════════════════════════════════════════════════════
+   BANDWIDTH INDICATOR
+═══════════════════════════════════════════════════════ */
+function updateBwIndicator() {
+  const bw   = parseInt(document.getElementById('f-bw').value) || 0;
+  const ind  = document.getElementById('bw-indicator');
+  if (!bw || !_selectedPlan) { ind.style.display = 'none'; return; }
+
+  const { band, seats, sku } = calcBwBand(bw, _selectedPlan);
+  ind.style.display = 'block';
+  ind.innerHTML = `Band: <strong>${band}</strong> &nbsp;·&nbsp; <strong>${seats}</strong> seat${seats !== 1 ? 's' : ''} &nbsp;·&nbsp; <code style="font-family:'Courier New',monospace;font-size:11px;">${sku}</code>`;
+}
+
+function calcBwBand(mbps, plan) {
+  const planSkus = BW_SKUS[plan];
+  if (mbps <= 25) return { band:'FC1', seats:1, sku:planSkus.FC1.sku };
+  if (mbps <= 99) {
+    const seats = Math.ceil(mbps / 25);
+    return { band:'FC2', seats, sku:planSkus.FC2.sku };
+  }
+  const seats = Math.ceil(mbps / 25);
+  return { band:'FC3', seats, sku:planSkus.FC3.sku };
+}
+
+/* ═══════════════════════════════════════════════════════
+   APPLICATIONS INDICATOR
+═══════════════════════════════════════════════════════ */
+function updateAppsIndicator() {
+  const apps = parseInt(document.getElementById('f-apps').value) || 0;
+  const ind  = document.getElementById('apps-indicator');
+  if (!apps || !_selectedPlan) { ind.style.display = 'none'; return; }
+
+  const tier = getAppTier(apps, _selectedPlan);
+  if (!tier) { ind.style.display = 'none'; return; }
+  const range = tier.maxApps === Infinity
+    ? `${tier.minApps}+`
+    : `${tier.minApps}–${tier.maxApps}`;
+  ind.style.display = 'block';
+  ind.innerHTML = `Band: <strong>${tier.band}</strong> &nbsp;·&nbsp; ${apps} seat${apps !== 1 ? 's' : ''} (${range} apps) &nbsp;·&nbsp; <code style="font-family:'Courier New',monospace;font-size:11px;">${tier.sku}</code>`;
+}
+
+function getAppTier(apps, plan) {
+  const tiers = APP_SKUS[plan] || [];
+  return tiers.find(t => apps >= t.minApps && apps <= t.maxApps) || null;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ADD-ON VISIBILITY
+═══════════════════════════════════════════════════════ */
+function updateAddons() {
+  const plan = _selectedPlan;
+  const isEnt = plan === 'enterprise';
+  const apps  = parseInt(document.getElementById('f-apps').value) || 0;
+
+  // SOCaaS — available for all plans but warn if Enterprise (included)
+  const socRow = document.getElementById('addon-socaas-row');
+  const socChk = document.getElementById('addon-socaas');
+  const socEntWarn = document.getElementById('socaas-ent-warn');
+  if (isEnt) {
+    socRow.classList.add('disabled');
+    socChk.checked = false;
+    socEntWarn.style.display = 'block';
+  } else {
+    socRow.classList.remove('disabled');
+    socEntWarn.style.display = 'none';
+  }
+
+  // GSLB — warn if Enterprise (included), show inputs if checked
+  const gslbRow = document.getElementById('addon-gslb-row');
+  const gslbEntWarn = document.getElementById('gslb-ent-warn');
+  const gslbInputs = document.getElementById('gslb-inputs');
+  const gslbChk = document.getElementById('addon-gslb');
+  if (isEnt) {
+    gslbEntWarn.style.display = 'block';
+  } else {
+    gslbEntWarn.style.display = 'none';
+  }
+  gslbInputs.style.display = gslbChk.checked ? 'block' : 'none';
+}
+
+function updateGslbHint() { /* live feedback handled in indicator */ }
+
+/* ═══════════════════════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════════════════════ */
+function clearMsg() {
+  const s = document.getElementById('smsg');
+  s.textContent = '';
+  s.style.color = '';
+}
+
+function showErr(fieldId, errId) {
+  if (fieldId) {
+    const f = document.getElementById(fieldId);
+    if (f) f.classList.add('invalid');
+  }
+  if (errId) {
+    const e = document.getElementById(errId);
+    if (e) e.style.display = 'block';
+  }
+}
+
+function clearErr(fieldId, errId) {
+  if (fieldId) {
+    const f = document.getElementById(fieldId);
+    if (f) f.classList.remove('invalid');
+  }
+  if (errId) {
+    const e = document.getElementById(errId);
+    if (e) e.style.display = 'none';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GENERATE BOM
+═══════════════════════════════════════════════════════ */
+function generateBOM() {
+  clearMsg();
+  let valid = true;
+
+  // Plan
+  clearErr(null, 'plan-err');
+  if (!_selectedPlan) {
+    showErr(null, 'plan-err');
+    valid = false;
+  }
+
+  // Bandwidth
+  const bwVal = parseInt(document.getElementById('f-bw').value);
+  clearErr('f-bw', 'bw-err');
+  if (!bwVal || bwVal < 1) {
+    showErr('f-bw', 'bw-err');
+    valid = false;
+  }
+
+  // Applications
+  const appsVal = parseInt(document.getElementById('f-apps').value);
+  clearErr('f-apps', 'apps-err');
+  if (!appsVal || appsVal < 1) {
+    showErr('f-apps', 'apps-err');
+    valid = false;
+  }
+
+  if (!valid) return false;
+
+  const plan  = _selectedPlan;
+  const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+  const rows  = [];
+
+  // ── Bandwidth SKU ────────────────────────────────────
+  rows.push({ section: 'Cloud WAF — Bandwidth' });
+  const bwCalc = calcBwBand(bwVal, plan);
+  const bwSku  = BW_SKUS[plan][bwCalc.band];
+  rows.push({
+    sku:  bwSku.sku,
+    desc: bwSku.desc,
+    qty:  bwCalc.seats,
+    kind: 'req',
+    note: `${bwCalc.seats} seat${bwCalc.seats !== 1 ? 's' : ''} × 25 Mbps = ${bwCalc.seats * 25} Mbps provisioned · Band ${bwCalc.band}`
+  });
+
+  // ── Application SKU ──────────────────────────────────
+  rows.push({ section: 'Cloud WAF — Applications' });
+  const appTier = getAppTier(appsVal, plan);
+  rows.push({
+    sku:  appTier.sku,
+    desc: appTier.desc,
+    qty:  appsVal,
+    kind: 'req',
+    note: `${appsVal} seat${appsVal !== 1 ? 's' : ''} (1 per application) · Band ${appTier.band} · Must match ${planLabel} plan`
+  });
+
+  // ── Add-ons ──────────────────────────────────────────
+  const hasSocaas = document.getElementById('addon-socaas').checked && plan !== 'enterprise';
+  const hasDedWaf = document.getElementById('addon-dedwaf').checked;
+  const hasGslb   = document.getElementById('addon-gslb').checked;
+
+  if (hasSocaas || hasDedWaf || hasGslb) {
+    rows.push({ section: 'Add-ons & Standalone Services' });
+  }
+
+  // SOCaaS
+  if (hasSocaas) {
+    const socTier = SOCAAS_SKUS.find(t => appsVal >= t.minApps && appsVal <= t.maxApps);
+    rows.push({
+      sku:  socTier.sku,
+      desc: socTier.desc,
+      qty:  appsVal,
+      kind: 'opt',
+      note: `1 seat per application · Band ${socTier.band} · Must cover ALL applications in account`
+    });
+  }
+
+  // Dedicated WAF Environment
+  if (hasDedWaf) {
+    rows.push({
+      sku:  DEDWAF_SKU.sku,
+      desc: DEDWAF_SKU.desc,
+      qty:  1,
+      kind: 'opt',
+      note: 'Yearly subscription · Available for all plans'
+    });
+  }
+
+  // GSLB
+  if (hasGslb) {
+    const gslbQps = parseInt(document.getElementById('f-gslb-qps').value) || 0;
+    const gslbHc  = parseInt(document.getElementById('f-gslb-hc').value)  || 0;
+    if (gslbQps > 0) {
+      const qpsSeats = Math.ceil(gslbQps / 100);
+      rows.push({
+        sku:  GSLB_QPS_SKU.sku,
+        desc: GSLB_QPS_SKU.desc,
+        qty:  qpsSeats,
+        kind: 'opt',
+        note: `${qpsSeats} seat${qpsSeats !== 1 ? 's' : ''} × 100 QPS = ${qpsSeats * 100} QPS · Standalone — no Cloud WAF required`
+      });
+    }
+    if (gslbHc > 0) {
+      const hcSeats = Math.ceil(gslbHc / 10);
+      rows.push({
+        sku:  GSLB_HC_SKU.sku,
+        desc: GSLB_HC_SKU.desc,
+        qty:  hcSeats,
+        kind: 'opt',
+        note: `${hcSeats} seat${hcSeats !== 1 ? 's' : ''} × 10 Health Checks = ${hcSeats * 10} checks · Standalone — no Cloud WAF required`
+      });
+    }
+    if (gslbQps === 0 && gslbHc === 0) {
+      rows.push({
+        sku: '⚠',
+        desc: 'GSLB selected but no QPS or Health Check quantities entered.',
+        qty: null, kind: 'note', note: 'Enter GSLB QPS and/or Health Check quantities above.'
+      });
+    }
+  }
+
+  // Enterprise note
+  if (plan === 'enterprise') {
+    rows.push({ section: 'Enterprise Plan — Included Services' });
+    rows.push({
+      sku:  '—',
+      desc: 'SOCaaS (24×7 managed log monitoring & incident triage) — included in Enterprise Plan',
+      qty:  null, kind: 'inc',
+      note: 'No separate SKU needed'
+    });
+    rows.push({
+      sku:  '—',
+      desc: 'Global Server Load Balancing (GSLB) — included in Enterprise Plan',
+      qty:  null, kind: 'inc',
+      note: 'No separate SKU needed'
+    });
+  }
+
+  // Mix/match reminder note
+  rows.push({ section: 'Ordering Notes' });
+  rows.push({
+    sku: '⚠',
+    desc: `All Cloud WAF SKUs use ${planLabel} plan — no mix/match between plans is permitted`,
+    qty: null, kind: 'note', note: 'Bandwidth and Application SKUs must be the same plan tier'
+  });
+  rows.push({
+    sku: '⚠',
+    desc: 'These are seat-based (not stackable) SKUs — choose the required seat quantity, do not stack multiple bands',
+    qty: null, kind: 'note', note: 'Use co-term tool to add bandwidth or applications mid-term'
+  });
+
+  // Populate state
+  _lastRows  = rows;
+  _lastLabel = `FortiAppSec Cloud ${planLabel} · ${bwVal} Mbps · ${appsVal} App${appsVal !== 1 ? 's' : ''}`;
+  _lastMeta  = {
+    Plan: planLabel,
+    Bandwidth: `${bwVal} Mbps (${bwCalc.seats} seat${bwCalc.seats !== 1 ? 's' : ''})`,
+    Applications: `${appsVal} app${appsVal !== 1 ? 's' : ''} (${appTier.band})`,
+    SOCaaS: hasSocaas ? 'Yes' : (plan === 'enterprise' ? 'Included' : 'No'),
+    'Dedicated WAF': hasDedWaf ? 'Yes' : 'No',
+    GSLB: hasGslb ? 'Yes (standalone)' : (plan === 'enterprise' ? 'Included' : 'No')
+  };
+
+  renderBOM(rows);
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER BOM
+═══════════════════════════════════════════════════════ */
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-tbody');
+  tbody.innerHTML = '';
+
+  const BADGE = {
+    req:  '<span class="badge badge-req">Required</span>',
+    mand: '<span class="badge badge-mand">Mandatory</span>',
+    opt:  '<span class="badge badge-opt">Optional</span>',
+    inc:  '<span class="badge badge-inc">Included</span>',
+    note: ''
+  };
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${escH(r.section)}</td>`;
+    } else {
+      tr.innerHTML = `
+        <td class="sku-cell">${escH(r.sku)}</td>
+        <td class="nc">${escH(r.desc)}</td>
+        <td style="text-align:center;">${r.qty !== null && r.qty !== undefined ? r.qty : ''}</td>
+        <td>${BADGE[r.kind] || ''}</td>
+        <td class="nc" style="font-size:11px;">${escH(r.note || '')}</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('bom-label').textContent = _lastLabel;
+  const sec = document.getElementById('bom-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ═══════════════════════════════════════════════════════
+   ADD TO PROJECT BOM
+═══════════════════════════════════════════════════════ */
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiAppSec Cloud',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta
+    }, '*');
+  }
+  const s = document.getElementById('smsg');
+  s.textContent = '✓ Added to Project BOM.';
+  s.style.color = '#2E7D32';
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════ */
+function resetForm() {
+  _selectedPlan = null;
+  _lastRows = [];
+  _lastLabel = '';
+  _lastMeta  = {};
+
+  ['plan-std','plan-adv','plan-ent'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  document.getElementById('f-bw').value   = '';
+  document.getElementById('f-apps').value = '';
+  document.getElementById('f-gslb-qps').value = '0';
+  document.getElementById('f-gslb-hc').value  = '0';
+  document.getElementById('addon-socaas').checked = false;
+  document.getElementById('addon-dedwaf').checked = false;
+  document.getElementById('addon-gslb').checked   = false;
+
+  ['bw-indicator','apps-indicator','bom-section'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('gslb-inputs').style.display = 'none';
+  document.getElementById('bom-tbody').innerHTML = '';
+  document.getElementById('bom-label').textContent = '';
+
+  // Clear errors
+  ['f-bw','f-apps'].forEach(id => document.getElementById(id).classList.remove('invalid'));
+  ['bw-err','apps-err','plan-err'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  // Re-evaluate addon states
+  updateAddons();
+
+  const s = document.getElementById('smsg');
+  s.textContent = '';
+  s.style.color = '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   COPY TSV
+═══════════════════════════════════════════════════════ */
+function copyTSV() {
+  if (!_lastRows.length) return;
+  const KIND_LABEL = { req:'Required', mand:'Mandatory', opt:'Optional', inc:'Included', note:'Note' };
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(r => {
+    if (r.section !== undefined) {
+      lines.push(`[${r.section}]\t\t\t\t`);
+    } else {
+      lines.push([r.sku, r.desc, r.qty ?? '', KIND_LABEL[r.kind] || '', r.note || ''].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const s = document.getElementById('smsg');
+    s.textContent = '✓ TSV copied to clipboard.';
+    s.style.color = '#2E7D32';
+    setTimeout(() => { if (s.textContent.includes('TSV')) { s.textContent = ''; } }, 3000);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════════════ */
+function escH(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// Init
+updateAddons();
+</script>
+</body>
+</html>

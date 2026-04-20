@@ -418,6 +418,79 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
   padding: 1px 6px;
   margin-left: 6px;
 }
+
+/* ── Autocomplete Dropdown ── */
+.ac-dropdown {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border: 1px solid var(--forti-input-border);
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  max-height: 260px;
+  overflow-y: auto;
+  display: none;
+  min-width: 300px;
+}
+.ac-item {
+  padding: 7px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--forti-border);
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.ac-item-active { background: var(--forti-info-bg); }
+.ac-item-sku {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1A4E82;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.ac-item-desc {
+  font-size: 11px;
+  color: var(--forti-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Normalize / As-Is toggle ── */
+.norm-toggle {
+  display: none;
+  align-items: center;
+  gap: 3px;
+  margin-top: 5px;
+  flex-wrap: nowrap;
+}
+.norm-toggle-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--forti-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  margin-right: 1px;
+}
+.norm-toggle-btn {
+  padding: 2px 7px;
+  border-radius: 2px;
+  border: 1px solid var(--forti-border);
+  background: white;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--forti-text-muted);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  transition: all .1s;
+}
+.norm-toggle-btn:hover { border-color: #aaa; }
+.norm-toggle-btn.nt-active {
+  background: var(--forti-info-bg);
+  color: var(--forti-info-text);
+  border-color: var(--forti-info-border);
+}
 </style>
 </head>
 <body>
@@ -534,7 +607,7 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
       <button class="btn btn-secondary btn-sm" onclick="window.print()">Print</button>
     </div>
   </div>
-  <div class="card-body" style="padding:0;">
+  <div class="card-body" style="padding:0;overflow-x:auto;-webkit-overflow-scrolling:touch;">
     <table>
       <thead>
         <tr>
@@ -592,6 +665,13 @@ function addSkuRow(data) {
       <input type="text" class="sku-input" id="sku-${id}" placeholder="FG-91G-BDL-809-DD"
              value="${escHtml(data.sku||'')}"
              oninput="this.value=this.value.toUpperCase();clearRowErr(${id})">
+      <div class="norm-toggle" id="norm-toggle-${id}">
+        <span class="norm-toggle-label">Term:</span>
+        <button type="button" class="norm-toggle-btn nt-active" id="norm-btn-dd-${id}"
+                onclick="setRowNormalized(${id}, true)">-DD</button>
+        <button type="button" class="norm-toggle-btn" id="norm-btn-asis-${id}"
+                onclick="setRowNormalized(${id}, false)">As-Is</button>
+      </div>
       <div class="field-err" id="err-sku-${id}">Part number required</div>
     </td>
     <td>
@@ -631,6 +711,8 @@ function addSkuRow(data) {
   tbody.appendChild(tr);
   updateRowNumbers();
   updateRowCountBadge();
+  attachSkuAutocomplete(id);
+  attachDescAutocomplete(id);
 }
 
 function addSectionRow(data) {
@@ -671,7 +753,9 @@ function addSectionRow(data) {
 }
 
 function removeRow(btn) {
-  btn.closest('tr').remove();
+  const tr = btn.closest('tr');
+  _rowPricingItems.delete(parseInt(tr.dataset.rowId, 10));
+  tr.remove();
   updateRowNumbers();
   updateRowCountBadge();
 }
@@ -950,6 +1034,299 @@ function escHtml(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────
+//  Pricing IndexDB (same DB as index.html)
+// ─────────────────────────────────────────────
+let _pricingDb = null;
+let _pricingCache = null;
+let _pricingLoaded = false;
+
+function openPricingDB() {
+  if (_pricingDb) return Promise.resolve(_pricingDb);
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('fabricbom_pricing', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('pricing');
+    req.onsuccess = e => { _pricingDb = e.target.result; resolve(_pricingDb); };
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function getPricingData() {
+  if (_pricingLoaded) return _pricingCache;
+  try {
+    const db = await openPricingDB();
+    const data = await new Promise((resolve, reject) => {
+      const tx = db.transaction('pricing', 'readonly');
+      const req = tx.objectStore('pricing').get('current');
+      req.onsuccess = e => resolve(e.target.result || null);
+      req.onerror = e => reject(e.target.error);
+    });
+    _pricingCache = data;
+    _pricingLoaded = true;
+    return data;
+  } catch(e) {
+    _pricingLoaded = true;
+    _pricingCache = null;
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Autocomplete — singleton dropdown
+// ─────────────────────────────────────────────
+let _acDropdown = null;
+let _acOnSelect = null;
+let _acItems = [];
+let _acIndex = -1;
+
+function getAcDropdown() {
+  if (!_acDropdown) {
+    _acDropdown = document.createElement('div');
+    _acDropdown.className = 'ac-dropdown';
+    _acDropdown.addEventListener('mousedown', e => e.preventDefault());
+    document.body.appendChild(_acDropdown);
+  }
+  return _acDropdown;
+}
+
+function showAcDropdown(inputEl, items, onSelect) {
+  const dd = getAcDropdown();
+  _acOnSelect = onSelect;
+  _acItems = items;
+  _acIndex = -1;
+
+  dd.innerHTML = '';
+  if (!items.length) { hideAcDropdown(); return; }
+
+  items.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'ac-item';
+    const skuDiv = document.createElement('div');
+    skuDiv.className = 'ac-item-sku';
+    skuDiv.textContent = item.sku;
+    const descDiv = document.createElement('div');
+    descDiv.className = 'ac-item-desc';
+    descDiv.textContent = item.desc1;
+    div.appendChild(skuDiv);
+    div.appendChild(descDiv);
+    div.addEventListener('mouseenter', () => setAcActiveIndex(i));
+    div.addEventListener('mousedown', () => {
+      _acOnSelect && _acOnSelect(_acItems[i]);
+      hideAcDropdown();
+    });
+    dd.appendChild(div);
+  });
+
+  const rect = inputEl.getBoundingClientRect();
+  dd.style.display = 'block';
+  dd.style.top  = (rect.bottom + 2) + 'px';
+  dd.style.left = rect.left + 'px';
+  dd.style.width = Math.max(rect.width, 320) + 'px';
+}
+
+function hideAcDropdown() {
+  if (_acDropdown) _acDropdown.style.display = 'none';
+  _acItems = [];
+  _acIndex = -1;
+  _acOnSelect = null;
+}
+
+function setAcActiveIndex(i) {
+  _acIndex = i;
+  if (!_acDropdown) return;
+  _acDropdown.querySelectorAll('.ac-item').forEach((el, idx) => {
+    el.classList.toggle('ac-item-active', idx === i);
+    if (idx === i) el.scrollIntoView({ block: 'nearest' });
+  });
+}
+
+function acKeydown(e) {
+  if (!_acDropdown || _acDropdown.style.display === 'none') return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    setAcActiveIndex(Math.min(_acIndex + 1, _acItems.length - 1));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    setAcActiveIndex(Math.max(_acIndex - 1, 0));
+  } else if (e.key === 'Enter') {
+    if (_acIndex >= 0) {
+      e.preventDefault();
+      _acOnSelect && _acOnSelect(_acItems[_acIndex]);
+    }
+    hideAcDropdown();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    hideAcDropdown();
+  }
+}
+
+document.addEventListener('click', e => {
+  if (_acDropdown && !_acDropdown.contains(e.target)) hideAcDropdown();
+});
+
+// ─────────────────────────────────────────────
+//  Pricing search helpers
+// ─────────────────────────────────────────────
+function rowToAcItem(row) {
+  return {
+    sku:     row.SKU || '',
+    desc1:   row['Description #1'] || '',
+    desc2:   row['Description #2'] || '',
+    product: row.Product || '',
+    item:    row.Item || '',
+  };
+}
+
+async function searchBySku(query) {
+  const data = await getPricingData();
+  if (!data || !data.rows) return [];
+  const q = query.trim().toUpperCase();
+  if (q.length < 2) return [];
+  return data.rows
+    .filter(row => (row.SKU || '').toUpperCase().includes(q))
+    .slice(0, 15)
+    .map(rowToAcItem);
+}
+
+async function searchByDesc(query) {
+  const data = await getPricingData();
+  if (!data || !data.rows) return [];
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(t => t.length > 0);
+  if (!terms.length || terms[0].length < 3) return [];
+  return data.rows
+    .filter(row => {
+      const d = (row['Description #1'] || '').toLowerCase();
+      return terms.every(t => d.includes(t));
+    })
+    .slice(0, 15)
+    .map(rowToAcItem);
+}
+
+async function findExactSku(sku) {
+  const data = await getPricingData();
+  if (!data || !data.rows) return null;
+  const q = sku.trim().toUpperCase();
+  const row = data.rows.find(r => (r.SKU || '').toUpperCase() === q);
+  return row ? rowToAcItem(row) : null;
+}
+
+async function findExactDesc(desc) {
+  const data = await getPricingData();
+  if (!data || !data.rows) return null;
+  const q = desc.trim().toLowerCase();
+  const row = data.rows.find(r => (r['Description #1'] || '').toLowerCase() === q);
+  return row ? rowToAcItem(row) : null;
+}
+
+// ─────────────────────────────────────────────
+//  Normalization helpers
+// ─────────────────────────────────────────────
+function normalizeSkuTerm(sku) {
+  return sku.replace(/-(?:12|24|36|48|60)$/i, '-DD');
+}
+
+function normalizeDesc(desc) {
+  return desc.replace(/\b\d+\s+[Yy]ears?\s+/g, '');
+}
+
+// ─────────────────────────────────────────────
+//  Per-row pricing state  { item, normalized }
+// ─────────────────────────────────────────────
+const _rowPricingItems = new Map();
+
+function fillRowFromPricing(id, item) {
+  _rowPricingItems.set(id, { item, normalized: true });
+  applyPricingToRow(id);
+  _showNormToggle(id);
+  clearRowErr(id);
+}
+
+function applyPricingToRow(id) {
+  const state = _rowPricingItems.get(id);
+  if (!state) return;
+  const { item, normalized } = state;
+
+  const skuEl = document.getElementById(`sku-${id}`);
+  if (skuEl) skuEl.value = normalized
+    ? normalizeSkuTerm(item.sku).toUpperCase()
+    : item.sku.toUpperCase();
+
+  const descEl = document.getElementById(`desc-${id}`);
+  if (descEl) descEl.value = normalized ? normalizeDesc(item.desc1) : item.desc1;
+
+  const notesEl = document.getElementById(`notes-${id}`);
+  if (notesEl) notesEl.value = normalized ? normalizeDesc(item.desc2) : item.desc2;
+}
+
+function setRowNormalized(id, normalized) {
+  const state = _rowPricingItems.get(id);
+  if (!state) return;
+  state.normalized = normalized;
+  applyPricingToRow(id);
+  _updateNormToggle(id, normalized);
+  clearRowErr(id);
+}
+
+function _showNormToggle(id) {
+  const el = document.getElementById(`norm-toggle-${id}`);
+  if (el) el.style.display = 'flex';
+  _updateNormToggle(id, true);
+}
+
+function _updateNormToggle(id, normalized) {
+  document.getElementById(`norm-btn-dd-${id}`)?.classList.toggle('nt-active', normalized);
+  document.getElementById(`norm-btn-asis-${id}`)?.classList.toggle('nt-active', !normalized);
+}
+
+// ─────────────────────────────────────────────
+//  Attach autocomplete to a row's inputs
+// ─────────────────────────────────────────────
+function attachSkuAutocomplete(id) {
+  const inputEl = document.getElementById(`sku-${id}`);
+  if (!inputEl) return;
+
+  inputEl.addEventListener('input', async () => {
+    const q = inputEl.value;
+    if (q.trim().length < 2) { hideAcDropdown(); return; }
+    const matches = await searchBySku(q);
+    showAcDropdown(inputEl, matches, item => fillRowFromPricing(id, item));
+  });
+
+  inputEl.addEventListener('keydown', acKeydown);
+
+  inputEl.addEventListener('blur', async () => {
+    const q = inputEl.value.trim();
+    if (q) {
+      const match = await findExactSku(q);
+      if (match) fillRowFromPricing(id, match);
+    }
+    setTimeout(hideAcDropdown, 150);
+  });
+}
+
+function attachDescAutocomplete(id) {
+  const inputEl = document.getElementById(`desc-${id}`);
+  if (!inputEl) return;
+
+  inputEl.addEventListener('input', async () => {
+    const q = inputEl.value;
+    if (q.trim().length < 3) { hideAcDropdown(); return; }
+    const matches = await searchByDesc(q);
+    showAcDropdown(inputEl, matches, item => fillRowFromPricing(id, item));
+  });
+
+  inputEl.addEventListener('keydown', acKeydown);
+
+  inputEl.addEventListener('blur', async () => {
+    const q = inputEl.value.trim();
+    if (q) {
+      const match = await findExactDesc(q);
+      if (match) fillRowFromPricing(id, match);
+    }
+    setTimeout(hideAcDropdown, 150);
+  });
 }
 
 // ─────────────────────────────────────────────

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiRecon — FortiBOM</title>
+<style>
+:root {
+  --forti-red:    #EE3124;
+  --forti-border: #DDE1E9;
+  --forti-bg:     #F2F4F7;
+  --forti-white:  #FFFFFF;
+  --forti-text:   #2A2F3A;
+  --forti-text-secondary: #6B7589;
+  --forti-text-muted:     #9BA5BA;
+  --forti-section-header: #F7F9FC;
+  --forti-input-border:   #C8CDD9;
+  --forti-table-head:     #EEF1F6;
+  --forti-table-stripe:   #F7F9FC;
+  --forti-info-bg:    #EEF3FF;
+  --forti-info-border:#B8CBF5;
+  --forti-info-text:  #3557A5;
+  --forti-warn-bg:    #FFF8EE;
+  --forti-warn-border:#F5D9A0;
+  --forti-warn-text:  #8A5800;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--forti-text);
+  background: var(--forti-bg);
+  padding: 20px;
+}
+a { color: var(--forti-info-text); }
+
+/* ── Cards ── */
+.card {
+  background: var(--forti-white);
+  border: 1px solid var(--forti-border);
+  border-radius: 4px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-header {
+  background: var(--forti-section-header);
+  border-bottom: 1px solid var(--forti-border);
+  padding: 9px 18px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--forti-text-secondary);
+}
+.card-body { padding: 16px 18px; }
+
+/* ── Page header ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.icon-box {
+  width: 44px; height: 44px;
+  background: var(--forti-red);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.icon-box svg { width: 26px; height: 26px; fill: white; }
+.page-header h1 { font-size: 20px; font-weight: 700; color: var(--forti-text); }
+.page-header p  { font-size: 11px; color: var(--forti-text-muted); margin-top: 2px; }
+
+/* ── Callouts ── */
+.callout { border-radius: 3px; padding: 9px 12px; font-size: 12px; line-height: 1.6; display: flex; gap: 8px; margin-bottom: 12px; }
+.info { background: var(--forti-info-bg); border: 1px solid var(--forti-info-border); color: var(--forti-info-text); }
+.warn { background: var(--forti-warn-bg); border: 1px solid var(--forti-warn-border); color: var(--forti-warn-text); }
+.callout-icon { font-size: 14px; flex-shrink: 0; line-height: 1.6; }
+
+/* ── Form inputs ── */
+label { display: block; font-size: 12px; font-weight: 600; color: var(--forti-text-secondary); margin-bottom: 4px; }
+label .req { color: var(--forti-red); margin-left: 2px; }
+input[type=number], select {
+  background: white;
+  border: 1px solid var(--forti-input-border);
+  border-radius: 3px;
+  padding: 6px 9px;
+  font-size: 13px;
+  width: 100%;
+  color: var(--forti-text);
+  font-family: inherit;
+}
+input[type=number]:focus, select:focus {
+  outline: none;
+  border-color: var(--forti-red);
+  box-shadow: 0 0 0 2px rgba(238,49,36,.1);
+}
+input.invalid, select.invalid {
+  border-color: var(--forti-red);
+  box-shadow: 0 0 0 2px rgba(238,49,36,.15);
+}
+.err { display: none; font-size: 11px; color: var(--forti-red); margin-top: 3px; }
+.field-group { margin-bottom: 14px; }
+
+/* ── Grid ── */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px,100%), 1fr)); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px,100%), 1fr)); gap: 14px; }
+
+/* ── Bundle tier cards ── */
+.tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 560px) { .tier-grid { grid-template-columns: 1fr; } }
+.tier-card {
+  border: 2px solid var(--forti-border);
+  border-radius: 4px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: white;
+  transition: border-color .15s, background .15s;
+}
+.tier-card:hover { border-color: #B8CBF5; background: #F8FAFE; }
+.tier-card.selected { border-color: var(--forti-red); background: #FEF8F8; }
+.tier-card .tc-name { font-weight: 700; font-size: 13px; color: var(--forti-text); }
+.tier-card .tc-code { font-size: 10px; color: var(--forti-text-muted); font-family: 'Courier New', monospace; margin-top: 2px; }
+.tier-card .tc-features { font-size: 11px; color: var(--forti-text-secondary); margin-top: 6px; line-height: 1.5; }
+.tier-card .tc-tag {
+  display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; border-radius: 2px; padding: 1px 5px; margin-top: 6px;
+}
+.tag-easm  { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+.tag-bp    { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+.tag-aci   { background: #FFF8EE; color: #8A5800; border: 1px solid #F5D9A0; }
+
+/* ── Band indicator ── */
+.band-indicator {
+  display: none;
+  background: var(--forti-info-bg);
+  border: 1px solid var(--forti-info-border);
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--forti-info-text);
+  margin-top: 5px;
+}
+.band-indicator code { font-family: 'Courier New', monospace; font-weight: 700; }
+
+/* ── Comparison table ── */
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.cmp-table th {
+  background: var(--forti-table-head);
+  border: 1px solid var(--forti-border);
+  padding: 7px 10px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--forti-text-secondary);
+  text-align: center;
+}
+.cmp-table th.left { text-align: left; }
+.cmp-table td {
+  border: 1px solid var(--forti-border);
+  padding: 6px 10px;
+  vertical-align: top;
+  text-align: center;
+}
+.cmp-table tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
+.cmp-table td.left { text-align: left; }
+.cmp-table td.group { background: #EAECF3 !important; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--forti-text-secondary); }
+.cmp-table .chk { color: #2E7D32; font-size: 14px; }
+.cmp-table .dash { color: var(--forti-text-muted); }
+.cmp-table .note-cell { font-size: 10px; color: var(--forti-text-muted); text-align: left; }
+
+/* ── Add-on sections ── */
+.addon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--forti-border);
+}
+.addon-row:last-child { border-bottom: none; }
+.addon-cb { flex-shrink: 0; margin-top: 2px; width: 15px; height: 15px; cursor: pointer; accent-color: var(--forti-red); }
+.addon-label { flex: 1; }
+.addon-label strong { font-size: 12px; display: block; }
+.addon-label span { font-size: 11px; color: var(--forti-text-muted); }
+.addon-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.addon-qty { width: 72px !important; }
+.req-note { font-size: 10px; color: var(--forti-warn-text); background: var(--forti-warn-bg); border: 1px solid var(--forti-warn-border); border-radius: 2px; padding: 1px 5px; }
+
+/* ── Stack packing display ── */
+.pack-hint { font-size: 11px; color: var(--forti-info-text); margin-top: 4px; display: none; }
+
+/* ── Action buttons ── */
+.actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity .15s;
+}
+.btn:hover { opacity: .85; }
+.btn-primary { background: var(--forti-red); color: white; }
+.btn-green   { background: #2E7D32; color: white; }
+.btn-ghost   { background: white; color: var(--forti-text-secondary); border: 1px solid var(--forti-border); }
+.btn-sm      { padding: 5px 12px; font-size: 11px; }
+#smsg { font-size: 12px; font-weight: 600; }
+
+/* ── BOM preview table ── */
+#bom-section { display: none; }
+.bom-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.bom-table thead th {
+  background: var(--forti-table-head);
+  border: 1px solid var(--forti-border);
+  padding: 7px 11px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--forti-text-secondary);
+  text-align: left;
+}
+.bom-table tbody td { border: 1px solid var(--forti-border); padding: 7px 11px; vertical-align: top; }
+.bom-table tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
+.bom-table .section-row td {
+  background: #EAECF3 !important;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--forti-text-secondary);
+  padding: 5px 11px;
+  border-top: 2px solid #C5CAD9;
+}
+.sku-cell { font-family: 'Courier New', monospace; font-size: 11px; color: #1A4E82; white-space: nowrap; }
+.nc { color: var(--forti-text-muted); }
+.badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-radius: 2px; padding: 1px 4px; display: inline-block; white-space: nowrap; }
+.badge-req  { background: #FEF0EE; color: #C0392B; border: 1px solid #F5C6C2; }
+.badge-opt  { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+.badge-mand { background: #FFF8EE; color: #8A5800; border: 1px solid #F5D9A0; }
+.badge-inc  { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+.bom-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE HEADER
+════════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="icon-box">
+    <!-- target/recon icon -->
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8" fill="none"/>
+      <circle cx="12" cy="12" r="5" stroke="white" stroke-width="1.8" fill="none"/>
+      <circle cx="12" cy="12" r="1.8" fill="white"/>
+      <line x1="12" y1="2" x2="12" y2="5.5" stroke="white" stroke-width="1.8"/>
+      <line x1="12" y1="18.5" x2="12" y2="22" stroke="white" stroke-width="1.8"/>
+      <line x1="2" y1="12" x2="5.5" y2="12" stroke="white" stroke-width="1.8"/>
+      <line x1="18.5" y1="12" x2="22" y2="12" stroke="white" stroke-width="1.8"/>
+    </svg>
+  </div>
+  <div>
+    <h1>FortiRecon</h1>
+    <p>Continuous Threat Exposure Management (CTEM) — BOM Generator · <strong>FRN-OG-R13-20260318</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUCT OVERVIEW / COMPARISON TABLE
+════════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">Solution Bundle Comparison</div>
+  <div class="card-body" style="padding:0; overflow-x:auto;">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th class="left" style="width:220px;">Feature / Component</th>
+          <th>EASM<br><span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;">Code -533</span></th>
+          <th>EASM + BP<br><span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;">Code -534</span></th>
+          <th>EASM + BP + ACI<br><span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;">Code -535</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" class="group left">External Attack Surface Management (EASM)</td></tr>
+        <tr><td class="left">Asset Discovery, Security Issues, Asset Mgmt</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Monthly Asset Identification</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Leaked Credentials, M&amp;A / Subsidiary Risk</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Web Security Assessment <sup>1</sup></td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Continuous Asset Scanning</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td colspan="4" class="group left">Internal Attack Surface Management (IASM) <sup>add-on</sup></td></tr>
+        <tr><td class="left">Asset Discovery &amp; Security Issues (Internal)</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td colspan="4" class="group left">Brand Protection (BP)</td></tr>
+        <tr><td class="left">Domain Threats (Typosquatting, Phishing, Impersonation)</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Data Leakage (Source Code, Cloud Storage)</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Rogue Mobile Application</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Executive Monitoring <sup>2 (default 10)</sup></td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Social Media – Fraudulent Accounts</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Takedowns <sup>3 (default 2)</sup></td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td colspan="4" class="group left">Adversary Centric Intelligence (ACI)</td></tr>
+        <tr><td class="left">Intelligence Gathering (Darknet, OSINT, Technical, Threat Actors)</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Darknet Marketplace Monitoring</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Supply Chain Security (Vulnerability, Ransomware, Vendor Risk <sup>4</sup>)</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td class="left">IoC Reputation Lookup (IP/Domain/Hash/CVE)</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td colspan="4" class="group left">Delivery &amp; Integrations</td></tr>
+        <tr><td class="left">Executive Reporting, Portal 24×7, Open REST API</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Analyst Support, Realtime Alerting</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td class="left">Orchestration (SOAR) — 100 exec/mo default <sup>6</sup></td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr>
+          <td colspan="4" class="note-cell" style="padding:7px 10px;">
+            <sup>1</sup> Surface scan only &nbsp;·&nbsp;
+            <sup>2</sup> Default 10 exec. monitoring; add more with FC1/FC2/FC3-10-RNSVC-755 &nbsp;·&nbsp;
+            <sup>3</sup> Default 2 takedowns; purchase FRN-TKD-5/10/50 for more &nbsp;·&nbsp;
+            <sup>4</sup> Default 25 vendor risk assessments &nbsp;·&nbsp;
+            <sup>6</sup> +2000 exec/mo add-on available
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONFIGURATION — BUNDLE TIER
+════════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">1 · Solution Bundle</div>
+  <div class="card-body">
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <span>Asset tiers are <strong>not stackable</strong>. The SKU licenses up to the selected asset count ceiling. To increase assets after initial order, a co-term upgrade is required. Work with the Fortinet sales specialist to scope the correct asset count.</span>
+    </div>
+    <div class="field-group">
+      <label>Bundle Tier <span class="req">*</span></label>
+      <div class="tier-grid" id="tier-cards">
+        <div class="tier-card" onclick="selectTier('533')" id="tc-533">
+          <div class="tc-name">EASM</div>
+          <div class="tc-code">Service code -533</div>
+          <div class="tc-features">External attack surface management, leaked credentials, M&amp;A/subsidiary risk, web security assessment</div>
+          <span class="tc-tag tag-easm">EASM</span>
+        </div>
+        <div class="tier-card" onclick="selectTier('534')" id="tc-534">
+          <div class="tc-name">EASM + Brand Protect</div>
+          <div class="tc-code">Service code -534</div>
+          <div class="tc-features">EASM + domain threats, data leakage, rogue app, executive monitoring, social media, takedowns</div>
+          <span class="tc-tag tag-easm">EASM</span>
+          <span class="tc-tag tag-bp">BP</span>
+        </div>
+        <div class="tier-card" onclick="selectTier('535')" id="tc-535">
+          <div class="tc-name">EASM + BP + ACI</div>
+          <div class="tc-code">Service code -535</div>
+          <div class="tc-features">Full bundle: EASM + Brand Protection + Adversary Centric Intelligence + continuous asset scanning</div>
+          <span class="tc-tag tag-easm">EASM</span>
+          <span class="tc-tag tag-bp">BP</span>
+          <span class="tc-tag tag-aci">ACI</span>
+        </div>
+      </div>
+      <div class="err" id="err-tier">Please select a solution bundle tier.</div>
+    </div>
+
+    <div class="field-group" style="margin-top:16px;">
+      <label>Monitored Asset Count <span class="req">*</span></label>
+      <input type="number" id="f-assets" min="1" oninput="updateAssetBand()" placeholder="e.g. 1500">
+      <div class="band-indicator" id="band-box">
+        Band: <code id="band-code">FC4</code> · <span id="band-range">up to 2,000 assets</span>
+        &nbsp;·&nbsp; SKU prefix: <code id="band-sku-preview">—</code>
+      </div>
+      <div class="err" id="err-assets">Please enter the number of monitored assets (minimum 1).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADD-ON SERVICES
+════════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">2 · Add-On Services</div>
+  <div class="card-body">
+
+    <!-- IASM -->
+    <div class="addon-row">
+      <input type="checkbox" class="addon-cb" id="ao-iasm" onchange="toggleAddon('iasm')">
+      <div class="addon-label">
+        <strong>Internal Attack Surface Management (IASM)</strong>
+        <span>Deploy IASM Agent (Docker) for internal subnet scanning. FC1 = 1× /24 network; FC2 = 5× /24 networks. Stackable.</span>
+      </div>
+      <div class="addon-controls" id="ctrl-iasm" style="display:none;">
+        <div>
+          <label style="margin-bottom:2px;">Networks (/24)</label>
+          <input type="number" class="addon-qty" id="ao-iasm-qty" min="1" value="1" oninput="updateIasmHint()">
+          <div class="pack-hint" id="hint-iasm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive Monitoring (only relevant for BP / ACI tiers) -->
+    <div class="addon-row" id="row-exec">
+      <input type="checkbox" class="addon-cb" id="ao-exec" onchange="toggleAddon('exec')">
+      <div class="addon-label">
+        <strong>Additional Executive Monitoring</strong>
+        <span>Default 10 executives included with BP/ACI bundles. Add in packs of 5 (FC1), 10 (FC2), or 50 (FC3). Stackable.</span>
+      </div>
+      <div class="addon-controls" id="ctrl-exec" style="display:none;">
+        <div>
+          <label style="margin-bottom:2px;">Additional Executives</label>
+          <input type="number" class="addon-qty" id="ao-exec-qty" min="1" value="5" oninput="updateExecHint()">
+          <div class="pack-hint" id="hint-exec"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Risk Assessment (only relevant for ACI) -->
+    <div class="addon-row" id="row-vendor">
+      <input type="checkbox" class="addon-cb" id="ao-vendor" onchange="toggleAddon('vendor')">
+      <div class="addon-label">
+        <strong>Additional Vendor Monitoring</strong>
+        <span>Default 25 vendor risk assessments included with ACI bundle. Add in packs of 5 (FC1), 10 (FC2), or 50 (FC3). Stackable.</span>
+      </div>
+      <div class="addon-controls" id="ctrl-vendor" style="display:none;">
+        <div>
+          <label style="margin-bottom:2px;">Additional Vendors</label>
+          <input type="number" class="addon-qty" id="ao-vendor-qty" min="1" value="5" oninput="updateVendorHint()">
+          <div class="pack-hint" id="hint-vendor"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Takedowns (only relevant for BP / ACI tiers) -->
+    <div class="addon-row" id="row-tkd">
+      <input type="checkbox" class="addon-cb" id="ao-tkd" onchange="toggleAddon('tkd')">
+      <div class="addon-label">
+        <strong>Takedown Service Credits</strong>
+        <span>Default 2 takedowns included with BP/ACI bundles. Credits purchased as FRN-TKD-5/10/50. Activate within 1 year; credits expire 3 years post-activation. <strong>No term suffix — perpetual credits.</strong></span>
+      </div>
+      <div class="addon-controls" id="ctrl-tkd" style="display:none;">
+        <div>
+          <label style="margin-bottom:2px;">Additional Takedowns</label>
+          <input type="number" class="addon-qty" id="ao-tkd-qty" min="1" value="5" oninput="updateTkdHint()">
+          <div class="pack-hint" id="hint-tkd"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Orchestration -->
+    <div class="addon-row">
+      <input type="checkbox" class="addon-cb" id="ao-so" onchange="toggleAddon('so')">
+      <div class="addon-label">
+        <strong>Security Orchestration — Additional Playbook Executions</strong>
+        <span>Default 100 playbook executions/month included. Each add-on unit adds 2,000 executions/month. Stackable.</span>
+      </div>
+      <div class="addon-controls" id="ctrl-so" style="display:none;">
+        <div>
+          <label style="margin-bottom:2px;">Units (+2,000 exec/mo each)</label>
+          <input type="number" class="addon-qty" id="ao-so-qty" min="1" value="1">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ACTIONS
+════════════════════════════════════════════════════════════ -->
+<div class="actions">
+  <button class="btn btn-primary" onclick="generateBOM()">Preview BOM</button>
+  <button class="btn btn-green"   onclick="addToProjectBOM()">Add to Project BOM</button>
+  <button class="btn btn-ghost"   onclick="resetForm()">Reset</button>
+  <span id="smsg"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOM PREVIEW
+════════════════════════════════════════════════════════════ -->
+<div id="bom-section" class="card">
+  <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+    <span>BOM Preview</span>
+    <div class="bom-actions">
+      <button class="btn btn-ghost btn-sm" onclick="copyTSV()">Copy TSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">Print</button>
+    </div>
+  </div>
+  <div class="card-body" style="padding:0; overflow-x:auto;">
+    <table class="bom-table">
+      <thead>
+        <tr>
+          <th style="width:230px;">Part Number</th>
+          <th>Description</th>
+          <th style="width:50px;text-align:center;">Qty</th>
+          <th style="width:80px;text-align:center;">Type</th>
+          <th style="width:180px;">Notes</th>
+        </tr>
+      </thead>
+      <tbody id="bom-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA MODELS
+═══════════════════════════════════════════════════════════ */
+
+// Solution bundle tiers
+const BUNDLES = {
+  '533': { name: 'FortiRecon EASM',               svcCode: '533' },
+  '534': { name: 'FortiRecon EASM & Brand Protect', svcCode: '534' },
+  '535': { name: 'FortiRecon EASM, BP & ACI',       svcCode: '535' },
+};
+
+// Asset bands — largest first, per ordering guide
+const ASSET_BANDS = [
+  { band: 'FCB', max: 1000000,  label: 'up to 1,000,000 assets' },
+  { band: 'FCA', max:  750000,  label: 'up to 750,000 assets'   },
+  { band: 'FC9', max:  500000,  label: 'up to 500,000 assets'   },
+  { band: 'FC8', max:  250000,  label: 'up to 250,000 assets'   },
+  { band: 'FC7', max:  100000,  label: 'up to 100,000 assets'   },
+  { band: 'FC6', max:   50000,  label: 'up to 50,000 assets'    },
+  { band: 'FC5', max:   10000,  label: 'up to 10,000 assets'    },
+  { band: 'FC4', max:    2000,  label: 'up to 2,000 assets'     },
+  { band: 'FC3', max:    1000,  label: 'up to 1,000 assets'     },
+  { band: 'FC2', max:     500,  label: 'up to 500 assets'       },
+];
+
+// IASM networks — pack: FC1=1×/24, FC2=5×/24
+const IASM_TIERS = [
+  { size: 5, band: 'FC2', sku: 'FC2-10-RNSVC-754-01-DD', desc: 'FortiRecon Internal Attack Surface Monitoring - 5 x /24 Networks' },
+  { size: 1, band: 'FC1', sku: 'FC1-10-RNSVC-754-01-DD', desc: 'FortiRecon Internal Attack Surface Monitoring - 1 x /24 Network'  },
+];
+
+// Executive monitoring — pack: FC1=5, FC2=10, FC3=50
+const EXEC_TIERS = [
+  { size: 50, band: 'FC3', sku: 'FC3-10-RNSVC-755-01-DD', desc: 'FortiRecon Executive Monitoring - Additional 50 Executives (Stackable)' },
+  { size: 10, band: 'FC2', sku: 'FC2-10-RNSVC-755-01-DD', desc: 'FortiRecon Executive Monitoring - Additional 10 Executives (Stackable)' },
+  { size:  5, band: 'FC1', sku: 'FC1-10-RNSVC-755-01-DD', desc: 'FortiRecon Executive Monitoring - Additional 5 Executives (Stackable)'  },
+];
+
+// Vendor monitoring — pack: FC1=5, FC2=10, FC3=50
+const VENDOR_TIERS = [
+  { size: 50, band: 'FC3', sku: 'FC3-10-RNSVC-756-01-DD', desc: 'FortiRecon Vendor Monitoring - Additional 50 Vendors (Stackable)' },
+  { size: 10, band: 'FC2', sku: 'FC2-10-RNSVC-756-01-DD', desc: 'FortiRecon Vendor Monitoring - Additional 10 Vendors (Stackable)' },
+  { size:  5, band: 'FC1', sku: 'FC1-10-RNSVC-756-01-DD', desc: 'FortiRecon Vendor Monitoring - Additional 5 Vendors (Stackable)'  },
+];
+
+// Takedown packs — greedy largest-first; no -DD suffix (perpetual credits)
+const TKD_TIERS = [
+  { size: 50, sku: 'FRN-TKD-50', desc: 'FortiRecon Takedown Service Credits - 50 Takedowns' },
+  { size: 10, sku: 'FRN-TKD-10', desc: 'FortiRecon Takedown Service Credits - 10 Takedowns' },
+  { size:  5, sku: 'FRN-TKD-5',  desc: 'FortiRecon Takedown Service Credits - 5 Takedowns'  },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let _selectedTier = null;
+let _lastRows  = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITY — greedy largest-first packing
+═══════════════════════════════════════════════════════════ */
+function packGreedy(total, tiers) {
+  let remaining = total;
+  const result = [];
+  for (const t of tiers) {
+    const qty = Math.floor(remaining / t.size);
+    if (qty > 0) {
+      result.push({ ...t, qty });
+      remaining -= qty * t.size;
+    }
+  }
+  if (remaining > 0) {
+    const smallest = tiers[tiers.length - 1];
+    const existing = result.find(r => r.sku === smallest.sku);
+    if (existing) existing.qty++;
+    else result.push({ ...smallest, qty: 1 });
+  }
+  return result;
+}
+
+function getAssetBand(count) {
+  for (const b of ASSET_BANDS) {
+    if (count <= b.max) return b;
+  }
+  return null; // above 1M — out of range
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UX — TIER SELECTION
+═══════════════════════════════════════════════════════════ */
+function selectTier(code) {
+  _selectedTier = code;
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('tc-' + code).classList.add('selected');
+  document.getElementById('err-tier').style.display = 'none';
+  // Show/hide BP-specific and ACI-specific add-ons
+  const hasBP  = (code === '534' || code === '535');
+  const hasACI = (code === '535');
+  setAddonRowAvail('row-exec',   hasBP,  'Requires EASM + Brand Protect (or ACI) bundle');
+  setAddonRowAvail('row-tkd',    hasBP,  'Requires EASM + Brand Protect (or ACI) bundle');
+  setAddonRowAvail('row-vendor', hasACI, 'Requires EASM + BP + ACI bundle');
+  clearMsg();
+}
+
+function setAddonRowAvail(rowId, avail, reason) {
+  const row = document.getElementById(rowId);
+  if (avail) {
+    row.style.opacity = '1';
+    row.style.pointerEvents = 'auto';
+  } else {
+    row.style.opacity = '0.4';
+    row.style.pointerEvents = 'none';
+    // uncheck and hide controls
+    const cb = row.querySelector('.addon-cb');
+    if (cb) cb.checked = false;
+    const ctrl = row.querySelector('[id^="ctrl-"]');
+    if (ctrl) ctrl.style.display = 'none';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UX — ASSET BAND INDICATOR
+═══════════════════════════════════════════════════════════ */
+function updateAssetBand() {
+  const val = parseInt(document.getElementById('f-assets').value, 10);
+  const box = document.getElementById('band-box');
+  if (!val || val < 1) { box.style.display = 'none'; return; }
+  if (val > 1000000) {
+    box.style.display = 'block';
+    box.style.background = 'var(--forti-warn-bg)';
+    box.style.borderColor = 'var(--forti-warn-border)';
+    box.style.color = 'var(--forti-warn-text)';
+    document.getElementById('band-code').textContent = '—';
+    document.getElementById('band-range').textContent = 'exceeds maximum 1,000,000 — contact Fortinet sales';
+    document.getElementById('band-sku-preview').textContent = '—';
+    return;
+  }
+  const b = getAssetBand(val);
+  box.style.display = 'block';
+  box.style.background = 'var(--forti-info-bg)';
+  box.style.borderColor = 'var(--forti-info-border)';
+  box.style.color = 'var(--forti-info-text)';
+  document.getElementById('band-code').textContent = b.band;
+  document.getElementById('band-range').textContent = b.label;
+  const code = _selectedTier || '5xx';
+  document.getElementById('band-sku-preview').textContent =
+    b.band + '-10-RNSVC-' + code + '-02-DD';
+  clearMsg();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UX — ADD-ON TOGGLES
+═══════════════════════════════════════════════════════════ */
+function toggleAddon(id) {
+  const cb   = document.getElementById('ao-' + id);
+  const ctrl = document.getElementById('ctrl-' + id);
+  ctrl.style.display = cb.checked ? 'flex' : 'none';
+}
+
+/* Pack hints for add-ons */
+function packHintText(total, tiers, unit) {
+  const packed = packGreedy(total, tiers);
+  if (!packed.length) return '';
+  return 'Packs: ' + packed.map(p => p.qty + '× ' + p.sku.split('-').slice(0,1)[0] + ' (' + (p.size * p.qty) + ' ' + unit + ')').join(' + ');
+}
+
+function updateIasmHint() {
+  const v = parseInt(document.getElementById('ao-iasm-qty').value, 10);
+  if (!v || v < 1) { document.getElementById('hint-iasm').style.display='none'; return; }
+  const packed = packGreedy(v, IASM_TIERS);
+  const text = 'Packs: ' + packed.map(p => p.qty + '× ' + p.band + ' (' + (p.size * p.qty) + ' /24s)').join(' + ');
+  showHint('hint-iasm', text);
+}
+function updateExecHint() {
+  const v = parseInt(document.getElementById('ao-exec-qty').value, 10);
+  if (!v || v < 1) { document.getElementById('hint-exec').style.display='none'; return; }
+  const packed = packGreedy(v, EXEC_TIERS);
+  const text = 'Packs: ' + packed.map(p => p.qty + '× ' + p.band + ' (' + (p.size * p.qty) + ' execs)').join(' + ');
+  showHint('hint-exec', text);
+}
+function updateVendorHint() {
+  const v = parseInt(document.getElementById('ao-vendor-qty').value, 10);
+  if (!v || v < 1) { document.getElementById('hint-vendor').style.display='none'; return; }
+  const packed = packGreedy(v, VENDOR_TIERS);
+  const text = 'Packs: ' + packed.map(p => p.qty + '× ' + p.band + ' (' + (p.size * p.qty) + ' vendors)').join(' + ');
+  showHint('hint-vendor', text);
+}
+function updateTkdHint() {
+  const v = parseInt(document.getElementById('ao-tkd-qty').value, 10);
+  if (!v || v < 1) { document.getElementById('hint-tkd').style.display='none'; return; }
+  const packed = packGreedy(v, TKD_TIERS);
+  const text = 'Packs: ' + packed.map(p => p.qty + '× ' + p.sku + ' (' + (p.size * p.qty) + ' credits)').join(' + ');
+  showHint('hint-tkd', text);
+}
+function showHint(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════════════════════════ */
+function validate(fieldId, errId, condition) {
+  const field = document.getElementById(fieldId);
+  const err   = document.getElementById(errId);
+  if (!condition) {
+    if (field) field.classList.add('invalid');
+    err.style.display = 'block';
+    return false;
+  }
+  if (field) field.classList.remove('invalid');
+  err.style.display = 'none';
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERATE BOM
+═══════════════════════════════════════════════════════════ */
+function generateBOM() {
+  clearMsg();
+
+  // Validate
+  const assetVal = parseInt(document.getElementById('f-assets').value, 10);
+  let ok = true;
+  if (!_selectedTier)           { document.getElementById('err-tier').style.display = 'block';  ok = false; }
+  if (!validate('f-assets', 'err-assets', assetVal && assetVal >= 1)) ok = false;
+  if (assetVal > 1000000)       { document.getElementById('err-assets').textContent = 'Asset count exceeds maximum of 1,000,000. Contact Fortinet sales.'; document.getElementById('err-assets').style.display='block'; ok = false; }
+  if (!ok) return false;
+
+  const bundle  = BUNDLES[_selectedTier];
+  const bandObj = getAssetBand(assetVal);
+  const mainSku = bandObj.band + '-10-RNSVC-' + bundle.svcCode + '-02-DD';
+
+  const rows = [];
+  const hasBP  = (_selectedTier === '534' || _selectedTier === '535');
+  const hasACI = (_selectedTier === '535');
+
+  // ── Solution Bundle ──
+  rows.push({ section: 'Solution Bundle' });
+  rows.push({
+    sku:  mainSku,
+    desc: bundle.name + ' - ' + bandObj.label,
+    qty:  1,
+    kind: 'req',
+    note: 'Asset tier · ' + bandObj.band + ' band'
+  });
+
+  // ── IASM Add-On ──
+  if (document.getElementById('ao-iasm').checked) {
+    rows.push({ section: 'Internal Attack Surface Management (IASM)' });
+    const nets = parseInt(document.getElementById('ao-iasm-qty').value, 10) || 1;
+    const packed = packGreedy(nets, IASM_TIERS);
+    for (const p of packed) {
+      rows.push({ sku: p.sku, desc: p.desc, qty: p.qty, kind: 'opt', note: 'IASM add-on · stackable' });
+    }
+  }
+
+  // ── Executive Monitoring Add-On ──
+  if (hasBP && document.getElementById('ao-exec').checked) {
+    rows.push({ section: 'Executive Monitoring Add-On' });
+    const execs = parseInt(document.getElementById('ao-exec-qty').value, 10) || 5;
+    const packed = packGreedy(execs, EXEC_TIERS);
+    for (const p of packed) {
+      rows.push({ sku: p.sku, desc: p.desc, qty: p.qty, kind: 'opt', note: 'Add-on · stackable' });
+    }
+  }
+
+  // ── Vendor Monitoring Add-On ──
+  if (hasACI && document.getElementById('ao-vendor').checked) {
+    rows.push({ section: 'Vendor Monitoring Add-On' });
+    const vendors = parseInt(document.getElementById('ao-vendor-qty').value, 10) || 5;
+    const packed = packGreedy(vendors, VENDOR_TIERS);
+    for (const p of packed) {
+      rows.push({ sku: p.sku, desc: p.desc, qty: p.qty, kind: 'opt', note: 'Add-on · stackable' });
+    }
+  }
+
+  // ── Takedown Credits ──
+  if (hasBP && document.getElementById('ao-tkd').checked) {
+    rows.push({ section: 'Takedown Service Credits' });
+    const tkds = parseInt(document.getElementById('ao-tkd-qty').value, 10) || 5;
+    const packed = packGreedy(tkds, TKD_TIERS);
+    rows.push({
+      sku: '⚠', desc: 'Takedown credits are perpetual — no term suffix. Activate within 1 year; credits expire 3 years after activation.',
+      qty: null, kind: 'note', note: ''
+    });
+    for (const p of packed) {
+      rows.push({ sku: p.sku, desc: p.desc, qty: p.qty, kind: 'opt', note: 'Perpetual · no -DD suffix' });
+    }
+  }
+
+  // ── Security Orchestration ──
+  if (document.getElementById('ao-so').checked) {
+    rows.push({ section: 'Security Orchestration Add-On' });
+    const soQty = parseInt(document.getElementById('ao-so-qty').value, 10) || 1;
+    rows.push({
+      sku:  'FC1-10-RNSVC-1300-02-DD',
+      desc: 'FortiRecon Security Orchestration - Additional 2,000 playbook executions per month (Stackable)',
+      qty:  soQty,
+      kind: 'opt',
+      note: 'Add-on · ' + (soQty * 2000).toLocaleString() + ' exec/mo · stackable'
+    });
+  }
+
+  // ── Populate state ──
+  _lastRows = rows;
+  _lastLabel = bundle.name + ' · ' + bandObj.label;
+  _lastMeta  = {
+    Bundle:  bundle.name,
+    'Asset Band': bandObj.band,
+    'Asset Ceiling': bandObj.label,
+    'Main SKU': mainSku,
+  };
+
+  renderBOM(rows);
+  document.getElementById('bom-section').style.display = 'block';
+  document.getElementById('bom-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER BOM
+═══════════════════════════════════════════════════════════ */
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-body');
+  tbody.innerHTML = '';
+  let oddEven = 0;
+  for (const r of rows) {
+    const tr = document.createElement('tr');
+    if (r.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = '<td colspan="5">' + esc(r.section) + '</td>';
+    } else {
+      if (oddEven++ % 2 === 1) tr.style.background = 'var(--forti-table-stripe)';
+      const badgeHtml = badgeFor(r.kind);
+      const skuHtml   = r.sku === '⚠'
+        ? '<span style="font-size:14px;">⚠</span>'
+        : '<span class="sku-cell">' + esc(r.sku) + '</span>';
+      tr.innerHTML =
+        '<td>' + skuHtml + '</td>' +
+        '<td class="nc">' + esc(r.desc) + '</td>' +
+        '<td style="text-align:center;">' + (r.qty !== null ? r.qty : '') + '</td>' +
+        '<td style="text-align:center;">' + badgeHtml + '</td>' +
+        '<td class="nc">' + esc(r.note || '') + '</td>';
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+function badgeFor(kind) {
+  if (kind === 'req')  return '<span class="badge badge-req">Required</span>';
+  if (kind === 'opt')  return '<span class="badge badge-opt">Optional</span>';
+  if (kind === 'mand') return '<span class="badge badge-mand">Mandatory</span>';
+  if (kind === 'inc')  return '<span class="badge badge-inc">Included</span>';
+  return '';
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADD TO PROJECT BOM
+═══════════════════════════════════════════════════════════ */
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiRecon',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta
+    }, '*');
+  }
+  const smsg = document.getElementById('smsg');
+  smsg.textContent = '✓ Added to Project BOM.';
+  smsg.style.color = '#2E7D32';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COPY TSV
+═══════════════════════════════════════════════════════════ */
+function copyTSV() {
+  if (!_lastRows.length) return;
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  for (const r of _lastRows) {
+    if (r.section !== undefined) {
+      lines.push('### ' + r.section + '\t\t\t\t');
+    } else {
+      lines.push([r.sku, r.desc, r.qty ?? '', r.kind ?? '', r.note ?? ''].join('\t'));
+    }
+  }
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const smsg = document.getElementById('smsg');
+    smsg.textContent = '✓ TSV copied to clipboard.';
+    smsg.style.color = '#2E7D32';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════ */
+function resetForm() {
+  _selectedTier = null;
+  _lastRows = [];
+  _lastLabel = '';
+  _lastMeta = {};
+
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('f-assets').value = '';
+  document.getElementById('band-box').style.display = 'none';
+  document.getElementById('err-tier').style.display = 'none';
+  document.getElementById('err-assets').style.display = 'none';
+  document.getElementById('f-assets').classList.remove('invalid');
+
+  // Reset add-ons
+  ['iasm','exec','vendor','tkd','so'].forEach(id => {
+    const cb = document.getElementById('ao-' + id);
+    if (cb) { cb.checked = false; }
+    const ctrl = document.getElementById('ctrl-' + id);
+    if (ctrl) ctrl.style.display = 'none';
+  });
+  document.getElementById('ao-iasm-qty').value   = '1';
+  document.getElementById('ao-exec-qty').value   = '5';
+  document.getElementById('ao-vendor-qty').value = '5';
+  document.getElementById('ao-tkd-qty').value    = '5';
+  document.getElementById('ao-so-qty').value     = '1';
+  ['hint-iasm','hint-exec','hint-vendor','hint-tkd'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+  });
+
+  // Reset BP/ACI row availability
+  ['row-exec','row-tkd','row-vendor'].forEach(id => {
+    const row = document.getElementById(id);
+    row.style.opacity = '0.4';
+    row.style.pointerEvents = 'none';
+  });
+
+  document.getElementById('bom-section').style.display = 'none';
+  document.getElementById('bom-body').innerHTML = '';
+  clearMsg();
+}
+
+function clearMsg() {
+  const smsg = document.getElementById('smsg');
+  smsg.textContent = '';
+}
+
+/* ── Initial state: BP/ACI rows greyed until tier selected ── */
+document.addEventListener('DOMContentLoaded', () => {
+  ['row-exec','row-tkd','row-vendor'].forEach(id => {
+    const row = document.getElementById(id);
+    row.style.opacity = '0.4';
+    row.style.pointerEvents = 'none';
+  });
+});
+</script>
+</body>
+</html>

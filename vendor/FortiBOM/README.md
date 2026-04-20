@@ -1,4 +1,4 @@
-# FTNxT-BOMGen
+# FabricBOM - Fortinet BOM Generation Tool
 
 **Cross-product Bill of Materials generator for Fortinet deployments**
 
@@ -6,11 +6,15 @@
 
 ## Overview
 
-FTNxT-BOMGen is a client-side web application that helps Sales Engineers build and export structured Bill of Materials quotes for Fortinet network security deployments. Select from 13+ supported products, configure hardware models, support tiers, and licenses, then combine everything into a single exportable project BOM — no backend server or external dependencies required.
+FabricBOM is a client-side web application that helps Sales Engineers, Partner Engineers, and Customers build and export structured Bill of Materials quotes for Fortinet network security fabric deployments. Select from 15+ supported products, configure hardware models, support tiers, and licenses, then combine everything into a single exportable project BOM — no backend server or external dependencies required.  
+
+Designed to be run offline with no further dependencies.  (Use the option to install web apps on most modern browsers and IOS / Android devices)
+
+Disclaimer: FabricBOM is not an officially sanctioned Fortinet product. Always validate output against the official Fortinet product ordering guides.  All source and reference materials used in the creation of this product are public.
 
 ## Features
 
-- **Multi-product hub** — 13+ Fortinet products organized by category in a sidebar navigation
+- **Multi-product hub** — 15+ Fortinet products organized by category in a sidebar navigation
 - **Per-product configuration** — choose hardware model, quantity, FortiCare support tier, and add-on licenses for each product
 - **Project BOM aggregation** — combine multiple product configurations into one quote with shared customer metadata (name, opportunity ID, SE name, date, project scope)
 - **Global license term selection** — apply co-term, 1-year, 3-year, or 5-year terms to all SKUs at export time
@@ -24,7 +28,7 @@ FTNxT-BOMGen is a client-side web application that helps Sales Engineers build a
 
 | Category | Products |
 |---|---|
-| Network Security | FortiGate, FortiSASE, FortiADC |
+| Network Security | Gate, SASE, FortiADC |
 | Network Access | FortiSwitch, FortiAP |
 | Endpoint Security | FortiClient, FortiSandbox, FortiAI Defend |
 | Access Control | FortiNAC, FortiAuthenticator |
@@ -57,10 +61,10 @@ python3 -m http.server 8080
 
 ## Architecture
 
-FortiBOM is intentionally dependency-free — everything runs in the browser with plain HTML, CSS, and JavaScript.
+FabricBOM is intentionally dependency-free — everything runs in the browser with plain HTML, CSS, and JavaScript.
 
 ```
-FortiBOM/
+FabricBOM/
 ├── index.html          # Main hub shell and project BOM cart
 └── products/           # Self-contained per-product BOM generators
     ├── fortigate-bomgen.html

@@ -1,4 +1,4 @@
-const CACHE_NAME = "fortisku-cache-v20";
+const CACHE_NAME = "fortisku-cache-v21";
 const APP_SHELL = [
   "./",
   "./index.html",

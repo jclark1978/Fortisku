@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FortiCNAPP BOM Generator</title>
+<style>
+  :root {
+    --forti-red:    #EE3124;
+    --forti-border: #DDE1E9;
+    --forti-bg:     #F2F4F7;
+    --forti-white:  #FFFFFF;
+    --forti-text:   #2A2F3A;
+    --forti-text-secondary: #6B7589;
+    --forti-text-muted:     #9BA5BA;
+    --forti-section-header: #F7F9FC;
+    --forti-input-border:   #C8CDD9;
+    --forti-table-head:     #EEF1F6;
+    --forti-table-stripe:   #F7F9FC;
+    --forti-info-bg:    #EEF3FF;
+    --forti-info-border:#B8CBF5;
+    --forti-info-text:  #3557A5;
+    --forti-warn-bg:    #FFF8EE;
+    --forti-warn-border:#F5D9A0;
+    --forti-warn-text:  #8A5800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--forti-text);
+    background: var(--forti-bg);
+    padding: 20px;
+  }
+
+  /* Page header */
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .page-icon {
+    width: 44px; height: 44px;
+    background: var(--forti-red);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .page-icon svg { width: 26px; height: 26px; fill: white; }
+  .page-header h1 { font-size: 20px; font-weight: 700; color: var(--forti-text); }
+  .page-header p  { font-size: 11px; color: var(--forti-text-secondary); margin-top: 2px; }
+
+  /* Cards */
+  .card {
+    background: var(--forti-white);
+    border: 1px solid var(--forti-border);
+    border-radius: 4px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .card-header {
+    background: var(--forti-section-header);
+    border-bottom: 1px solid var(--forti-border);
+    padding: 9px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--forti-text-secondary);
+  }
+  .card-body { padding: 16px 18px; }
+
+  /* Form elements */
+  label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--forti-text); }
+  label .req { color: var(--forti-red); margin-left: 2px; }
+  input[type=number], select {
+    background: white;
+    border: 1px solid var(--forti-input-border);
+    border-radius: 3px;
+    padding: 6px 9px;
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    color: var(--forti-text);
+  }
+  input[type=number]:focus, select:focus {
+    border-color: var(--forti-red);
+    box-shadow: 0 0 0 2px rgba(238,49,36,.1);
+  }
+  input.invalid, select.invalid {
+    border-color: var(--forti-red) !important;
+  }
+  .err { display: none; font-size: 11px; color: var(--forti-red); margin-top: 3px; }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px,100%), 1fr)); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px,100%), 1fr)); gap: 14px; }
+
+  /* Tier cards */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(200px,100%), 1fr));
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .tier-card {
+    border: 2px solid var(--forti-border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    background: white;
+  }
+  .tier-card:hover { border-color: #aab3c8; }
+  .tier-card.selected {
+    border-color: var(--forti-red);
+    background: #FEF8F8;
+  }
+  .tier-card .tier-name { font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+  .tier-card .tier-desc { font-size: 11px; color: var(--forti-text-secondary); }
+  .tier-card .tier-moq  { font-size: 10px; color: var(--forti-text-muted); margin-top: 5px; }
+
+  /* Callout */
+  .callout { border-radius: 3px; padding: 9px 12px; font-size: 12px; line-height: 1.6; display: flex; gap: 8px; margin-bottom: 12px; }
+  .info    { background: var(--forti-info-bg); border: 1px solid var(--forti-info-border); color: var(--forti-info-text); }
+  .warn    { background: var(--forti-warn-bg); border: 1px solid var(--forti-warn-border); color: var(--forti-warn-text); }
+  .callout-icon { flex-shrink: 0; font-size: 14px; line-height: 1.4; }
+
+  /* MOQ indicator */
+  .moq-bar {
+    display: none;
+    background: var(--forti-info-bg);
+    border: 1px solid var(--forti-info-border);
+    border-radius: 3px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--forti-info-text);
+    margin-top: 5px;
+  }
+
+  /* Checkboxes */
+  .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--forti-border);
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-row input[type=checkbox] { margin-top: 2px; flex-shrink: 0; accent-color: var(--forti-red); width: 15px; height: 15px; cursor: pointer; }
+  .check-row input[type=checkbox]:disabled { opacity: 0.4; cursor: not-allowed; }
+  .check-label { flex: 1; }
+  .check-label .cl-title { font-weight: 600; font-size: 12px; }
+  .check-label .cl-desc  { font-size: 11px; color: var(--forti-text-secondary); margin-top: 2px; }
+  .check-qty { width: 90px; flex-shrink: 0; }
+  .check-row.disabled { opacity: 0.4; pointer-events: none; }
+
+  /* PS section */
+  .ps-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--forti-border);
+  }
+  .ps-row:last-child { border-bottom: none; }
+  .ps-row input[type=checkbox] { flex-shrink: 0; accent-color: var(--forti-red); width: 15px; height: 15px; cursor: pointer; }
+  .ps-label { flex: 1; font-size: 12px; }
+  .ps-label strong { display: block; font-weight: 600; }
+  .ps-label span { font-size: 11px; color: var(--forti-text-secondary); }
+  .ps-sku { font-family: 'Courier New', monospace; font-size: 10px; color: #1A4E82; }
+
+  /* Action buttons */
+  .actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .88; }
+  .btn-primary { background: var(--forti-red); color: white; }
+  .btn-green   { background: #2E7D32; color: white; }
+  .btn-ghost   { background: #EEF1F6; color: var(--forti-text); border: 1px solid var(--forti-border); }
+  .btn-small   { padding: 4px 10px; font-size: 11px; }
+  #smsg { font-size: 12px; font-weight: 600; margin-left: 4px; }
+
+  /* BOM preview */
+  #bom-section { display: none; }
+  .bom-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--forti-table-head);
+    border: 1px solid var(--forti-border);
+    padding: 7px 11px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--forti-text-secondary);
+    text-align: left;
+    white-space: nowrap;
+  }
+  tbody td { border: 1px solid var(--forti-border); padding: 7px 11px; vertical-align: top; }
+  tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
+  .section-row td {
+    background: #EAECF3 !important;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--forti-text-secondary);
+    padding: 5px 11px;
+    border-top: 2px solid #C5CAD9;
+  }
+  .badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-radius: 2px; padding: 1px 4px; display: inline-block; white-space: nowrap; }
+  .badge-req  { background: #FEF0EE; color: #C0392B; border: 1px solid #F5C6C2; }
+  .badge-opt  { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+  .badge-mand { background: #FFF8EE; color: #8A5800; border: 1px solid #F5D9A0; }
+  .badge-inc  { background: #EEF3FF; color: #3557A5; border: 1px solid #B8CBF5; }
+  .sku-cell   { font-family: 'Courier New', monospace; font-size: 11px; color: #1A4E82; white-space: nowrap; }
+  .nc         { color: var(--forti-text-muted); }
+  .qty-cell   { text-align: right; white-space: nowrap; }
+
+  /* Feature comparison table */
+  .feat-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 0; }
+  .feat-table th {
+    background: var(--forti-table-head);
+    border: 1px solid var(--forti-border);
+    padding: 6px 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--forti-text-secondary);
+    text-align: center;
+  }
+  .feat-table th:first-child { text-align: left; }
+  .feat-table td {
+    border: 1px solid var(--forti-border);
+    padding: 5px 10px;
+    color: var(--forti-text);
+  }
+  .feat-table tr:nth-child(even) td { background: var(--forti-table-stripe); }
+  .feat-table .cat-row td {
+    background: #EAECF3 !important;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--forti-text-secondary);
+    padding: 4px 10px;
+    border-top: 2px solid #C5CAD9;
+  }
+  .feat-table .chk  { text-align: center; color: #2E7D32; font-size: 14px; }
+  .feat-table .dash { text-align: center; color: var(--forti-text-muted); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ PAGE HEADER ═══════════════════ -->
+<div class="page-header">
+  <div class="page-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" opacity=".3"/>
+      <path d="M12 3.18L5 6.3V11c0 4.52 3.11 8.76 7 9.93 3.89-1.17 7-5.41 7-9.93V6.3L12 3.18z"/>
+    </svg>
+  </div>
+  <div>
+    <h1>FortiCNAPP</h1>
+    <p>Cloud-Native Application Protection Platform · BOM Generator · Ref: FCNAPP-OG-R7-20260107</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ CAPABILITIES OVERVIEW ═══════════════════ -->
+<div class="card">
+  <div class="card-header">Cloud Security — Tier Comparison</div>
+  <div class="card-body" style="padding: 0; overflow-x: auto;">
+    <table class="feat-table">
+      <thead>
+        <tr>
+          <th style="min-width:260px;">Capability</th>
+          <th style="min-width:90px;">Standard</th>
+          <th style="min-width:90px;">Professional</th>
+          <th style="min-width:90px;">Enterprise</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="cat-row"><td colspan="4">Security Posture Management (CSPM &amp; KSPM)</td></tr>
+        <tr><td>Resource discovery &amp; configuration mgmt (custom policies)</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Secrets detection</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Compliance reporting (SOC, ISO, CIS, PCI-DSS, etc.)</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Infrastructure as Code scanning</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr class="cat-row"><td colspan="4">Cloud Vulnerability Assessments</td></tr>
+        <tr><td>Inline, container, and host scanning</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Standard risk-based scoring (CVSS, CVE, exploit data)</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Custom risk-based scoring (active vuln detection &amp; Internet exposure)</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Enforcement for vulnerable images (K8s admission controller)</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr class="cat-row"><td colspan="4">Cloud Infrastructure Entitlement Management (CIEM)</td></tr>
+        <tr><td>Entitlement discovery &amp; scoping for overly permissive identities</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr class="cat-row"><td colspan="4">Attack Path Analysis</td></tr>
+        <tr><td>Top risk dashboard &amp; alerting with Exposure Polygraph</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr class="cat-row"><td colspan="4">Cloud Detection &amp; Response (Audit Log Monitoring)</td></tr>
+        <tr><td>Polygraph behavior-based threat detection for cloud accounts</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr><td>Polygraph behavior-based threat detection for managed K8s services</td><td class="dash">—</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+        <tr class="cat-row"><td colspan="4">Workload Security (VMs, Containers &amp; Kubernetes)</td></tr>
+        <tr><td>Continuous runtime monitoring and snapshots</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td>Polygraph behavior-based threat detection</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td>Threat detection based on signatures and custom policies</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+        <tr><td>File integrity monitoring</td><td class="dash">—</td><td class="dash">—</td><td class="chk">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ CLOUD SECURITY SECTION ═══════════════════ -->
+<div class="card">
+  <div class="card-header">Cloud Security License</div>
+  <div class="card-body">
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <span>FortiCNAPP is licensed per-vCPU. All tiers include FortiCare Premium. Cloud Security and Code Security can each be purchased independently.</span>
+    </div>
+
+    <div class="field">
+      <label>Select Tier <span class="req">*</span></label>
+      <div class="tier-grid" id="tier-grid">
+        <div class="tier-card" id="tier-std" onclick="selectTier('standard')">
+          <div class="tier-name">Standard</div>
+          <div class="tier-desc">CSPM/KSPM, compliance reporting, cloud account threat detection</div>
+          <div class="tier-moq">MOQ: 500 vCPUs · FC1-10-LACWK-1063-02-DD</div>
+        </div>
+        <div class="tier-card" id="tier-pro" onclick="selectTier('professional')">
+          <div class="tier-name">Professional</div>
+          <div class="tier-desc">+ CIEM, attack path analysis, custom risk scoring, K8s admission</div>
+          <div class="tier-moq">MOQ: 375 vCPUs · FC1-10-LACWK-1064-02-DD</div>
+        </div>
+        <div class="tier-card" id="tier-ent" onclick="selectTier('enterprise')">
+          <div class="tier-name">Enterprise</div>
+          <div class="tier-desc">+ Workload security, IaC scanning, full runtime protection</div>
+          <div class="tier-moq">MOQ: 250 vCPUs · FC1-10-LACWK-1065-02-DD</div>
+        </div>
+      </div>
+      <div class="err" id="err-tier">Please select a cloud security tier.</div>
+    </div>
+
+    <div class="field">
+      <label for="f-vcpu">Number of vCPUs <span class="req">*</span></label>
+      <div style="max-width:200px;">
+        <input type="number" id="f-vcpu" min="1" placeholder="e.g. 500" oninput="updateMoqIndicator()">
+      </div>
+      <div class="moq-bar" id="moq-bar">MOQ for selected tier: <strong id="moq-text">500</strong> vCPUs minimum</div>
+      <div class="err" id="err-vcpu">Please enter a valid number of vCPUs.</div>
+      <div class="err" id="err-vcpu-moq" style="display:none;">Quantity is below the minimum order quantity for this tier.</div>
+    </div>
+
+    <div class="field" style="margin-bottom:0;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:400;">
+        <input type="checkbox" id="chk-cloud" checked style="accent-color:var(--forti-red); width:15px; height:15px;">
+        <span>Include Cloud Security in BOM</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CODE SECURITY SECTION ═══════════════════ -->
+<div class="card">
+  <div class="card-header">Code Security License (Optional)</div>
+  <div class="card-body">
+    <div class="callout info" style="margin-bottom:14px;">
+      <span class="callout-icon">ℹ</span>
+      <span>Code Security is licensed per code-contributing developer — anyone who has actively written or submitted code in the past 90 days. <strong>MOQ: 20 developers.</strong> Includes FortiCare Premium and 1 FortiDAST app entitlement per developer.</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+      <input type="checkbox" id="chk-code" onchange="toggleCodeSecurity()" style="accent-color:var(--forti-red); width:15px; height:15px; cursor:pointer; flex-shrink:0;">
+      <label for="chk-code" style="margin:0; cursor:pointer; font-weight:600;">Include Code Security</label>
+    </div>
+
+    <div id="code-sec-fields" style="opacity:0.4; pointer-events:none;">
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-devs">Code-Contributing Developers <span class="req">*</span></label>
+          <input type="number" id="f-devs" min="20" placeholder="min 20" oninput="updateDevMoq()">
+          <div class="moq-bar" id="dev-moq-bar" style="display:block;">MOQ: 20 developers minimum</div>
+          <div class="err" id="err-devs">Please enter a valid number of developers (minimum 20).</div>
+        </div>
+      </div>
+
+      <!-- FortiDAST add-on -->
+      <div style="margin-top:4px;">
+        <div class="check-row">
+          <input type="checkbox" id="chk-dast" onchange="toggleDastAddon()">
+          <div class="check-label">
+            <div class="cl-title">FortiDAST Add-On — Additional App Entitlements</div>
+            <div class="cl-desc">5 additional URI-based app scan entitlements per SKU, stackable. Each developer already receives 1 app entitlement from the Code Security base license. This add-on is for additional apps beyond that.</div>
+          </div>
+          <div class="check-qty" id="dast-qty-wrap" style="opacity:0.4; pointer-events:none;">
+            <label style="font-size:11px; margin-bottom:3px;">Packs of 5 apps</label>
+            <input type="number" id="f-dast-packs" min="1" value="1" placeholder="1">
+            <div class="err" id="err-dast">Enter number of 5-app packs.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PROFESSIONAL SERVICES SECTION ═══════════════════ -->
+<div class="card">
+  <div class="card-header">Professional Services (Optional)</div>
+  <div class="card-body">
+    <div class="callout warn" style="margin-bottom:14px;">
+      <span class="callout-icon">⚠</span>
+      <span>Professional Services SKUs are fixed-term engagements and do not carry a -DD suffix. They will appear in the BOM without term substitution.</span>
+    </div>
+
+    <!-- Deployment Services -->
+    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--forti-text-secondary); margin-bottom:8px;">Deployment Services</div>
+
+    <div class="ps-row">
+      <input type="checkbox" id="ps-qs-std">
+      <div class="ps-label">
+        <strong>FortiCNAPP QuickStart Standard</strong>
+        <span>Quick implementation &amp; onboarding · 2 days · expert architects, workshops, Getting Started Plan</span>
+        <div class="ps-sku">FP-10-QSCNAPP-DP1-00-02</div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <input type="checkbox" id="ps-qs-ent">
+      <div class="ps-label">
+        <strong>FortiCNAPP QuickStart Enterprise</strong>
+        <span>Thorough implementation with high-touch guidance · 5 days · technical deployment plan, compliance burndown reports</span>
+        <div class="ps-sku">FP-10-QSCNAPP-DP3-00-03</div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <input type="checkbox" id="ps-flex">
+      <div class="ps-label">
+        <strong>FortiCNAPP On-Demand Services Flex</strong>
+        <span>Flexible engagement with a designated CNAPP architect · 6 days · tuning, training, custom solutions</span>
+        <div class="ps-sku">FP-10-CNAPP-ODSF</div>
+      </div>
+    </div>
+
+    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--forti-text-secondary); margin: 14px 0 8px;">Cloud Consulting Services</div>
+
+    <div class="ps-row">
+      <input type="checkbox" id="ps-cc-ess">
+      <div class="ps-label">
+        <strong>Cloud Consulting — Essential</strong>
+        <span>Quick onboarding &amp; Security Fabric integration · 3 days</span>
+        <div class="ps-sku">FP-10-PS001-831-01-01</div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <input type="checkbox" id="ps-cc-pref">
+      <div class="ps-label">
+        <strong>Cloud Consulting — Preferred</strong>
+        <span>CI/CD integration, automation scripting, design documentation · 5 days</span>
+        <div class="ps-sku">FP-10-PS001-831-01-01</div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <input type="checkbox" id="ps-cspa">
+      <div class="ps-label">
+        <strong>Cloud Security Posture Assessment (CSPA)</strong>
+        <span>Vendor-agnostic cloud security posture evaluation against best practices · 4 days</span>
+        <div class="ps-sku">FP-10-PS001-831-01-01</div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <input type="checkbox" id="ps-aspa">
+      <div class="ps-label">
+        <strong>Application Security Posture Assessment (ASPA)</strong>
+        <span>Vendor-agnostic application security posture evaluation · 3 days</span>
+        <div class="ps-sku">FP-10-PS001-831-01-01</div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <input type="checkbox" id="ps-ptce">
+      <div class="ps-label">
+        <strong>Part-Time Designated Cloud Engineer</strong>
+        <span>Dedicated engineer for all Fortinet cloud products &amp; best practices · 2 days/week for 1 year</span>
+        <div class="ps-sku">FP2-10-PS001-832-02-12</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ACTIONS ═══════════════════ -->
+<div class="actions">
+  <button class="btn btn-primary" onclick="generateBOM()">Preview BOM</button>
+  <button class="btn btn-green"   onclick="addToProjectBOM()">Add to Project BOM</button>
+  <button class="btn btn-ghost"   onclick="resetForm()">Reset</button>
+  <span id="smsg"></span>
+</div>
+
+<!-- ═══════════════════ BOM PREVIEW ═══════════════════ -->
+<div id="bom-section" class="card">
+  <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <span>BOM Preview</span>
+    <div style="display:flex; gap:6px;">
+      <button class="btn btn-ghost btn-small" onclick="copyTSV()">Copy TSV</button>
+      <button class="btn btn-ghost btn-small" onclick="window.print()">Print</button>
+    </div>
+  </div>
+  <div class="card-body" style="padding:0; overflow-x:auto;">
+    <table id="bom-table">
+      <thead>
+        <tr>
+          <th style="width:190px;">Part Number</th>
+          <th>Description</th>
+          <th style="width:50px; text-align:right;">Qty</th>
+          <th style="width:80px;">Type</th>
+          <th style="width:160px;">Notes</th>
+        </tr>
+      </thead>
+      <tbody id="bom-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let _selectedTier = null;
+let _lastRows  = [];
+let _lastLabel = '';
+let _lastMeta  = {};
+
+// Tier data
+const TIERS = {
+  standard:     { name:'Standard',     sku:'FC1-10-LACWK-1063-02-DD', moq:500, desc:'FortiCNAPP – Standard tier, per-vCPU, incl. FortiCare Premium' },
+  professional: { name:'Professional', sku:'FC1-10-LACWK-1064-02-DD', moq:375, desc:'FortiCNAPP – Professional tier, per-vCPU, incl. FortiCare Premium' },
+  enterprise:   { name:'Enterprise',   sku:'FC1-10-LACWK-1065-02-DD', moq:250, desc:'FortiCNAPP – Enterprise tier, per-vCPU, incl. FortiCare Premium' },
+};
+
+// Prof Services data
+const PS_ITEMS = [
+  { id:'ps-qs-std',  sku:'FP-10-QSCNAPP-DP1-00-02', desc:'FortiCNAPP QuickStart Standard – Quick implementation & onboarding (2 days)',          note:'2-day engagement' },
+  { id:'ps-qs-ent',  sku:'FP-10-QSCNAPP-DP3-00-03', desc:'FortiCNAPP QuickStart Enterprise – Thorough implementation & onboarding (5 days)',       note:'5-day engagement' },
+  { id:'ps-flex',    sku:'FP-10-CNAPP-ODSF',         desc:'FortiCNAPP On-Demand Services Flex – Flexible blocks w/ designated architect (6 days)',  note:'6-day engagement' },
+  { id:'ps-cc-ess',  sku:'FP-10-PS001-831-01-01',    desc:'FortiCNAPP Cloud Consulting Service – Essential (3 days)',                               note:'3-day engagement' },
+  { id:'ps-cc-pref', sku:'FP-10-PS001-831-01-01',    desc:'FortiCNAPP Cloud Consulting Service – Preferred (5 days)',                              note:'5-day engagement' },
+  { id:'ps-cspa',    sku:'FP-10-PS001-831-01-01',    desc:'Cloud Security Posture Assessment (CSPA) (4 days)',                                     note:'4-day engagement' },
+  { id:'ps-aspa',    sku:'FP-10-PS001-831-01-01',    desc:'Application Security Posture Assessment (ASPA) (3 days)',                               note:'3-day engagement' },
+  { id:'ps-ptce',    sku:'FP2-10-PS001-832-02-12',   desc:'Part-Time Designated Cloud Engineer – 2 days/week for 1 year',                         note:'Annual engagement' },
+];
+
+// ── Tier selection ─────────────────────────────────────────────────────────
+function selectTier(t) {
+  _selectedTier = t;
+  ['standard','professional','enterprise'].forEach(id => {
+    document.getElementById('tier-' + id.substring(0,3)).classList.toggle('selected', id === t);
+  });
+  updateMoqIndicator();
+  clearErr('err-tier');
+}
+
+function updateMoqIndicator() {
+  const bar = document.getElementById('moq-bar');
+  const txt = document.getElementById('moq-text');
+  if (_selectedTier) {
+    bar.style.display = 'block';
+    txt.textContent   = TIERS[_selectedTier].moq.toLocaleString();
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+// ── Code Security toggle ───────────────────────────────────────────────────
+function toggleCodeSecurity() {
+  const on = document.getElementById('chk-code').checked;
+  const wrap = document.getElementById('code-sec-fields');
+  wrap.style.opacity = on ? '1' : '0.4';
+  wrap.style.pointerEvents = on ? 'auto' : 'none';
+  if (!on) {
+    document.getElementById('chk-dast').checked = false;
+    toggleDastAddon();
+  }
+}
+
+function toggleDastAddon() {
+  const on = document.getElementById('chk-dast').checked;
+  const wrap = document.getElementById('dast-qty-wrap');
+  wrap.style.opacity = on ? '1' : '0.4';
+  wrap.style.pointerEvents = on ? 'auto' : 'none';
+}
+
+function updateDevMoq() {
+  // Just visual — MOQ note is always visible
+}
+
+// ── Validation helpers ─────────────────────────────────────────────────────
+function showErr(id) { document.getElementById(id).style.display = 'block'; }
+function clearErr(id) { document.getElementById(id).style.display = 'none'; }
+function markInvalid(id)  { const el = document.getElementById(id); if (el) el.classList.add('invalid'); }
+function markValid(id)    { const el = document.getElementById(id); if (el) el.classList.remove('invalid'); }
+
+// ── BOM Generation ─────────────────────────────────────────────────────────
+function generateBOM() {
+  // Clear previous errors
+  ['err-tier','err-vcpu','err-vcpu-moq','err-devs','err-dast'].forEach(clearErr);
+  ['f-vcpu','f-devs','f-dast-packs'].forEach(markValid);
+  document.getElementById('smsg').textContent = '';
+
+  const includeCloud = document.getElementById('chk-cloud').checked;
+  const includeCode  = document.getElementById('chk-code').checked;
+
+  let valid = true;
+  let vcpu = 0, devs = 0, dastPacks = 0;
+
+  // ── Cloud Security validation
+  if (includeCloud) {
+    if (!_selectedTier) {
+      showErr('err-tier');
+      valid = false;
+    }
+    vcpu = parseInt(document.getElementById('f-vcpu').value, 10);
+    if (!vcpu || vcpu < 1) {
+      showErr('err-vcpu');
+      markInvalid('f-vcpu');
+      valid = false;
+    } else if (_selectedTier && vcpu < TIERS[_selectedTier].moq) {
+      showErr('err-vcpu-moq');
+      markInvalid('f-vcpu');
+      valid = false;
+    } else {
+      clearErr('err-vcpu');
+      clearErr('err-vcpu-moq');
+      markValid('f-vcpu');
+    }
+  }
+
+  // ── Code Security validation
+  if (includeCode) {
+    devs = parseInt(document.getElementById('f-devs').value, 10);
+    if (!devs || devs < 20) {
+      showErr('err-devs');
+      markInvalid('f-devs');
+      valid = false;
+    } else {
+      clearErr('err-devs');
+      markValid('f-devs');
+    }
+    if (document.getElementById('chk-dast').checked) {
+      dastPacks = parseInt(document.getElementById('f-dast-packs').value, 10);
+      if (!dastPacks || dastPacks < 1) {
+        showErr('err-dast');
+        markInvalid('f-dast-packs');
+        valid = false;
+      } else {
+        clearErr('err-dast');
+        markValid('f-dast-packs');
+      }
+    }
+  }
+
+  if (!includeCloud && !includeCode) {
+    document.getElementById('smsg').textContent = '⚠ Select at least one license type.';
+    document.getElementById('smsg').style.color = '#8A5800';
+    return false;
+  }
+
+  if (!valid) return false;
+
+  // ── Build rows
+  const rows = [];
+
+  if (includeCloud) {
+    const t = TIERS[_selectedTier];
+    rows.push({ section: 'Cloud Security License' });
+    rows.push({
+      sku:  t.sku,
+      desc: t.desc,
+      qty:  vcpu,
+      kind: 'req',
+      note: 'Per-vCPU · FortiCare Premium incl. · Co-term -DD',
+    });
+    rows.push({
+      sku:  '—',
+      desc: 'FortiCare Premium support is included with this license SKU (no separate FortiCare SKU required)',
+      qty:  null,
+      kind: 'note',
+      note: 'Included in base SKU',
+    });
+  }
+
+  if (includeCode) {
+    rows.push({ section: 'Code Security License' });
+    rows.push({
+      sku:  'FC1-10-LACWK-1306-02-DD',
+      desc: 'FortiCNAPP Code Security – per code-contributing developer, incl. FortiCare Premium + 1 FortiDAST app entitlement/developer',
+      qty:  devs,
+      kind: 'req',
+      note: `MOQ 20 devs · Co-term -DD`,
+    });
+    if (document.getElementById('chk-dast').checked && dastPacks > 0) {
+      rows.push({
+        sku:  'FC1-10-DEVSC-216-02-DD',
+        desc: 'FortiDAST Add-On for FortiCNAPP Code Security – 5 additional URI-based app scan entitlements, stackable',
+        qty:  dastPacks,
+        kind: 'opt',
+        note: `${dastPacks * 5} additional apps · Requires FC1-10-LACWK-1306-02-DD · Co-term -DD`,
+      });
+    }
+  }
+
+  // ── Professional Services
+  const psSelected = PS_ITEMS.filter(p => document.getElementById(p.id).checked);
+  if (psSelected.length > 0) {
+    rows.push({ section: 'Professional Services' });
+    psSelected.forEach(p => {
+      rows.push({
+        sku:  p.sku,
+        desc: p.desc,
+        qty:  1,
+        kind: 'opt',
+        note: p.note + ' · Fixed-term, no -DD',
+      });
+    });
+  }
+
+  // ── Label & Meta
+  const parts = [];
+  if (includeCloud)  parts.push(`${_selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1)} ${vcpu.toLocaleString()} vCPUs`);
+  if (includeCode)   parts.push(`Code Sec ${devs} devs`);
+  if (psSelected.length > 0) parts.push(`${psSelected.length} PS`);
+
+  _lastLabel = 'FortiCNAPP ' + parts.join(' · ');
+  _lastRows  = rows;
+  _lastMeta  = {
+    'Product':    'FortiCNAPP',
+    'Deployment': 'SaaS (AWS / GCP / Azure / Kubernetes)',
+    ...(includeCloud  ? { 'Cloud Tier': TIERS[_selectedTier].name, 'vCPUs': vcpu.toLocaleString() } : {}),
+    ...(includeCode   ? { 'Developers': devs.toString() } : {}),
+    'Ref': 'FCNAPP-OG-R7-20260107',
+  };
+
+  renderBOM(rows);
+  document.getElementById('bom-section').style.display = 'block';
+  document.getElementById('bom-section').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  return true;
+}
+
+// ── Render BOM ─────────────────────────────────────────────────────────────
+function renderBOM(rows) {
+  const tbody = document.getElementById('bom-tbody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.section !== undefined) {
+      tr.className = 'section-row';
+      tr.innerHTML = `<td colspan="5">${escH(r.section)}</td>`;
+    } else {
+      const badgeMap = { req:'badge-req', opt:'badge-opt', mand:'badge-mand', inc:'badge-inc', note:'' };
+      const labelMap = { req:'Required', opt:'Optional', mand:'Mandatory', inc:'Included', note:'' };
+      const badge = r.kind && r.kind !== 'note'
+        ? `<span class="badge ${badgeMap[r.kind]}">${labelMap[r.kind]}</span>`
+        : '';
+      const qtyCell = r.qty != null ? `<td class="qty-cell">${r.qty.toLocaleString()}</td>` : `<td class="qty-cell nc">—</td>`;
+      tr.innerHTML = `
+        <td class="sku-cell">${escH(r.sku)}</td>
+        <td class="nc">${escH(r.desc)}</td>
+        ${qtyCell}
+        <td>${badge}</td>
+        <td class="nc" style="font-size:11px;">${escH(r.note || '')}</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Add to Project BOM ─────────────────────────────────────────────────────
+function addToProjectBOM() {
+  if (!generateBOM()) return;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type:    'FORTIBOM_ADD',
+      product: 'FortiCNAPP',
+      label:   _lastLabel,
+      rows:    _lastRows,
+      meta:    _lastMeta,
+    }, '*');
+  }
+  const smsg = document.getElementById('smsg');
+  smsg.textContent = '✓ Added to Project BOM.';
+  smsg.style.color = '#2E7D32';
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+function resetForm() {
+  _selectedTier = null;
+  _lastRows = []; _lastLabel = ''; _lastMeta = {};
+
+  ['tier-std','tier-pro','tier-ent'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  document.getElementById('f-vcpu').value   = '';
+  document.getElementById('moq-bar').style.display = 'none';
+  document.getElementById('chk-cloud').checked = true;
+
+  document.getElementById('chk-code').checked = false;
+  toggleCodeSecurity();
+  document.getElementById('f-devs').value = '';
+  document.getElementById('chk-dast').checked = false;
+  toggleDastAddon();
+  document.getElementById('f-dast-packs').value = '1';
+
+  PS_ITEMS.forEach(p => { document.getElementById(p.id).checked = false; });
+
+  ['err-tier','err-vcpu','err-vcpu-moq','err-devs','err-dast'].forEach(clearErr);
+  ['f-vcpu','f-devs','f-dast-packs'].forEach(markValid);
+
+  document.getElementById('bom-section').style.display = 'none';
+  document.getElementById('bom-tbody').innerHTML = '';
+  const smsg = document.getElementById('smsg');
+  smsg.textContent = '';
+}
+
+// ── Copy TSV ───────────────────────────────────────────────────────────────
+function copyTSV() {
+  const lines = ['Part Number\tDescription\tQty\tType\tNotes'];
+  _lastRows.forEach(r => {
+    if (r.section !== undefined) {
+      lines.push(`[${r.section}]\t\t\t\t`);
+    } else {
+      lines.push([r.sku, r.desc, r.qty != null ? r.qty : '', r.kind || '', r.note || ''].join('\t'));
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const smsg = document.getElementById('smsg');
+    smsg.textContent = '✓ Copied to clipboard.';
+    smsg.style.color = '#2E7D32';
+  });
+}
+
+// ── Utility ────────────────────────────────────────────────────────────────
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

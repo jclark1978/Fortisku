@@ -153,7 +153,8 @@
   .bom-meta-item .meta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--forti-text-muted); }
   .bom-meta-item .meta-value { font-size: 13px; font-weight: 500; color: var(--forti-text); }
 
-  table.bom-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .bt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table.bom-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 580px; }
   table.bom-table thead th {
     background: var(--forti-table-head); border: 1px solid var(--forti-border);
     padding: 7px 11px; text-align: left; font-weight: 700;
@@ -453,7 +454,7 @@
   </div>
   <div class="card-body">
     <div class="bom-meta" id="bom-meta"></div>
-    <table class="bom-table" id="bom-table">
+    <div class="bt-wrap"><table class="bom-table" id="bom-table">
       <thead>
         <tr>
           <th style="width:195px;">Part Number</th>
@@ -464,7 +465,7 @@
         </tr>
       </thead>
       <tbody id="bom-tbody"></tbody>
-    </table>
+    </table></div>
     <div class="bom-totals" id="bom-totals"></div>
   </div>
 </div>
