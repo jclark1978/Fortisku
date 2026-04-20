@@ -9,11 +9,13 @@ const ICONS = {
   bookOpen: `<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>`,
   eraser: `<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>`,
   flaskConical: `<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>`,
-  wrench: `<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>`,
+  chevDown: `<polyline points="6,9 12,15 18,9"/>`,
+  chevRight: `<polyline points="9,18 15,12 9,6"/>`,
+  chevLeft: `<polyline points="15,18 9,12 15,6"/>`,
 };
 
-function icon(name) {
-  return `<svg aria-hidden="true" class="forti-nav-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+function icon(name, size = 16) {
+  return `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ""}</svg>`;
 }
 
 function categoryKey(category) {
@@ -51,86 +53,137 @@ const TOOLBOX_ITEMS = [
 ];
 
 function normalizeCurrent(current) {
-  if (Array.isArray(current)) {
-    return new Set(current.filter(Boolean));
-  }
+  if (Array.isArray(current)) return new Set(current.filter(Boolean));
   return new Set(current ? [current] : []);
 }
 
 function nodeHasCurrent(node, currentKeys) {
-  if (currentKeys.has(node.key)) {
-    return true;
-  }
+  if (currentKeys.has(node.key)) return true;
   return Array.isArray(node.children) && node.children.some((child) => nodeHasCurrent(child, currentKeys));
 }
 
-function renderNode(node, normalizedBase, currentKeys, depth = 0) {
-  if (node.children?.length) {
-    return renderGroup(node, normalizedBase, currentKeys, depth);
+function findActiveToolLabel(currentKeys) {
+  for (const item of TOOLBOX_ITEMS) {
+    if (nodeHasCurrent(item, currentKeys)) return item.label;
   }
-  return renderLink(node, normalizedBase, currentKeys, depth);
+  return "SE Toolbox";
 }
 
-function renderLink(link, normalizedBase, currentKeys, depth) {
-  const href = link.href ? `${normalizedBase}${link.href}` : normalizedBase;
+// ── RENDER FUNCTIONS ───────────────────────────────────────────────────
+
+function renderTopLink(link, normalizedBase, currentKeys) {
+  const href = link.href !== undefined ? `${normalizedBase}${link.href}` : normalizedBase;
   const currentAttr = currentKeys.has(link.key) ? ' aria-current="page"' : "";
-  const iconHtml = link.icon ? icon(link.icon) : "";
-  return `<a class="forti-nav-link" data-depth="${depth}" href="${href}"${currentAttr}>${iconHtml}<span>${link.label}</span></a>`;
+  return `<a class="forti-nav-link" href="${href}"${currentAttr}>
+    <div class="forti-nav-acc"></div>
+    <span class="forti-nav-icon">${link.icon ? icon(link.icon) : ""}</span>
+    <span class="forti-nav-label">${link.label}</span>
+  </a>`;
 }
 
-function renderGroup(item, normalizedBase, currentKeys, depth) {
-  const isCurrent = item.children.some((link) => nodeHasCurrent(link, currentKeys));
+function renderTopGroup(item, normalizedBase, currentKeys) {
+  const isCurrent = item.children.some((child) => nodeHasCurrent(child, currentKeys));
   const expandedAttr = isCurrent ? "true" : "false";
   const currentAttr = isCurrent ? ' data-current="true"' : "";
+  const chevronClass = `forti-nav-chevron${isCurrent ? " open" : ""}`;
   const children = item.children
-    .map((child) => renderNode(child, normalizedBase, currentKeys, depth + 1))
+    .map((child) => renderSubNode(child, normalizedBase, currentKeys))
     .join("");
 
-  return `
-    <div class="forti-nav-group" data-depth="${depth}"${currentAttr}>
-      <button class="forti-nav-group-trigger" data-depth="${depth}" type="button" aria-expanded="${expandedAttr}">
-        ${item.icon ? icon(item.icon) : ""}<span>${item.label}</span>
-      </button>
-      <div class="forti-nav-group-menu" data-depth="${depth + 1}">
-        ${children}
-      </div>
+  return `<div class="forti-nav-group"${currentAttr}>
+    <button class="forti-nav-group-trigger forti-nav-link" type="button" aria-expanded="${expandedAttr}">
+      <div class="forti-nav-acc"></div>
+      <span class="forti-nav-icon">${item.icon ? icon(item.icon) : ""}</span>
+      <span class="forti-nav-label">${item.label}</span>
+      <span class="${chevronClass}">${icon("chevDown", 12)}</span>
+    </button>
+    <div class="forti-nav-group-menu">
+      ${children}
     </div>
-  `;
+  </div>`;
 }
+
+function renderSubNode(node, normalizedBase, currentKeys) {
+  if (node.children?.length) {
+    return renderCatGroup(node, normalizedBase, currentKeys);
+  }
+  return renderSubLink(node, normalizedBase, currentKeys);
+}
+
+function renderSubLink(link, normalizedBase, currentKeys) {
+  const href = link.href !== undefined ? `${normalizedBase}${link.href}` : normalizedBase;
+  const currentAttr = currentKeys.has(link.key) ? ' aria-current="page"' : "";
+  return `<a class="forti-nav-subitem" href="${href}"${currentAttr}>
+    ${icon("chevRight", 10)}
+    ${link.label}
+  </a>`;
+}
+
+function renderCatGroup(item, normalizedBase, currentKeys) {
+  const products = item.children
+    .map((child) => {
+      const href = child.href !== undefined ? `${normalizedBase}${child.href}` : normalizedBase;
+      const currentAttr = currentKeys.has(child.key) ? ' aria-current="page"' : "";
+      return `<a class="forti-nav-product" href="${href}"${currentAttr}>
+        <span class="forti-nav-dot"></span>
+        ${child.label}
+      </a>`;
+    })
+    .join("");
+
+  return `<div class="forti-nav-cat-group">
+    <div class="forti-nav-cat-label">${item.label}</div>
+    ${products}
+  </div>`;
+}
+
+function renderNode(node, normalizedBase, currentKeys) {
+  if (node.children?.length) return renderTopGroup(node, normalizedBase, currentKeys);
+  return renderTopLink(node, normalizedBase, currentKeys);
+}
+
+// ── SHELL BUILDER ──────────────────────────────────────────────────────
 
 function preferredCollapsed() {
   return window.localStorage.getItem(SHELL_COLLAPSED_KEY) === "true";
 }
 
 function setCollapsed(collapsed) {
-  document.body.classList.toggle("forti-shell-collapsed", collapsed);
+  const sidebar = document.querySelector(".forti-sidebar");
+  if (!sidebar) return;
+  sidebar.classList.toggle("forti-sidebar-rail", collapsed);
   window.localStorage.setItem(SHELL_COLLAPSED_KEY, collapsed ? "true" : "false");
   const toggle = document.getElementById("forti-shell-toggle");
   if (toggle) {
     toggle.setAttribute("aria-expanded", String(!collapsed));
-    toggle.setAttribute("aria-label", collapsed ? "Expand navigation menu" : "Collapse navigation menu");
+    toggle.setAttribute("aria-label", collapsed ? "Expand navigation" : "Collapse navigation");
+    const svgEl = toggle.querySelector("svg");
+    if (svgEl) {
+      svgEl.innerHTML = collapsed ? ICONS.chevRight : ICONS.chevLeft;
+    }
   }
 }
 
 function buildShell(nav) {
   const app = nav.closest(".app");
   const header = app ? Array.from(app.children).find((child) => child.tagName === "HEADER") : null;
-  if (!app || !header) {
-    return;
-  }
+  if (!app || !header) return;
 
   const siblings = Array.from(app.children).filter((child) => child !== header);
-  const themeToggle = header.querySelector("#theme-toggle");
 
   const shell = document.createElement("div");
   shell.className = "forti-shell";
 
+  // ── Sidebar
   const sidebar = document.createElement("aside");
   sidebar.className = "forti-sidebar";
   sidebar.innerHTML = `
     <div class="forti-sidebar-brand">
-      <span class="forti-sidebar-brand-mark" aria-hidden="true"><svg aria-hidden="true" class="forti-nav-icon" style="margin:0;width:18px;height:18px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS.wrench}</svg></span>
-      <span class="forti-sidebar-brand-text">SE Toolbox</span>
+      <div class="forti-brand-mark">FS</div>
+      <div class="forti-brand-text">
+        <span class="forti-brand-name">Fabric SE</span>
+        <span class="forti-brand-sub">SE Toolbox</span>
+      </div>
     </div>
   `;
 
@@ -138,23 +191,32 @@ function buildShell(nav) {
   nav.classList.add("forti-sidebar-nav");
   sidebar.appendChild(nav);
 
+  const sidebarFooter = document.createElement("div");
+  sidebarFooter.className = "forti-sidebar-footer";
+  sidebarFooter.innerHTML = `
+    <button id="forti-shell-toggle" class="forti-collapse-btn" type="button" aria-expanded="true" aria-label="Collapse navigation">
+      ${icon("chevLeft", 14)}
+      <span class="forti-collapse-label">Collapse</span>
+    </button>
+  `;
+  sidebar.appendChild(sidebarFooter);
+
+  // ── Main
   const shellMain = document.createElement("div");
   shellMain.className = "forti-shell-main";
 
   const topbar = document.createElement("div");
   topbar.className = "forti-topbar";
   topbar.innerHTML = `
-    <div class="forti-topbar-left">
-      <button id="forti-shell-toggle" class="forti-topbar-icon forti-topbar-toggle" type="button" aria-expanded="true" aria-label="Collapse navigation menu">
-        <span aria-hidden="true">☰</span>
-      </button>
+    <div class="forti-breadcrumb">
+      <span class="forti-bc-root">Fabric SE</span>
+      <span class="forti-bc-sep">${icon("chevRight", 12)}</span>
+      <span class="forti-bc-current" id="forti-bc-current"></span>
     </div>
-    <div class="forti-topbar-right"></div>
+    <div class="forti-topbar-right" id="forti-topbar-right">
+      <div id="theme-toggle"></div>
+    </div>
   `;
-
-  if (themeToggle) {
-    topbar.querySelector(".forti-topbar-right")?.prepend(themeToggle);
-  }
 
   const page = document.createElement("div");
   page.className = "forti-page";
@@ -172,16 +234,17 @@ function wireShellInteractions() {
   const triggers = document.querySelectorAll(".forti-nav-group-trigger");
 
   toggle?.addEventListener("click", () => {
-    setCollapsed(!document.body.classList.contains("forti-shell-collapsed"));
+    const sidebar = document.querySelector(".forti-sidebar");
+    setCollapsed(!sidebar?.classList.contains("forti-sidebar-rail"));
   });
 
   triggers.forEach((trigger) => {
-    if (!(trigger instanceof HTMLButtonElement)) {
-      return;
-    }
+    if (!(trigger instanceof HTMLButtonElement)) return;
     trigger.addEventListener("click", () => {
       const expanded = trigger.getAttribute("aria-expanded") === "true";
       trigger.setAttribute("aria-expanded", String(!expanded));
+      const chevron = trigger.querySelector(".forti-nav-chevron");
+      if (chevron) chevron.classList.toggle("open", !expanded);
     });
   });
 
@@ -190,9 +253,7 @@ function wireShellInteractions() {
 
 export function initToolboxNav({ current, basePath = "./", navId = "toolbox-nav" }) {
   const nav = document.getElementById(navId);
-  if (!nav) {
-    return;
-  }
+  if (!nav) return;
 
   if (!nav.closest(".forti-shell")) {
     buildShell(nav);
@@ -200,9 +261,15 @@ export function initToolboxNav({ current, basePath = "./", navId = "toolbox-nav"
 
   const normalizedBase = basePath.endsWith("/") ? basePath : `${basePath}/`;
   const currentKeys = normalizeCurrent(current);
+
   nav.innerHTML = TOOLBOX_ITEMS
-    .map((item) => renderNode(item, normalizedBase, currentKeys, 0))
+    .map((item) => renderNode(item, normalizedBase, currentKeys))
     .join("");
+
+  const bcCurrent = document.getElementById("forti-bc-current");
+  if (bcCurrent) {
+    bcCurrent.textContent = findActiveToolLabel(currentKeys);
+  }
 
   wireShellInteractions();
 }

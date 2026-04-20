@@ -14,7 +14,7 @@
       colorMode = "dark";
     }
 
-    if (storedDesignTheme === "soltesz" || storedDesignTheme === "fortigate") {
+    if (storedDesignTheme === "soltesz" || storedDesignTheme === "fortigate" || storedDesignTheme === "forge") {
       designTheme = storedDesignTheme;
     }
   } catch (error) {
