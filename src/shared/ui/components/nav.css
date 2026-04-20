@@ -186,297 +186,536 @@ body.theme-dark .theme-toggle-knob {
   transform: translateX(30px);
 }
 
+/* ── FABRIC SE SHELL ─────────────────────────────────────────────────── */
+
 .forti-shell {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  min-height: 100vh;
-  background: var(--ds-surface);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg-canvas);
 }
 
+/* ── SIDEBAR ─────────────────────────────────────────────────────────── */
+
 .forti-sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
-    var(--ds-surface-container-highest);
-  backdrop-filter: blur(20px);
-  color: var(--ds-on-inverse-surface);
+  width: 240px;
+  min-width: 240px;
+  background: var(--sb);
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  overflow-y: auto;
-  transition: width var(--motion-slow) ease, transform var(--motion-slow) ease;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  transition: width var(--motion-slow) ease, min-width var(--motion-slow) ease;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.forti-sidebar-rail {
+  width: 56px;
+  min-width: 56px;
 }
 
 .forti-sidebar-brand {
+  height: 52px;
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  min-height: 41px;
-  padding: 0 1.15rem;
-  background: rgba(255, 255, 255, 0.04);
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 10px;
+  flex-shrink: 0;
 }
 
-.forti-sidebar-brand-mark {
-  color: #ffffff;
-  font-size: 1rem;
-  display: inline-flex;
+.forti-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--acc);
+  display: flex;
   align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.forti-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.forti-brand-name {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.forti-brand-sub {
+  color: var(--sb-t);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .forti-sidebar-nav {
-  display: grid;
-  gap: 0;
-  padding: 0.5rem 0 1rem;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
 }
+
+.forti-sidebar-nav::-webkit-scrollbar { width: 4px; }
+.forti-sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.forti-sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+
+.forti-sidebar-footer {
+  padding: 8px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.forti-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--sb-t);
+  font-size: 12px;
+  padding: 6px 0;
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: inherit;
+  transition: color var(--motion-fast) ease;
+  text-align: left;
+}
+
+.forti-collapse-btn:hover { color: #fff; }
+
+/* Rail mode — hide labels, center icons */
+.forti-sidebar-rail .forti-brand-text,
+.forti-sidebar-rail .forti-nav-label,
+.forti-sidebar-rail .forti-nav-chevron,
+.forti-sidebar-rail .forti-nav-subitem,
+.forti-sidebar-rail .forti-nav-cat-label,
+.forti-sidebar-rail .forti-nav-cat-group,
+.forti-sidebar-rail .forti-collapse-label {
+  display: none;
+}
+
+.forti-sidebar-rail .forti-sidebar-footer { padding: 8px; }
+.forti-sidebar-rail .forti-collapse-btn { justify-content: center; padding: 6px; }
+.forti-sidebar-rail .forti-sidebar-brand { justify-content: center; padding: 0; }
+.forti-sidebar-rail .forti-nav-link,
+.forti-sidebar-rail .forti-nav-group-trigger { justify-content: center; padding: 0; }
+.forti-sidebar-rail .forti-nav-icon { margin: 0; }
+.forti-sidebar-rail .forti-nav-acc { display: none !important; }
+
+/* ── NAV ITEMS ──────────────────────────────────────────────────────── */
 
 .forti-nav-icon {
   flex-shrink: 0;
-  margin-right: 0.6rem;
+  width: 16px;
+  height: 16px;
+  opacity: 0.75;
+  display: flex;
+  align-items: center;
+}
+
+.forti-nav-acc {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--acc);
+  border-radius: 0 3px 3px 0;
 }
 
 .forti-nav-link,
 .forti-nav-group-trigger {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 14px;
+  height: 36px;
+  cursor: pointer;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease;
+  position: relative;
+  color: var(--sb-t);
+  white-space: nowrap;
   width: 100%;
-  min-height: 24px;
-  padding: 0.55rem 1.15rem;
   border: none;
   background: transparent;
-  color: var(--ds-on-inverse-surface);
-  text-decoration: none;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 13px;
   font-weight: 500;
-  cursor: pointer;
+  text-decoration: none;
   text-align: left;
+  box-shadow: none;
   border-radius: 0;
-  transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease;
 }
 
 .forti-nav-link:hover,
 .forti-nav-group-trigger:hover,
 .forti-nav-link:focus-visible,
 .forti-nav-group-trigger:focus-visible {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--sb-h);
   color: #fff;
   outline: none;
 }
 
 .forti-nav-link[aria-current="page"] {
-  background: linear-gradient(to bottom, var(--ds-primary-container), var(--ds-primary));
-  color: #fff;
+  background: var(--sb-a);
+  color: var(--sb-ta);
 }
 
-.forti-nav-group-trigger::after {
-  content: "";
-  margin-left: auto;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
+.forti-nav-link[aria-current="page"] .forti-nav-acc {
+  display: block;
+}
+
+.forti-nav-link[aria-current="page"] .forti-nav-icon,
+.forti-nav-group[data-current="true"] > .forti-nav-group-trigger .forti-nav-icon {
+  opacity: 1;
+}
+
+.forti-nav-group[data-current="true"] > .forti-nav-group-trigger {
+  color: var(--sb-ta);
+  background: var(--sb-a);
+}
+
+.forti-nav-group[data-current="true"] > .forti-nav-group-trigger .forti-nav-acc {
+  display: block;
+}
+
+.forti-nav-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.forti-nav-chevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
   transition: transform var(--motion-fast) ease;
   opacity: 0.6;
 }
 
-.forti-nav-group-trigger[aria-expanded="true"]::after {
-  transform: rotate(225deg) translate(-1px, -1px);
-}
+.forti-nav-chevron.open { transform: rotate(180deg); }
 
 .forti-nav-group-menu {
-  display: grid;
-  max-height: 0;
   overflow: hidden;
+  max-height: 0;
   transition: max-height var(--motion-base) ease;
-  margin-left: 1.15rem;
 }
 
 .forti-nav-group-trigger[aria-expanded="true"] + .forti-nav-group-menu {
   max-height: 9999px;
 }
 
-.forti-nav-group:not([data-current="true"]) > .forti-nav-group-trigger[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-}
-
-.forti-nav-group[data-current="true"] > .forti-nav-group-trigger {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  box-shadow: inset 0 -2px 0 var(--ds-primary-container);
-}
-
-.forti-nav-group-menu .forti-nav-link {
-  min-height: 36px;
-  padding-left: 1rem;
-  font-size: 0.8125rem;
+.forti-nav-subitem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 38px;
+  height: 30px;
+  cursor: pointer;
+  color: var(--sb-t);
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease;
+  white-space: nowrap;
+  font-size: 12px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.55);
-  justify-content: flex-start;
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
 }
 
-.forti-nav-group-menu .forti-nav-link[aria-current="page"] {
-  background: linear-gradient(to bottom, var(--ds-primary-container), var(--ds-primary));
-  color: #fff;
+.forti-nav-subitem:hover { background: var(--sb-h); color: #fff; }
+.forti-nav-subitem[aria-current="page"] { color: var(--acc2); font-weight: 500; }
+
+.forti-nav-cat-label {
+  padding: 10px 14px 4px 14px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  white-space: nowrap;
 }
+
+.forti-nav-product {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 28px;
+  height: 28px;
+  cursor: pointer;
+  color: var(--sb-t);
+  font-size: 11.5px;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.forti-nav-product:hover { background: var(--sb-h); color: #fff; }
+.forti-nav-product[aria-current="page"] { color: var(--acc2); }
+
+.forti-nav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ── TOPBAR ──────────────────────────────────────────────────────────── */
 
 .forti-shell-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   min-width: 0;
-  display: grid;
-  grid-template-rows: 41px minmax(0, 1fr);
 }
 
 .forti-topbar {
+  height: 52px;
+  background: var(--tb);
+  border-bottom: 1px solid var(--tb-b);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
   position: sticky;
   top: 0;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0 1rem;
-  background: linear-gradient(to bottom, var(--ds-primary-container), var(--ds-primary));
-  color: #fff;
+  transition: background var(--motion-base) ease, border-color var(--motion-base) ease;
 }
 
-.forti-topbar-left,
+.forti-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.forti-bc-root {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.forti-bc-sep {
+  color: var(--color-text-subtle);
+  display: flex;
+  align-items: center;
+}
+
+.forti-bc-current {
+  font-size: 14px;
+  color: var(--color-text-strong);
+  font-weight: 600;
+}
+
 .forti-topbar-right {
   display: flex;
   align-items: center;
-  gap: var(--ui-toolbar-group-gap);
+  gap: 8px;
 }
 
-.forti-topbar-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: inline-flex;
+#theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forti-tb-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--tb-b);
+  flex-shrink: 0;
+}
+
+.forti-topbar-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: all var(--motion-fast) ease;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.forti-topbar-icon-btn:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-strong);
+  box-shadow: none;
+  transform: none;
+}
+
+.forti-topbar-icon-btn.active {
+  background: var(--color-bg-subtle);
+  color: var(--acc);
+}
+
+/* ── PALETTE POPOVER ─────────────────────────────────────────────────── */
+
+.forti-theme-container { position: relative; }
+
+.forti-theme-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border-ghost);
+  border-radius: 8px;
+  padding: 6px;
+  min-width: 164px;
+  box-shadow: var(--shadow-lg);
+}
+
+.forti-theme-pop[hidden] { display: none !important; }
+
+.forti-theme-pop-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  padding: 4px 8px 6px;
+}
+
+.forti-theme-pop-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  color: var(--color-text-strong);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background var(--motion-fast) ease;
   border: none;
   background: transparent;
-  color: #fff;
-  font: inherit;
-  font-size: 1.25rem;
-  cursor: pointer;
-  border-radius: 0;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
 }
 
-.forti-topbar-icon:hover,
-.forti-topbar-icon:focus-visible {
-  background: rgba(255, 255, 255, 0.1);
-  outline: none;
+.forti-theme-pop-item:hover { background: var(--color-bg-subtle); }
+.forti-theme-pop-item.active { color: var(--acc); }
+
+.forti-theme-pop-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
+
+.forti-theme-pop-sep {
+  height: 1px;
+  background: var(--color-border-ghost);
+  margin: 5px 0;
+}
+
+.forti-theme-pop-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease;
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-family: inherit;
+}
+
+.forti-theme-pop-toggle:hover { background: var(--color-bg-subtle); color: var(--color-text-strong); }
+
+.forti-theme-pop-mode {
+  margin-left: auto;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--color-text-subtle);
+  letter-spacing: 0.5px;
+}
+
+/* ── PAGE ────────────────────────────────────────────────────────────── */
 
 .forti-page {
-  min-width: 0;
-  min-height: calc(100vh - 41px);
-  background: var(--ds-surface);
-  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  background: var(--color-bg-canvas);
+  min-height: 0;
 }
 
 .forti-page-header {
   margin: 0;
   padding: 1rem 1.25rem 0.875rem;
-  background: var(--ds-surface);
+  background: var(--color-bg-canvas);
   font-family: var(--font-display);
 }
 
-.forti-page-header .header-row {
-  align-items: flex-start;
-}
+.forti-page-header .header-row { align-items: flex-start; }
 
-.forti-page-header .theme-toggle {
-  display: none;
-}
+/* Hide old theme toggle — new controls live in topbar */
+.forti-page-header .theme-toggle,
+.forti-page-header .appearance-menu,
+.forti-page-header #theme-toggle { display: none; }
 
-.forti-shell-collapsed .forti-shell {
-  grid-template-columns: 0 minmax(0, 1fr);
-}
-
-.forti-shell-collapsed .forti-sidebar {
-  width: 0;
-  overflow: hidden;
-}
-
-body.theme-dark .forti-shell {
-  background: var(--ds-inverse-surface);
-}
-
-body.theme-dark .forti-sidebar {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
-    var(--ds-surface-container-highest);
-}
-
-body.theme-dark .forti-page {
-  background: var(--ds-surface);
-}
-
-body.theme-dark .forti-page-header {
-  background: var(--ds-surface);
-}
-
-body.theme-dark .forti-topbar {
-  background: linear-gradient(to bottom, #ef4437, #990004);
-}
-
-body[data-design-theme="fortigate"] .appearance-menu-heading {
-  letter-spacing: 0.04em;
-}
-
-body[data-design-theme="fortigate"] .appearance-theme-select {
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--ds-outline-variant);
-  background: var(--ds-surface-container-lowest);
-  color: var(--color-text);
-}
-
-body[data-design-theme="fortigate"] .appearance-theme-select:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 1px;
-}
-
-body[data-design-theme="fortigate"] .appearance-mode-toggle .theme-toggle-track {
-  border-radius: var(--radius-sm);
-}
-
-body.theme-dark[data-design-theme="fortigate"] .forti-topbar {
-  background: linear-gradient(to bottom, #245e38, #033d20);
-}
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .forti-shell {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .forti-sidebar {
     position: fixed;
-    inset: 41px auto 0 0;
-    width: min(280px, 85vw);
+    inset: 0 auto 0 0;
     z-index: 60;
+    width: 240px;
+    min-width: 240px;
   }
 
-  .forti-shell-collapsed .forti-sidebar {
+  .forti-sidebar-rail {
     transform: translateX(-100%);
-    width: min(280px, 85vw);
+    width: 240px;
+    min-width: 240px;
+    transition: transform var(--motion-slow) ease;
   }
 
-  .forti-shell-main {
-    grid-column: 1;
-  }
-
-  .forti-page {
-    padding: 0;
-  }
-
-  .forti-page-header {
-    padding: 0.75rem 1rem 0.75rem;
-  }
+  .forti-page { padding: 0; }
+  .forti-page-header { padding: 0.75rem 1rem 0.75rem; }
 }
