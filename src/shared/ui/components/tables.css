@@ -6,42 +6,76 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--text-body-size);
-  border: var(--border-subtle);
-  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size); /* 13px Inter for data entries */
+  /* No outer border — boundaries via background shift */
+  border: none;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
+/* Column headers: surface-dim bg, on-surface-variant text, ALL-CAPS label-sm */
 .ui-table th,
-.ui-table td,
-th,
-td {
-  padding: var(--ui-table-cell-padding-y) var(--ui-table-cell-padding-x);
-  border: var(--border-subtle);
-  vertical-align: top;
-}
-
-.ui-table th,
+.ui-table thead th,
 th {
-  background: var(--color-bg-subtle);
-  color: var(--color-text-muted);
-  font-size: var(--text-label-size);
+  padding: var(--ui-table-cell-padding-y) var(--ui-table-cell-padding-x);
+  background: var(--ds-surface-dim);
+  color: var(--ds-on-surface-variant);
+  font-family: var(--font-sans);
+  font-size: var(--text-label-size); /* 11px */
   line-height: var(--text-label-line);
   font-weight: var(--text-label-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   text-align: left;
+  /* Ghost border only — no solid borders */
+  border: none;
+  border-bottom: 1px solid rgba(190, 201, 199, 0.3); /* outline-variant @ 30% */
 }
 
+/* Data rows: ghost bottom border only (10% opacity per spec) */
+.ui-table td,
+td {
+  padding: var(--ui-table-cell-padding-y) var(--ui-table-cell-padding-x);
+  border: none;
+  border-bottom: 1px solid rgba(190, 201, 199, 0.1); /* outline-variant @ 10% ghost */
+  vertical-align: middle;
+  color: var(--color-text);
+}
+
+/* Hover: surface-container-lowest to "pop" the row */
 .ui-table tbody tr:hover td,
 tbody tr:hover td {
-  background: var(--color-bg-subtle);
+  background: var(--ds-surface-container-lowest);
 }
 
+/* Numeric alignment for data tables */
 .ui-table .is-numeric {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
+/* Summary rows */
 .ui-table .is-summary td {
-  background: var(--color-bg-subtle);
+  background: var(--ds-surface-container-low);
   font-weight: 600;
+}
+
+/* Expand/collapse chevron per spec */
+.ui-table .row-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: var(--ds-on-surface-variant);
+  cursor: pointer;
+  padding: 0;
+  transition: transform var(--motion-fast) ease;
+}
+
+.ui-table .row-expand-btn[aria-expanded="true"] {
+  transform: rotate(90deg);
 }

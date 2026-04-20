@@ -9,10 +9,14 @@
   z-index: 100;
 }
 
+/* Modals: surface-container-highest + 12px backdrop-blur per spec
+   Keeps user grounded in context while foregrounding the interaction */
 .ui-modal,
 .ui-popover {
-  background: var(--color-bg-raised);
-  border: var(--border-subtle);
+  background: var(--ds-surface-container-highest);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: none;
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
 }

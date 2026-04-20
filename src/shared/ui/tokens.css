@@ -3,11 +3,49 @@
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
 
+  --font-display: "Public Sans", system-ui, -apple-system, sans-serif;
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --color-red-600: #4caf50;
-  --color-red-700: #43a047;
+  /* ── DESIGN SYSTEM: Tactical Command Center ── */
+
+  /* Primary brand greens */
+  --ds-primary: #046434;
+  --ds-primary-container: #2b7d4a;
+  --ds-on-primary: #ffffff;
+  --ds-primary-fixed: #c4efcf;
+  --ds-on-primary-fixed-variant: #0a3d20;
+
+  /* Secondary warning color */
+  --ds-tertiary: #8d3a4a;
+  --ds-on-tertiary: #ffffff;
+
+  /* Error / critical */
+  --ds-error-container: #ffdad6;
+  --ds-on-error-container: #690005;
+
+  /* Surface hierarchy (Level 0 → 3) */
+  --ds-surface: #f4fafe;               /* Level 0: main canvas */
+  --ds-surface-container-lowest: #ffffff;  /* Level 3: table rows, inputs */
+  --ds-surface-container-low: #eef5f8; /* Level 2: secondary modules */
+  --ds-surface-container: #e5edf0;
+  --ds-surface-container-high: #dce6e9; /* toolbars */
+  --ds-surface-container-highest: #d0dde2; /* modals / overlays */
+  --ds-surface-dim: #ccd6d4;           /* table header rows */
+
+  /* Sidebar */
+  --ds-inverse-surface: #2a3134;       /* Level 1: sidebar */
+  --ds-on-inverse-surface: rgba(255, 255, 255, 0.88);
+
+  /* On-surface text */
+  --ds-on-surface: #1a1f1e;
+  --ds-on-surface-variant: #3f4948;
+
+  /* Borders */
+  --ds-outline: #6f7978;
+  --ds-outline-variant: #bec9c7;
+
+  /* Neutral scale */
   --color-neutral-0: #ffffff;
   --color-neutral-25: #f8fafb;
   --color-neutral-50: #f2f5f7;
@@ -20,6 +58,7 @@
   --color-neutral-700: #39424e;
   --color-neutral-900: #12161b;
 
+  /* Semantic state colors */
   --color-success-100: #edf9f2;
   --color-success-200: #b8e6c9;
   --color-success-700: #18794e;
@@ -33,20 +72,28 @@
   --color-danger-200: #f5c6c2;
   --color-danger-700: #b42318;
 
-  --color-bg-canvas: var(--color-neutral-75);
-  --color-bg-subtle: var(--color-neutral-50);
-  --color-bg-panel: var(--color-neutral-0);
-  --color-bg-raised: var(--color-neutral-0);
-  --color-text-strong: var(--color-neutral-900);
-  --color-text: var(--color-neutral-700);
-  --color-text-muted: var(--color-neutral-600);
-  --color-text-subtle: var(--color-neutral-500);
-  --color-border-subtle: var(--color-neutral-300);
-  --color-border-strong: var(--color-neutral-500);
-  --color-accent: var(--color-red-600);
-  --color-accent-hover: var(--color-red-700);
-  --color-focus-ring: rgba(76, 175, 80, 0.16);
+  /* Semantic surface aliases (mapped to design system) */
+  --color-bg-canvas: var(--ds-surface);
+  --color-bg-subtle: var(--ds-surface-container-low);
+  --color-bg-panel: var(--ds-surface-container-lowest);
+  --color-bg-raised: var(--ds-surface-container-highest);
 
+  /* Text */
+  --color-text-strong: var(--ds-on-surface);
+  --color-text: var(--color-neutral-700);
+  --color-text-muted: var(--ds-on-surface-variant);
+  --color-text-subtle: var(--color-neutral-500);
+
+  /* Borders — use background shifts, not lines (no 1px solid sectioning) */
+  --color-border-subtle: var(--ds-outline-variant);
+  --color-border-strong: var(--ds-outline);
+
+  /* Primary accent */
+  --color-accent: var(--ds-primary);
+  --color-accent-hover: var(--ds-primary-container);
+  --color-focus-ring: rgba(4, 100, 52, 0.14);
+
+  /* State colors */
   --state-success-bg: var(--color-success-100);
   --state-success-border: var(--color-success-200);
   --state-success-text: var(--color-success-700);
@@ -60,6 +107,7 @@
   --state-danger-border: var(--color-danger-200);
   --state-danger-text: var(--color-danger-700);
 
+  /* Spacing — tight, density-first */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -70,21 +118,27 @@
   --space-10: 2.5rem;
   --space-12: 3rem;
 
-  --radius-control: 10px;
-  --radius-panel: 16px;
+  /* Radius — sm for functional containers, full for pills only */
+  --radius-sm: 2px;
+  --radius-control: 2px;
+  --radius-panel: 4px;
   --radius-pill: 999px;
 
+  /* Borders */
   --border-width: 1px;
   --border-subtle: 1px solid var(--color-border-subtle);
 
-  --shadow-sm: 0 1px 4px rgba(15, 23, 42, 0.14);
-  --shadow-md: 0 18px 38px rgba(15, 23, 42, 0.18);
-  --shadow-lg: 0 24px 56px rgba(15, 23, 42, 0.24);
+  /* Shadows — none; hierarchy via tonal layering */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 
+  /* Motion */
   --motion-fast: 120ms;
   --motion-base: 180ms;
   --motion-slow: 240ms;
 
+  /* Typography — Public Sans (authority) + Inter (utility) */
   --text-display-size: 2rem;
   --text-display-line: 2.5rem;
   --text-display-weight: 700;
@@ -94,29 +148,32 @@
   --text-h2-size: 1.375rem;
   --text-h2-line: 1.35;
   --text-h2-weight: 700;
-  --text-h3-size: 1.125rem;
+  --text-h3-size: 1rem;     /* title-sm: 16px module headers */
   --text-h3-line: 1.45;
   --text-h3-weight: 600;
-  --text-body-lg-size: 1rem;
-  --text-body-lg-line: 1.5rem;
-  --text-body-size: 0.875rem;
-  --text-body-line: 1.375rem;
-  --text-body-sm-size: 0.8125rem;
-  --text-body-sm-line: 1.25rem;
-  --text-label-size: 0.75rem;
+  --text-body-lg-size: 0.875rem;
+  --text-body-lg-line: 1.375rem;
+  --text-body-size: 0.8125rem;   /* body-sm: 13px data entries */
+  --text-body-line: 1.25rem;
+  --text-body-sm-size: 0.75rem;  /* 12px dense table data */
+  --text-body-sm-line: 1.125rem;
+  --text-label-size: 0.6875rem;  /* label-sm: 11px column headers (ALL-CAPS) */
   --text-label-line: 1rem;
   --text-label-weight: 600;
-  --text-micro-size: 0.6875rem;
-  --text-micro-line: 1rem;
+  --text-micro-size: 0.625rem;
+  --text-micro-line: 0.875rem;
   --text-micro-weight: 600;
 
-  --ui-control-height: 40px;
-  --ui-search-height: 44px;
-  --ui-panel-padding: 24px;
-  --ui-panel-gap: 16px;
-  --ui-toolbar-gap: 12px;
-  --ui-table-cell-padding-y: 10px;
-  --ui-table-cell-padding-x: 12px;
+  /* UI Controls */
+  --ui-control-height: 32px;   /* tighter for density */
+  --ui-search-height: 36px;
+  --ui-panel-padding: 16px;    /* reduced — information density over whitespace */
+  --ui-panel-gap: 12px;
+  --ui-toolbar-gap: 8px;       /* 8px between icon+text groups per spec */
+  --ui-toolbar-group-gap: 16px; /* 16px between action groups per spec */
+  --ui-table-cell-padding-y: 5px;  /* targets ~28px row height */
+  --ui-table-cell-padding-x: 10px;
+  --ui-table-row-height: 28px;
 
   /* Legacy aliases for existing pages during migration */
   --brand-red: var(--color-accent);

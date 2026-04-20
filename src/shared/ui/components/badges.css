@@ -1,20 +1,45 @@
+/* Status pills: roundedness-full, strict 20px height to fit 28px rows */
 .ui-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 1.5rem;
-  padding: 0 0.55rem;
+  height: 20px;
+  padding: 0 0.5rem;
   border-radius: var(--radius-pill);
-  border: var(--border-subtle);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-muted);
-  font-size: var(--text-micro-size);
-  line-height: var(--text-micro-line);
-  font-weight: 700;
+  border: none;
+  background: var(--ds-surface-container);
+  color: var(--ds-on-surface-variant);
+  font-family: var(--font-sans);
+  font-size: var(--text-label-size); /* 11px */
+  line-height: 1;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
+/* Success: primary-fixed bg, on-primary-fixed-variant text */
+.ui-badge--success,
 .ui-badge--accent {
-  background: rgba(76, 175, 80, 0.08);
-  border-color: rgba(76, 175, 80, 0.22);
-  color: var(--color-accent);
+  background: var(--ds-primary-fixed);
+  color: var(--ds-on-primary-fixed-variant);
+}
+
+/* Critical/error: error-container bg, on-error-container text */
+.ui-badge--error,
+.ui-badge--danger {
+  background: var(--ds-error-container);
+  color: var(--ds-on-error-container);
+}
+
+/* Warning: tertiary-tinted (secondary attention, not critical) */
+.ui-badge--warn {
+  background: rgba(141, 58, 74, 0.1);
+  color: var(--ds-tertiary);
+}
+
+/* Info */
+.ui-badge--info {
+  background: var(--color-info-100);
+  color: var(--color-info-700);
 }

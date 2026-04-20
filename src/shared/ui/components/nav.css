@@ -62,7 +62,6 @@
   border-radius: var(--radius-pill);
   background: var(--color-bg-panel);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: var(--shadow-sm);
   transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
 }
 
@@ -70,20 +69,22 @@ body.theme-dark .theme-toggle-knob {
   transform: translateX(30px);
 }
 
+/* ── Shell layout ── */
+
 .forti-shell {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   min-height: 100vh;
-  background: #eef1f4;
+  background: var(--ds-surface);
 }
 
 .forti-sidebar {
   position: sticky;
   top: 0;
   height: 100vh;
-  background: #2f3134;
-  color: rgba(255, 255, 255, 0.88);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  /* inverse-surface: no border — boundary defined by background shift per "No-Line" rule */
+  background: var(--ds-inverse-surface);
+  color: var(--ds-on-inverse-surface);
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -97,13 +98,15 @@ body.theme-dark .theme-toggle-knob {
   gap: 0.85rem;
   min-height: 41px;
   padding: 0 1.15rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* subtle separator using lower-opacity surface rather than a border */
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 600;
 }
 
 .forti-sidebar-brand-mark {
-  color: var(--color-accent);
+  color: var(--ds-primary-fixed);
   font-size: 1rem;
 }
 
@@ -120,15 +123,15 @@ body.theme-dark .theme-toggle-knob {
   justify-content: flex-start;
   width: 100%;
   min-height: 24px;
-  padding: 0.65rem 1.15rem;
+  padding: 0.55rem 1.15rem;
   border: none;
-  border-left: 4px solid transparent;
+  border-left: 3px solid transparent;
   background: transparent;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--ds-on-inverse-surface);
   text-decoration: none;
   font: inherit;
-  font-size: 0.98rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
   text-align: left;
   border-radius: 0;
@@ -145,20 +148,21 @@ body.theme-dark .theme-toggle-knob {
 }
 
 .forti-nav-link[aria-current="page"] {
-  background: #3f8f45;
-  border-left-color: #3f8f45;
+  background: var(--ds-primary-container);
+  border-left-color: var(--ds-primary-fixed);
   color: #fff;
 }
 
 .forti-nav-group-trigger::after {
   content: "";
   margin-left: auto;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
   transform: rotate(45deg);
   transition: transform var(--motion-fast) ease;
+  opacity: 0.6;
 }
 
 .forti-nav-group-trigger[aria-expanded="true"]::after {
@@ -171,7 +175,7 @@ body.theme-dark .theme-toggle-knob {
   overflow: hidden;
   transition: max-height var(--motion-base) ease;
   margin-left: 1.15rem;
-  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .forti-nav-group-trigger[aria-expanded="true"] + .forti-nav-group-menu {
@@ -191,19 +195,21 @@ body.theme-dark .theme-toggle-knob {
 }
 
 .forti-nav-group-menu .forti-nav-link {
-  min-height: 42px;
+  min-height: 36px;
   padding-left: 1rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.55);
   justify-content: flex-start;
 }
 
 .forti-nav-group-menu .forti-nav-link[aria-current="page"] {
-  background: #3f8f45;
+  background: var(--ds-primary-container);
   border-left-color: transparent;
   color: #fff;
 }
+
+/* ── Main content shell ── */
 
 .forti-shell-main {
   min-width: 0;
@@ -211,6 +217,7 @@ body.theme-dark .theme-toggle-knob {
   grid-template-rows: 41px minmax(0, 1fr);
 }
 
+/* Toolbar: vertical gradient primary-container → primary ("machined" feel) */
 .forti-topbar {
   position: sticky;
   top: 0;
@@ -220,21 +227,20 @@ body.theme-dark .theme-toggle-knob {
   justify-content: space-between;
   gap: 1rem;
   padding: 0 1rem;
-  background: #3f8f45;
+  background: linear-gradient(to bottom, var(--ds-primary-container), var(--ds-primary));
   color: #fff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .forti-topbar-left,
 .forti-topbar-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--ui-toolbar-group-gap);
 }
 
 .forti-topbar-icon {
-  width: 2.85rem;
-  height: 2.85rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -242,28 +248,31 @@ body.theme-dark .theme-toggle-knob {
   background: transparent;
   color: #fff;
   font: inherit;
-  font-size: 1.6rem;
+  font-size: 1.25rem; /* 20px icon target */
   cursor: pointer;
   border-radius: 0;
 }
 
 .forti-topbar-icon:hover,
 .forti-topbar-icon:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   outline: none;
 }
+
+/* ── Page content area ── */
 
 .forti-page {
   min-width: 0;
   min-height: calc(100vh - 41px);
-  background: #f3f4f6;
+  background: var(--ds-surface);
   padding: 0;
 }
 
 .forti-page-header {
   margin: 0;
-  padding: 1.5rem 1.5rem 1.25rem;
-  background: #f3f4f6;
+  padding: 1rem 1.25rem 0.875rem;
+  background: var(--ds-surface);
+  font-family: var(--font-display);
 }
 
 .forti-page-header .header-row {
@@ -283,22 +292,29 @@ body.theme-dark .theme-toggle-knob {
   overflow: hidden;
 }
 
+/* ── Dark mode ── */
+
 body.theme-dark .forti-shell {
   background: #141b21;
 }
 
 body.theme-dark .forti-sidebar {
-  background: #23262a;
-  border-right-color: rgba(255, 255, 255, 0.06);
+  background: #1e2529;
 }
 
 body.theme-dark .forti-page {
   background: #1b222a;
 }
 
-body.theme-dark .forti-topbar {
-  background: #377e3d;
+body.theme-dark .forti-page-header {
+  background: #1b222a;
 }
+
+body.theme-dark .forti-topbar {
+  background: linear-gradient(to bottom, #245e38, #033d20);
+}
+
+/* ── Responsive ── */
 
 @media (max-width: 900px) {
   .forti-shell {
@@ -310,7 +326,6 @@ body.theme-dark .forti-topbar {
     inset: 41px auto 0 0;
     width: min(280px, 85vw);
     z-index: 60;
-    box-shadow: var(--shadow-lg);
   }
 
   .forti-shell-collapsed .forti-sidebar {
@@ -327,6 +342,6 @@ body.theme-dark .forti-topbar {
   }
 
   .forti-page-header {
-    padding: 1rem 1rem 0.9rem;
+    padding: 0.75rem 1rem 0.75rem;
   }
 }

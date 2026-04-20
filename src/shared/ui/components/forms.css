@@ -1,12 +1,15 @@
 .ui-label {
   display: block;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
   font-size: var(--text-label-size);
   line-height: var(--text-label-line);
   font-weight: var(--text-label-weight);
   color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
+/* Minimalist inputs: 1px bottom-border only, no box/glow per spec */
 .ui-input,
 .ui-select,
 .ui-textarea,
@@ -16,33 +19,37 @@
 .paste-box {
   width: 100%;
   min-height: var(--ui-control-height);
-  padding: 0 1rem;
-  border-radius: var(--radius-control);
-  border: var(--border-subtle);
-  background: var(--color-bg-panel);
+  padding: 0 0.5rem;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--ds-outline-variant);
+  background: var(--ds-surface-container-lowest);
   color: var(--color-text);
   font: inherit;
-  transition:
-    border-color var(--motion-fast) ease,
-    box-shadow var(--motion-fast) ease,
-    background-color var(--motion-fast) ease;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size); /* body-sm for max character density */
+  transition: border-color var(--motion-fast) ease;
 }
 
+/* Search bar: keep pill geometry for usability */
 .ui-search,
 .search-controls input[type="search"] {
   min-height: var(--ui-search-height);
   border-radius: var(--radius-pill);
+  border: 1px solid var(--ds-outline-variant);
+  padding: 0 1rem;
   flex: 1;
   min-width: 200px;
 }
 
 .ui-textarea,
 .paste-box {
-  padding: 0.8rem 1rem;
+  padding: 0.6rem 0.5rem;
   min-height: 7rem;
   resize: vertical;
 }
 
+/* Focus: border → primary, no shadow/glow */
 .ui-input:focus,
 .ui-select:focus,
 .ui-textarea:focus,
@@ -51,13 +58,13 @@
 .discount-input:focus,
 .paste-box:focus {
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-color: var(--ds-primary);
+  box-shadow: none;
 }
 
 .ui-helper {
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
   font-size: var(--text-body-sm-size);
   line-height: var(--text-body-sm-line);
-  color: var(--color-text-muted);
+  color: var(--color-text-subtle);
 }

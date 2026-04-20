@@ -1,9 +1,9 @@
+/* Panels: tonal layering, no border, no shadow */
 .ui-panel,
 .panel {
-  background: var(--color-bg-panel);
-  border: var(--border-subtle);
+  background: var(--ds-surface-container-low);
+  border: none;
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-sm);
   padding: var(--ui-panel-padding);
 }
 
@@ -12,11 +12,14 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 .panel-header h2,
 .panel-header h3 {
   margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h3-size);
+  font-weight: var(--text-h3-weight);
   color: var(--color-text-strong);
 }
