@@ -1,21 +1,73 @@
 body.theme-dark {
+  --ds-surface: #171b21;
+  --ds-surface-container-lowest: #1f252d;
+  --ds-surface-container-low: #1a1f26;
+  --ds-surface-container: #21262f;
+  --ds-surface-container-high: #2a3039;
+  --ds-surface-container-highest: rgba(26, 29, 35, 0.82);
+  --ds-surface-dim: #262d36;
+  --ds-surface-bright: rgba(30, 36, 44, 0.94);
+  --ds-inverse-surface: #14171c;
+  --ds-on-inverse-surface: rgba(255, 255, 255, 0.88);
+  --ds-on-surface: #edf1f5;
+  --ds-on-surface-variant: #a7b0bc;
+  --ds-outline: #566172;
+  --ds-outline-variant: #7d4a4a;
+
+  --color-bg-canvas: var(--ds-surface);
+  --color-bg-subtle: var(--ds-surface-container-low);
+  --color-bg-panel: var(--ds-surface-container-lowest);
+  --color-bg-raised: var(--ds-surface-bright);
+
+  --color-text-strong: var(--ds-on-surface);
+  --color-text: #d4d9e1;
+  --color-text-muted: var(--ds-on-surface-variant);
+  --color-text-subtle: #8d96a3;
+
+  --color-border-subtle: var(--ds-outline-variant);
+  --color-border-strong: var(--ds-outline);
+  --color-border-ghost: rgba(125, 74, 74, 0.22);
+
+  --color-focus-ring: rgba(238, 49, 36, 0.3);
+
+  --shadow-sm: none;
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.36);
+
+  --state-success-bg: rgba(47, 107, 66, 0.18);
+  --state-success-border: rgba(207, 225, 211, 0.24);
+  --state-success-text: #cfe1d3;
+  --state-info-bg: rgba(53, 91, 150, 0.22);
+  --state-info-border: rgba(200, 213, 240, 0.28);
+  --state-info-text: #d5e1fb;
+  --state-warning-bg: rgba(139, 98, 40, 0.2);
+  --state-warning-border: rgba(234, 209, 175, 0.28);
+  --state-warning-text: #f2ddbf;
+  --state-danger-bg: rgba(161, 42, 44, 0.2);
+  --state-danger-border: rgba(239, 200, 198, 0.26);
+  --state-danger-text: #ffd2ce;
+}
+
+body.theme-dark[data-design-theme="fortigate"] {
   --ds-surface: #141b21;
   --ds-surface-container-lowest: #0e1519;
   --ds-surface-container-low: #1b222a;
   --ds-surface-container: #1f2830;
   --ds-surface-container-high: #242d36;
-  --ds-surface-container-highest: #2a333d;
+  --ds-surface-container-highest: rgba(42, 51, 61, 0.86);
   --ds-surface-dim: #1a2028;
+  --ds-surface-bright: rgba(24, 31, 38, 0.94);
   --ds-inverse-surface: #1e2529;
   --ds-on-inverse-surface: rgba(255, 255, 255, 0.88);
   --ds-on-surface: #e2e8ea;
   --ds-on-surface-variant: #9aadaa;
+  --ds-outline: #5a6e6c;
   --ds-outline-variant: #3a4b49;
 
   --color-bg-canvas: var(--ds-surface);
   --color-bg-subtle: var(--ds-surface-container-low);
   --color-bg-panel: var(--ds-surface-container-lowest);
-  --color-bg-raised: var(--ds-surface-container-highest);
+  --color-bg-raised: var(--ds-surface-bright);
 
   --color-text-strong: var(--ds-on-surface);
   --color-text: #c8d4d2;
@@ -23,11 +75,11 @@ body.theme-dark {
   --color-text-subtle: #667a78;
 
   --color-border-subtle: var(--ds-outline-variant);
-  --color-border-strong: #5a6e6c;
+  --color-border-strong: var(--ds-outline);
+  --color-border-ghost: rgba(58, 75, 73, 0.22);
 
   --color-focus-ring: rgba(4, 100, 52, 0.24);
 
-  /* Shadows remain none in dark mode per design spec */
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;

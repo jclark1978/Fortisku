@@ -1,8 +1,8 @@
 .ui-alert,
 .status-message,
 .rss-modal-status {
-  border-radius: var(--radius-control);
-  border: 1px solid transparent;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border-ghost);
   padding: 0.75rem 0.9rem;
 }
 
