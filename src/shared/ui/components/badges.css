@@ -1,45 +1,74 @@
-/* Status pills: roundedness-full, strict 20px height to fit 28px rows */
 .ui-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 20px;
   padding: 0 0.5rem;
-  border-radius: var(--radius-pill);
-  border: none;
-  background: var(--ds-surface-container);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--ds-surface-container-low);
   color: var(--ds-on-surface-variant);
   font-family: var(--font-sans);
-  font-size: var(--text-label-size); /* 11px */
+  font-size: var(--text-label-size);
   line-height: 1;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 
-/* Success: primary-fixed bg, on-primary-fixed-variant text */
 .ui-badge--success,
 .ui-badge--accent {
+  background: var(--state-success-bg);
+  border-color: var(--state-success-border);
+  color: var(--state-success-text);
+}
+
+.ui-badge--error,
+.ui-badge--danger {
+  background: var(--ds-error-container);
+  border-color: rgba(122, 9, 16, 0.08);
+  color: var(--ds-on-error-container);
+}
+
+.ui-badge--warn {
+  background: var(--state-warning-bg);
+  border-color: var(--state-warning-border);
+  color: var(--state-warning-text);
+}
+
+.ui-badge--info {
+  background: var(--state-info-bg);
+  border-color: var(--state-info-border);
+  color: var(--state-info-text);
+}
+
+body[data-design-theme="fortigate"] .ui-badge {
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--ds-surface-container);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+body[data-design-theme="fortigate"] .ui-badge--success,
+body[data-design-theme="fortigate"] .ui-badge--accent {
   background: var(--ds-primary-fixed);
   color: var(--ds-on-primary-fixed-variant);
 }
 
-/* Critical/error: error-container bg, on-error-container text */
-.ui-badge--error,
-.ui-badge--danger {
+body[data-design-theme="fortigate"] .ui-badge--error,
+body[data-design-theme="fortigate"] .ui-badge--danger {
   background: var(--ds-error-container);
   color: var(--ds-on-error-container);
 }
 
-/* Warning: tertiary-tinted (secondary attention, not critical) */
-.ui-badge--warn {
+body[data-design-theme="fortigate"] .ui-badge--warn {
   background: rgba(141, 58, 74, 0.1);
   color: var(--ds-tertiary);
 }
 
-/* Info */
-.ui-badge--info {
+body[data-design-theme="fortigate"] .ui-badge--info {
   background: var(--color-info-100);
   color: var(--color-info-700);
 }

@@ -1,4 +1,4 @@
-import { initThemeToggle } from "../../shared/ui/theme.js";
+import { getCurrentAppearance, initThemeToggle } from "../../shared/ui/theme.js";
 import { initToolboxNav } from "../../shared/ui/nav.js";
 import { PRODUCT_CATALOG, findProductBySlug } from "./catalog.js";
 
@@ -155,7 +155,8 @@ function startThemeSync() {
   themeObserver = new MutationObserver(() => {
     syncAllEmbeddedThemes();
   });
-  themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class", "data-design-theme"] });
+  window.addEventListener("fortisku:appearance-change", syncAllEmbeddedThemes);
 }
 
 function syncAllEmbeddedThemes() {
@@ -172,8 +173,9 @@ function syncAllEmbeddedThemes() {
 }
 
 function syncEmbeddedTheme(doc) {
-  const theme = document.body.classList.contains("theme-dark") ? "dark" : "light";
-  doc.documentElement.setAttribute("data-fortisku-theme", theme);
+  const appearance = getCurrentAppearance();
+  doc.documentElement.setAttribute("data-fortisku-theme", appearance.colorMode);
+  doc.documentElement.setAttribute("data-fortisku-design-theme", appearance.designTheme);
 }
 
 window.addEventListener("message", (event) => {

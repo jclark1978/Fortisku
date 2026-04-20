@@ -4,12 +4,11 @@
   font-size: var(--text-label-size);
   line-height: var(--text-label-line);
   font-weight: var(--text-label-weight);
-  color: var(--color-text-muted);
+  color: var(--ds-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
 }
 
-/* Minimalist inputs: 1px bottom-border only, no box/glow per spec */
 .ui-input,
 .ui-select,
 .ui-textarea,
@@ -20,23 +19,22 @@
   width: 100%;
   min-height: var(--ui-control-height);
   padding: 0 0.5rem;
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid var(--ds-outline-variant);
-  background: var(--ds-surface-container-lowest);
-  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-ghost);
+  border-bottom: 1px solid var(--ds-outline);
+  background: var(--ds-surface-container-low);
+  color: var(--color-text-strong);
   font: inherit;
   font-family: var(--font-sans);
-  font-size: var(--text-body-size); /* body-sm for max character density */
-  transition: border-color var(--motion-fast) ease;
+  font-size: var(--text-body-size);
+  transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease;
 }
 
-/* Search bar: keep pill geometry for usability */
 .ui-search,
 .search-controls input[type="search"] {
   min-height: var(--ui-search-height);
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--ds-outline-variant);
+  border-radius: var(--radius-control);
+  border-bottom-color: var(--ds-outline);
   padding: 0 1rem;
   flex: 1;
   min-width: 200px;
@@ -49,7 +47,6 @@
   resize: vertical;
 }
 
-/* Focus: border → primary, no shadow/glow */
 .ui-input:focus,
 .ui-select:focus,
 .ui-textarea:focus,
@@ -58,8 +55,10 @@
 .discount-input:focus,
 .paste-box:focus {
   outline: none;
-  border-color: var(--ds-primary);
+  border-color: var(--color-border-ghost);
+  border-bottom: 2px solid var(--ds-primary);
   box-shadow: none;
+  background: var(--ds-surface-container-lowest);
 }
 
 .ui-helper {
@@ -67,4 +66,42 @@
   font-size: var(--text-body-sm-size);
   line-height: var(--text-body-sm-line);
   color: var(--color-text-subtle);
+}
+
+body[data-design-theme="fortigate"] .ui-label {
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+body[data-design-theme="fortigate"] .ui-input,
+body[data-design-theme="fortigate"] .ui-select,
+body[data-design-theme="fortigate"] .ui-textarea,
+body[data-design-theme="fortigate"] .search-controls input[type="search"],
+body[data-design-theme="fortigate"] .quantity-input,
+body[data-design-theme="fortigate"] .discount-input,
+body[data-design-theme="fortigate"] .paste-box {
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--ds-outline-variant);
+  background: var(--ds-surface-container-lowest);
+  color: var(--color-text);
+}
+
+body[data-design-theme="fortigate"] .ui-search,
+body[data-design-theme="fortigate"] .search-controls input[type="search"] {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--ds-outline-variant);
+  border-bottom-color: var(--ds-outline-variant);
+}
+
+body[data-design-theme="fortigate"] .ui-input:focus,
+body[data-design-theme="fortigate"] .ui-select:focus,
+body[data-design-theme="fortigate"] .ui-textarea:focus,
+body[data-design-theme="fortigate"] .search-controls input[type="search"]:focus,
+body[data-design-theme="fortigate"] .quantity-input:focus,
+body[data-design-theme="fortigate"] .discount-input:focus,
+body[data-design-theme="fortigate"] .paste-box:focus {
+  border-color: var(--ds-primary);
+  border-bottom: 1px solid var(--ds-primary);
+  background: var(--ds-surface-container-lowest);
 }

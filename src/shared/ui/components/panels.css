@@ -1,8 +1,7 @@
-/* Panels: tonal layering, no border, no shadow */
 .ui-panel,
 .panel {
   background: var(--ds-surface-container-low);
-  border: none;
+  border: 1px solid var(--color-border-ghost);
   border-radius: var(--radius-panel);
   padding: var(--ui-panel-padding);
 }
@@ -18,8 +17,26 @@
 .panel-header h2,
 .panel-header h3 {
   margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-line);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-strong);
+}
+
+body[data-design-theme="fortigate"] .ui-panel,
+body[data-design-theme="fortigate"] .panel {
+  border: none;
+}
+
+body[data-design-theme="fortigate"] .panel-header h2,
+body[data-design-theme="fortigate"] .panel-header h3 {
   font-family: var(--font-display);
   font-size: var(--text-h3-size);
+  line-height: var(--text-h3-line);
   font-weight: var(--text-h3-weight);
-  color: var(--color-text-strong);
+  letter-spacing: 0;
+  text-transform: none;
 }

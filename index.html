@@ -19,8 +19,8 @@
       font-size: var(--text-body-sm-size);
       color: var(--color-text-muted);
       background: var(--color-bg-subtle);
-      border: var(--border-subtle);
-      border-radius: var(--radius-pill);
+      border: 1px solid var(--color-border-ghost);
+      border-radius: var(--radius-control);
       padding: 0.15rem 0.65rem;
       white-space: nowrap;
     }
@@ -156,7 +156,7 @@
       font-family: var(--font-mono);
       background: var(--color-bg-panel);
       padding: 0.1rem 0.35rem;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       color: var(--color-text);
     }
 
@@ -165,7 +165,7 @@
       bottom: 1.5rem;
       right: 1.5rem;
       z-index: 30;
-      border-radius: 999px;
+      border-radius: var(--radius-control);
       padding: 0.65rem 1rem;
       display: inline-flex;
       align-items: center;
@@ -174,12 +174,12 @@
       color: #ffffff;
       font-size: var(--text-body-size);
       box-shadow: var(--shadow-md);
-      border-color: var(--color-accent);
+      border-color: transparent;
     }
 
     .bom-count {
       background: rgba(255, 255, 255, 0.18);
-      border-radius: 999px;
+      border-radius: var(--radius-sm);
       padding: 0.1rem 0.55rem;
       font-weight: 600;
     }
@@ -191,8 +191,9 @@
       width: min(500px, 90vw);
       height: 100vh;
       background: var(--color-bg-raised);
-      border-left: var(--border-subtle);
+      border-left: 1px solid var(--color-border-ghost);
       box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(12px);
       transform: translateX(100%);
       transition: transform var(--motion-slow) ease;
       z-index: 40;
@@ -206,7 +207,7 @@
 
     .bom-drawer header {
       padding: 1.25rem 1.5rem 1rem;
-      border-bottom: var(--border-subtle);
+      border-bottom: 1px solid var(--color-border-ghost);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -246,7 +247,7 @@
     }
 
     .bom-footer {
-      border-top: var(--border-subtle);
+      border-top: 1px solid var(--color-border-ghost);
       padding: 1rem 1.5rem 1.5rem;
       display: flex;
       flex-direction: column;
@@ -326,7 +327,7 @@
     .bom-modal header,
     .bom-modal footer {
       padding: 1.25rem 1.5rem;
-      border-bottom: var(--border-subtle);
+      border-bottom: 1px solid var(--color-border-ghost);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -334,7 +335,7 @@
     }
 
     .bom-modal footer {
-      border-top: 1px solid var(--brand-border);
+      border-top: 1px solid var(--color-border-ghost);
       border-bottom: none;
     }
 

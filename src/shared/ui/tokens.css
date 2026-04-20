@@ -7,76 +7,77 @@
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* ── DESIGN SYSTEM: Tactical Command Center ── */
+  /* ── DESIGN SYSTEM: Precision Ledger ── */
 
-  /* Primary brand greens */
-  --ds-primary: #046434;
-  --ds-primary-container: #2b7d4a;
+  /* Primary brand reds */
+  --ds-primary: #bc0004;
+  --ds-primary-container: #ee3124;
   --ds-on-primary: #ffffff;
-  --ds-primary-fixed: #c4efcf;
-  --ds-on-primary-fixed-variant: #0a3d20;
+  --ds-primary-fixed: #f8d8d6;
+  --ds-on-primary-fixed-variant: #7f0003;
 
-  /* Secondary warning color */
-  --ds-tertiary: #8d3a4a;
+  /* Secondary / muted signal */
+  --ds-tertiary: #8a93a8;
   --ds-on-tertiary: #ffffff;
 
   /* Error / critical */
-  --ds-error-container: #ffdad6;
-  --ds-on-error-container: #690005;
+  --ds-error-container: #ffe1df;
+  --ds-on-error-container: #7a0910;
 
-  /* Surface hierarchy (Level 0 → 3) */
-  --ds-surface: #f4fafe;               /* Level 0: main canvas */
-  --ds-surface-container-lowest: #ffffff;  /* Level 3: table rows, inputs */
-  --ds-surface-container-low: #eef5f8; /* Level 2: secondary modules */
-  --ds-surface-container: #e5edf0;
-  --ds-surface-container-high: #dce6e9; /* toolbars */
-  --ds-surface-container-highest: #d0dde2; /* modals / overlays */
-  --ds-surface-dim: #ccd6d4;           /* table header rows */
+  /* Surface hierarchy */
+  --ds-surface: #f7f9fc;
+  --ds-surface-container-lowest: #ffffff;
+  --ds-surface-container-low: #f2f4f7;
+  --ds-surface-container: #eceff3;
+  --ds-surface-container-high: #e6e8eb;
+  --ds-surface-container-highest: rgba(26, 29, 35, 0.8);
+  --ds-surface-dim: #edf1f5;
+  --ds-surface-bright: rgba(255, 255, 255, 0.92);
 
-  /* Sidebar */
-  --ds-inverse-surface: #2a3134;       /* Level 1: sidebar */
-  --ds-on-inverse-surface: rgba(255, 255, 255, 0.88);
+  /* Sidebar / shell */
+  --ds-inverse-surface: #1a1d23;
+  --ds-on-inverse-surface: rgba(255, 255, 255, 0.9);
 
   /* On-surface text */
-  --ds-on-surface: #1a1f1e;
-  --ds-on-surface-variant: #3f4948;
+  --ds-on-surface: #191c1e;
+  --ds-on-surface-variant: #49505a;
 
   /* Borders */
-  --ds-outline: #6f7978;
-  --ds-outline-variant: #bec9c7;
+  --ds-outline: #b4bcc8;
+  --ds-outline-variant: #e7bdb7;
 
   /* Neutral scale */
   --color-neutral-0: #ffffff;
-  --color-neutral-25: #f8fafb;
-  --color-neutral-50: #f2f5f7;
-  --color-neutral-75: #f0f2f4;
-  --color-neutral-100: #e7ecf0;
-  --color-neutral-200: #d6dde4;
-  --color-neutral-300: #c8d0d8;
-  --color-neutral-500: #667281;
-  --color-neutral-600: #4f5a68;
-  --color-neutral-700: #39424e;
-  --color-neutral-900: #12161b;
+  --color-neutral-25: #fafbfd;
+  --color-neutral-50: #f2f4f7;
+  --color-neutral-75: #edf1f5;
+  --color-neutral-100: #e4e8ee;
+  --color-neutral-200: #d6dbe4;
+  --color-neutral-300: #c3cad6;
+  --color-neutral-500: #6e7785;
+  --color-neutral-600: #586171;
+  --color-neutral-700: #384150;
+  --color-neutral-900: #1a1d23;
 
   /* Semantic state colors */
-  --color-success-100: #edf9f2;
-  --color-success-200: #b8e6c9;
-  --color-success-700: #18794e;
-  --color-info-100: #eef5ff;
-  --color-info-200: #bdd5fb;
-  --color-info-700: #1f5fbf;
-  --color-warning-100: #fff7e8;
-  --color-warning-200: #f5d9a0;
-  --color-warning-700: #8a5800;
-  --color-danger-100: #fef0ee;
-  --color-danger-200: #f5c6c2;
-  --color-danger-700: #b42318;
+  --color-success-100: #eef6f0;
+  --color-success-200: #cfe1d3;
+  --color-success-700: #2f6b42;
+  --color-info-100: #eef3fb;
+  --color-info-200: #c8d5f0;
+  --color-info-700: #355b96;
+  --color-warning-100: #f9f2e8;
+  --color-warning-200: #ead1af;
+  --color-warning-700: #8b6228;
+  --color-danger-100: #fbeceb;
+  --color-danger-200: #efc8c6;
+  --color-danger-700: #a12a2c;
 
-  /* Semantic surface aliases (mapped to design system) */
+  /* Semantic surface aliases */
   --color-bg-canvas: var(--ds-surface);
   --color-bg-subtle: var(--ds-surface-container-low);
   --color-bg-panel: var(--ds-surface-container-lowest);
-  --color-bg-raised: var(--ds-surface-container-highest);
+  --color-bg-raised: var(--ds-surface-bright);
 
   /* Text */
   --color-text-strong: var(--ds-on-surface);
@@ -84,14 +85,15 @@
   --color-text-muted: var(--ds-on-surface-variant);
   --color-text-subtle: var(--color-neutral-500);
 
-  /* Borders — use background shifts, not lines (no 1px solid sectioning) */
+  /* Borders */
   --color-border-subtle: var(--ds-outline-variant);
   --color-border-strong: var(--ds-outline);
+  --color-border-ghost: rgba(231, 189, 183, 0.15);
 
   /* Primary accent */
   --color-accent: var(--ds-primary);
   --color-accent-hover: var(--ds-primary-container);
-  --color-focus-ring: rgba(4, 100, 52, 0.14);
+  --color-focus-ring: rgba(188, 0, 4, 0.16);
 
   /* State colors */
   --state-success-bg: var(--color-success-100);
@@ -107,7 +109,7 @@
   --state-danger-border: var(--color-danger-200);
   --state-danger-text: var(--color-danger-700);
 
-  /* Spacing — tight, density-first */
+  /* Spacing */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -118,62 +120,62 @@
   --space-10: 2.5rem;
   --space-12: 3rem;
 
-  /* Radius — sm for functional containers, full for pills only */
+  /* Radius */
   --radius-sm: 2px;
-  --radius-control: 2px;
+  --radius-control: 4px;
   --radius-panel: 4px;
-  --radius-pill: 999px;
+  --radius-pill: 4px;
 
   /* Borders */
   --border-width: 1px;
-  --border-subtle: 1px solid var(--color-border-subtle);
+  --border-subtle: 1px solid var(--color-border-ghost);
 
-  /* Shadows — none; hierarchy via tonal layering */
+  /* Shadows */
   --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
+  --shadow-md: 0 4px 20px rgba(25, 28, 30, 0.06);
+  --shadow-lg: 0 4px 20px rgba(25, 28, 30, 0.06);
 
   /* Motion */
   --motion-fast: 120ms;
   --motion-base: 180ms;
   --motion-slow: 240ms;
 
-  /* Typography — Public Sans (authority) + Inter (utility) */
-  --text-display-size: 2rem;
-  --text-display-line: 2.5rem;
-  --text-display-weight: 700;
+  /* Typography */
+  --text-display-size: 1.125rem;
+  --text-display-line: 1.4;
+  --text-display-weight: 600;
   --text-h1-size: clamp(1.9rem, 3vw, 2.6rem);
   --text-h1-line: 1.15;
   --text-h1-weight: 700;
   --text-h2-size: 1.375rem;
   --text-h2-line: 1.35;
   --text-h2-weight: 700;
-  --text-h3-size: 1rem;     /* title-sm: 16px module headers */
+  --text-h3-size: 1rem;
   --text-h3-line: 1.45;
   --text-h3-weight: 600;
   --text-body-lg-size: 0.875rem;
   --text-body-lg-line: 1.375rem;
-  --text-body-size: 0.8125rem;   /* body-sm: 13px data entries */
+  --text-body-size: 0.8125rem;
   --text-body-line: 1.25rem;
-  --text-body-sm-size: 0.75rem;  /* 12px dense table data */
+  --text-body-sm-size: 0.75rem;
   --text-body-sm-line: 1.125rem;
-  --text-label-size: 0.6875rem;  /* label-sm: 11px column headers (ALL-CAPS) */
+  --text-label-size: 0.6875rem;
   --text-label-line: 1rem;
-  --text-label-weight: 600;
+  --text-label-weight: 700;
   --text-micro-size: 0.625rem;
   --text-micro-line: 0.875rem;
-  --text-micro-weight: 600;
+  --text-micro-weight: 700;
 
   /* UI Controls */
-  --ui-control-height: 32px;   /* tighter for density */
+  --ui-control-height: 32px;
   --ui-search-height: 36px;
-  --ui-panel-padding: 16px;    /* reduced — information density over whitespace */
+  --ui-panel-padding: 16px;
   --ui-panel-gap: 12px;
-  --ui-toolbar-gap: 8px;       /* 8px between icon+text groups per spec */
-  --ui-toolbar-group-gap: 16px; /* 16px between action groups per spec */
-  --ui-table-cell-padding-y: 5px;  /* targets ~28px row height */
+  --ui-toolbar-gap: 8px;
+  --ui-toolbar-group-gap: 16px;
+  --ui-table-cell-padding-y: 8px;
   --ui-table-cell-padding-x: 10px;
-  --ui-table-row-height: 28px;
+  --ui-table-row-height: 32px;
 
   /* Legacy aliases for existing pages during migration */
   --brand-red: var(--color-accent);
@@ -190,4 +192,112 @@
   --brand-info: var(--state-info-text);
   --brand-warn: var(--state-warning-text);
   --brand-danger: var(--state-danger-text);
+}
+
+body[data-design-theme="fortigate"] {
+  --ds-primary: #046434;
+  --ds-primary-container: #2b7d4a;
+  --ds-on-primary: #ffffff;
+  --ds-primary-fixed: #c4efcf;
+  --ds-on-primary-fixed-variant: #0a3d20;
+
+  --ds-tertiary: #8d3a4a;
+  --ds-on-tertiary: #ffffff;
+
+  --ds-error-container: #ffdad6;
+  --ds-on-error-container: #690005;
+
+  --ds-surface: #f4fafe;
+  --ds-surface-container-lowest: #ffffff;
+  --ds-surface-container-low: #eef5f8;
+  --ds-surface-container: #e5edf0;
+  --ds-surface-container-high: #dce6e9;
+  --ds-surface-container-highest: rgba(42, 49, 52, 0.82);
+  --ds-surface-dim: #ccd6d4;
+  --ds-surface-bright: rgba(255, 255, 255, 0.92);
+
+  --ds-inverse-surface: #2a3134;
+  --ds-on-inverse-surface: rgba(255, 255, 255, 0.88);
+
+  --ds-on-surface: #1a1f1e;
+  --ds-on-surface-variant: #3f4948;
+
+  --ds-outline: #6f7978;
+  --ds-outline-variant: #bec9c7;
+
+  --color-neutral-25: #f8fafb;
+  --color-neutral-50: #f2f5f7;
+  --color-neutral-75: #f0f2f4;
+  --color-neutral-100: #e7ecf0;
+  --color-neutral-200: #d6dde4;
+  --color-neutral-300: #c8d0d8;
+  --color-neutral-500: #667281;
+  --color-neutral-600: #4f5a68;
+  --color-neutral-700: #39424e;
+  --color-neutral-900: #12161b;
+
+  --color-success-100: #edf9f2;
+  --color-success-200: #b8e6c9;
+  --color-success-700: #18794e;
+  --color-info-100: #eef5ff;
+  --color-info-200: #bdd5fb;
+  --color-info-700: #1f5fbf;
+  --color-warning-100: #fff7e8;
+  --color-warning-200: #f5d9a0;
+  --color-warning-700: #8a5800;
+  --color-danger-100: #fef0ee;
+  --color-danger-200: #f5c6c2;
+  --color-danger-700: #b42318;
+
+  --color-bg-canvas: var(--ds-surface);
+  --color-bg-subtle: var(--ds-surface-container-low);
+  --color-bg-panel: var(--ds-surface-container-lowest);
+  --color-bg-raised: var(--ds-surface-bright);
+
+  --color-text-strong: var(--ds-on-surface);
+  --color-text: var(--color-neutral-700);
+  --color-text-muted: var(--ds-on-surface-variant);
+  --color-text-subtle: var(--color-neutral-500);
+
+  --color-border-subtle: var(--ds-outline-variant);
+  --color-border-strong: var(--ds-outline);
+  --color-border-ghost: rgba(190, 201, 199, 0.2);
+
+  --color-accent: var(--ds-primary);
+  --color-accent-hover: var(--ds-primary-container);
+  --color-focus-ring: rgba(4, 100, 52, 0.14);
+
+  --state-success-bg: var(--color-success-100);
+  --state-success-border: var(--color-success-200);
+  --state-success-text: var(--color-success-700);
+  --state-info-bg: var(--color-info-100);
+  --state-info-border: var(--color-info-200);
+  --state-info-text: var(--color-info-700);
+  --state-warning-bg: var(--color-warning-100);
+  --state-warning-border: var(--color-warning-200);
+  --state-warning-text: var(--color-warning-700);
+  --state-danger-bg: var(--color-danger-100);
+  --state-danger-border: var(--color-danger-200);
+  --state-danger-text: var(--color-danger-700);
+
+  --radius-sm: 2px;
+  --radius-control: 2px;
+  --radius-panel: 4px;
+  --radius-pill: 999px;
+
+  --border-subtle: 1px solid var(--color-border-subtle);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+
+  --text-display-size: 2rem;
+  --text-display-line: 2.5rem;
+  --text-display-weight: 700;
+  --text-label-weight: 600;
+  --text-micro-weight: 600;
+
+  --ui-table-cell-padding-y: 5px;
+  --ui-table-cell-padding-x: 10px;
+  --ui-table-row-height: 28px;
 }

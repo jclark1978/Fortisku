@@ -1,24 +1,35 @@
 (function () {
-  var key = "fortisku-theme";
-  var theme = "light";
+  var colorModeKey = "fortisku-theme";
+  var designThemeKey = "fortisku-design-theme";
+  var colorMode = "light";
+  var designTheme = "soltesz";
+
   try {
-    var stored = window.localStorage.getItem(key);
-    if (stored === "light" || stored === "dark") {
-      theme = stored;
+    var storedColorMode = window.localStorage.getItem(colorModeKey);
+    var storedDesignTheme = window.localStorage.getItem(designThemeKey);
+
+    if (storedColorMode === "light" || storedColorMode === "dark") {
+      colorMode = storedColorMode;
     } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      theme = "dark";
+      colorMode = "dark";
+    }
+
+    if (storedDesignTheme === "soltesz" || storedDesignTheme === "fortigate") {
+      designTheme = storedDesignTheme;
     }
   } catch (error) {
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      theme = "dark";
+      colorMode = "dark";
     }
   }
 
-  document.documentElement.style.colorScheme = theme;
+  document.documentElement.style.colorScheme = colorMode;
+  document.documentElement.dataset.designTheme = designTheme;
 
   function apply() {
     if (!document.body) return false;
-    document.body.classList.toggle("theme-dark", theme === "dark");
+    document.body.classList.toggle("theme-dark", colorMode === "dark");
+    document.body.dataset.designTheme = designTheme;
     return true;
   }
 
@@ -30,4 +41,5 @@
     }
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-})();
+}
+)();
