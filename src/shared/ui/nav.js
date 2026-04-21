@@ -1,4 +1,5 @@
 import { groupCatalogByCategory } from "../../features/bom-builder/catalog.js";
+import { initAdminAlerts } from "./admin-alerts.js";
 
 const SHELL_COLLAPSED_KEY = "fortisku-shell-collapsed";
 
@@ -218,6 +219,7 @@ function buildShell(nav) {
       <span class="forti-bc-current" id="forti-bc-current"></span>
     </div>
     <div class="forti-topbar-right" id="forti-topbar-right">
+      <div id="admin-alerts" hidden></div>
       <div id="theme-toggle"></div>
     </div>
   `;
@@ -276,4 +278,5 @@ export function initToolboxNav({ current, basePath = "./", navId = "toolbox-nav"
   }
 
   wireShellInteractions();
+  initAdminAlerts({ basePath: normalizedBase });
 }

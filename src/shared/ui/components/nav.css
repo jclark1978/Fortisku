@@ -546,6 +546,15 @@ body.theme-dark .theme-toggle-knob {
   gap: 8px;
 }
 
+#admin-alerts {
+  display: flex;
+  align-items: center;
+}
+
+#admin-alerts[hidden] {
+  display: none !important;
+}
+
 #theme-toggle {
   display: flex;
   align-items: center;
@@ -585,6 +594,121 @@ body.theme-dark .theme-toggle-knob {
 .forti-topbar-icon-btn.active {
   background: var(--color-bg-subtle);
   color: var(--acc);
+}
+
+.forti-alerts-container {
+  position: relative;
+}
+
+.forti-alerts-trigger {
+  position: relative;
+  color: #d46b08;
+}
+
+.forti-alerts-trigger:hover,
+.forti-alerts-trigger[aria-expanded="true"] {
+  color: #ad4e00;
+  background: color-mix(in srgb, #f08c00 12%, var(--color-bg-subtle));
+}
+
+.forti-alerts-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #d92d20;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--tb);
+}
+
+.forti-alerts-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  width: min(360px, calc(100vw - 32px));
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border-ghost);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: var(--shadow-lg);
+}
+
+.forti-alerts-pop[hidden] {
+  display: none !important;
+}
+
+.forti-alerts-pop-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  padding: 2px 4px 4px;
+}
+
+.forti-alerts-pop-copy {
+  margin: 0;
+  padding: 0 4px 8px;
+  color: var(--color-text-muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.forti-alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forti-alert-item {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  background: var(--color-bg-subtle);
+  border: 1px solid transparent;
+  transition: background var(--motion-fast) ease, border-color var(--motion-fast) ease;
+}
+
+.forti-alert-item:hover,
+.forti-alert-item:focus-visible {
+  background: color-mix(in srgb, var(--color-bg-subtle) 78%, var(--acc) 22%);
+  border-color: color-mix(in srgb, var(--acc) 30%, var(--color-border-ghost));
+  outline: none;
+}
+
+.forti-alert-item-title,
+.forti-alert-item-body,
+.forti-alert-item-link {
+  display: block;
+}
+
+.forti-alert-item-title {
+  color: var(--color-text-strong);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.forti-alert-item-body {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.forti-alert-item-link {
+  margin-top: 8px;
+  color: var(--acc);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 /* ── PALETTE POPOVER ─────────────────────────────────────────────────── */

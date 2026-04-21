@@ -21,6 +21,7 @@ import {
 import { exportBomToCsv } from "./bomExport.js";
 import { initThemeToggle } from "../../shared/ui/theme.js";
 import { initToolboxNav } from "../../shared/ui/nav.js";
+import { notifyAdminRequirementsChanged } from "../../shared/ui/admin-alerts.js";
 
 const MAX_RENDERED_ROWS = 200;
 
@@ -121,6 +122,7 @@ async function handleUpload({ file, sheetName }) {
     meta.storedBytes = storedBytes;
     await savePersisted(rows, exported, meta);
     await saveOrderingGuideRows(result.orderingGuideRows);
+    notifyAdminRequirementsChanged();
 
     ui.renderDatasetReady(meta, storedBytes);
     ui.enableSearch(true);
@@ -157,6 +159,7 @@ async function handleClear() {
   }
 
   await clearPersisted();
+  notifyAdminRequirementsChanged();
   rows = [];
   rowsById = new Map();
   miniSearch = null;

@@ -1,5 +1,6 @@
 import { initThemeToggle } from "../ui/theme.js";
 import { initToolboxNav } from "../ui/nav.js";
+import { notifyAdminRequirementsChanged } from "../ui/admin-alerts.js";
 
 const MAX_RENDERED_ROWS = 200;
 const POPUP_WIDTH = 760;
@@ -160,6 +161,7 @@ export function startLifecycleApp(config) {
     }
 
     await storage.clearPersisted();
+    notifyAdminRequirementsChanged();
     rows = [];
     rowsById = new Map();
     miniSearch = null;
@@ -215,6 +217,7 @@ export function startLifecycleApp(config) {
     const storedBytes = storage.estimateSizeBytes(rows, exported);
     meta.storedBytes = storedBytes;
     await storage.savePersisted(rows, exported, meta);
+    notifyAdminRequirementsChanged();
 
     ui.renderDatasetReady(meta, storedBytes);
     ui.enableSearch(true);
