@@ -85,10 +85,6 @@ function menuMarkup() {
         </button>
       </div>
     </div>
-    <div class="forti-tb-divider"></div>
-    <button type="button" class="forti-topbar-icon-btn forti-dark-quick-toggle" aria-label="Toggle dark mode">
-      <span class="forti-dark-icon"></span>
-    </button>
   `;
 }
 
@@ -109,9 +105,6 @@ function updateMenuState(root, appearance) {
 
   const modeState = root.querySelector(".forti-theme-pop-mode");
   if (modeState) modeState.textContent = isDark ? "ON" : "OFF";
-
-  const darkIcon = root.querySelector(".forti-dark-icon");
-  if (darkIcon) darkIcon.innerHTML = isDark ? SUN_SVG : MOON_SVG;
 
   const paletteBtn = root.querySelector(".appearance-menu-trigger");
   if (paletteBtn) {
@@ -142,7 +135,6 @@ function wireMenu(root) {
   const trigger = root.querySelector(".appearance-menu-trigger");
   const pop = root.querySelector(".forti-theme-pop");
   const modeToggle = root.querySelector(".appearance-mode-toggle");
-  const darkQuick = root.querySelector(".forti-dark-quick-toggle");
 
   trigger?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -170,7 +162,6 @@ function wireMenu(root) {
   };
 
   modeToggle?.addEventListener("click", (e) => { e.stopPropagation(); toggleDark(); });
-  darkQuick?.addEventListener("click", toggleDark);
 
   document.addEventListener("pointerdown", (e) => {
     if (!(e.target instanceof Node) || !root.contains(e.target)) closePopover(root);
