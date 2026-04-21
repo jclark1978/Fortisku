@@ -561,13 +561,6 @@ body.theme-dark .theme-toggle-knob {
   gap: 8px;
 }
 
-.forti-tb-divider {
-  width: 1px;
-  height: 20px;
-  background: var(--tb-b);
-  flex-shrink: 0;
-}
-
 .forti-topbar-icon-btn {
   width: 32px;
   height: 32px;
