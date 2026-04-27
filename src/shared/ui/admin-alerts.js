@@ -15,7 +15,7 @@ const REQUIRED_DATASETS = [
   {
     key: "sku",
     title: "Price List Required",
-    description: "Upload a price sheet in SKU Finder so SKU search and dependent tools can work properly.",
+    description: "Upload a price sheet on the main SE Toolbox page so SKU search and dependent tools can work properly.",
     href: "",
     loadPersisted: loadSkuPersisted
   },

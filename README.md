@@ -1,6 +1,6 @@
-# Fortinet SE Toolbox
+# SE Toolbox
 
-Fortinet SE Toolbox is a static, browser-only suite of utilities for common Fortinet SE workflows. It currently includes SKU Finder, BOM Builder, Hardware LifeCycle lookup, Software LifeCycle lookup, Ordering Guides lookup, Asset Reports, and the Lab Portal Generator.
+SE Toolbox is a static, browser-only suite of utilities for common Fortinet SE workflows. It currently includes SKU Finder, BOM Builder, Hardware LifeCycle lookup, Software LifeCycle lookup, Ordering Guides lookup, Asset Reports, and the Lab Portal Generator.
 
 ## Features
 
@@ -41,7 +41,7 @@ No backend or server-side computation is required.
 
 ## Project Layout
 
-- `index.html` is the main SKU Finder experience and current landing page for the toolbox.
+- `index.html` is the main SE Toolbox landing page and hosts the shared price-list and SKU Finder workflow.
 - `bom-builder/`, `hardware-lifecycle/`, `software-lifecycle/`, `ordering-guides/`, `asset-reports/`, and `lab-portal/` each contain a page entrypoint for a separate workflow.
 - `src/features/` groups browser logic by product surface:
   - `sku-finder/`
@@ -72,13 +72,13 @@ Primary routes are:
 - `/asset-reports/`
 - `/lab-portal/`
 
-The optional `/fortisku/` route can be kept as a compatibility alias, but `/` remains the primary SKU Finder entrypoint.
+The optional `/fortisku/` route can be kept as a compatibility alias, but `/` remains the primary SE Toolbox entrypoint.
 
 Legacy top-level page URLs such as `asset-report.html` are kept only as lightweight redirects for backward compatibility.
 
 ## Usage Notes
 
-1. Open `/` to use SKU Finder, or jump to the other tools from the shared top navigation.
+1. Open `/` to start in the main SE Toolbox workspace, then use SKU Finder or jump to the other tools from the shared navigation.
 2. Open `/bom-builder/` for the BOM Builder integration preview, which wraps a vendored FortiBOM workspace inside the SE Toolbox shell.
 3. In SKU Finder, upload an Excel workbook (.xlsx). By default, the app targets the `DataSet` sheet; provide an alternative sheet name if needed.
 4. The workbook is parsed entirely in the browser. SKU Finder auto-detects the first row containing SKU/Description headers (so banner rows can stay) and skips rows lacking SKU or Description #1.

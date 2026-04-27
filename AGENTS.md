@@ -15,7 +15,7 @@ Before working in this repository:
 
 ## If There Is A Conflict
 
-- Follow repository facts for Fortisku-specific technical details
+- Follow repository facts for SE Toolbox-specific technical details
 - Follow global policies for general collaboration behavior
 - Ask for clarification if a conflict materially affects implementation
 

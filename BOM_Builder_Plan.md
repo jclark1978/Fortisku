@@ -2,11 +2,11 @@
 
 ## Goal
 
-Add a new BOM Builder page to Fortisku that brings over the useful workflow from `FortiBOM` without importing its standalone app shell.
+Add a new BOM Builder page to SE Toolbox that brings over the useful workflow from `FortiBOM` without importing its standalone app shell.
 
-The end result should feel like a native Fortisku tool:
+The end result should feel like a native SE Toolbox tool:
 
-- shared Fortisku header and navigation
+- shared SE Toolbox header and navigation
 - shared light/dark theme behavior
 - Fortinet-red accent styling aligned with the rest of the toolbox
 - browser-only runtime with no backend
@@ -14,21 +14,21 @@ The end result should feel like a native Fortisku tool:
 
 ## Recommendation
 
-Do not embed `FortiBOM` wholesale into Fortisku.
+Do not embed `FortiBOM` wholesale into SE Toolbox.
 
 Why:
 
 - `FortiBOM` is architected as its own self-contained app
 - it includes its own top bar, sidebar, shell layout, and visual identity
 - its product flows are split into standalone `products/*.html` files loaded through iframes
-- most of its logic lives inline in page scripts rather than Fortisku-style feature modules
+- most of its logic lives inline in page scripts rather than SE Toolbox-style feature modules
 
-If we drop it in directly, Fortisku will feel like it contains a second app inside the app.
+If we drop it in directly, SE Toolbox will feel like it contains a second app inside the app.
 
 Instead, we should:
 
 1. keep the BOM-building concepts and logic
-2. rebuild the shell to match Fortisku
+2. rebuild the shell to match SE Toolbox
 3. preserve a clean path for upstream updates
 4. migrate product generators in phases
 
@@ -39,8 +39,8 @@ If future updates from the original `FortiBOM` project matter, the best model is
 The better model is:
 
 - keep `FortiBOM` as an upstream source
-- add a thin Fortisku adapter layer around it
-- let Fortisku own the page shell, route, nav, and theme
+- add a thin SE Toolbox adapter layer around it
+- let SE Toolbox own the page shell, route, nav, and theme
 - let `FortiBOM` own its BOM-generation logic until we intentionally replace parts of it
 
 This gives us a plugin-style integration instead of a hard fork.
@@ -48,7 +48,7 @@ This gives us a plugin-style integration instead of a hard fork.
 ### Why this is better
 
 - new upstream features can be pulled in more easily
-- Fortisku stays visually consistent
+- SE Toolbox stays visually consistent
 - we avoid copying a large inline app into the main codebase all at once
 - we can replace pieces gradually instead of rewriting everything before we learn what matters most
 
@@ -72,11 +72,11 @@ Recommended layout:
 
 ### Ownership split
 
-Fortisku-owned:
+SE Toolbox-owned:
 
 - page route
 - shared header and top navigation
-- Fortisku light/dark theme behavior
+- SE Toolbox light/dark theme behavior
 - page framing and native shell
 - adapter logic
 - style overrides / theme bridge
@@ -94,24 +94,24 @@ FortiBOM-owned initially:
 ### Page flow
 
 1. User opens `/bom-builder/`
-2. Fortisku renders the normal toolbox shell
-3. Fortisku mounts a BOM Builder host area
+2. SE Toolbox renders the normal toolbox shell
+3. SE Toolbox mounts a BOM Builder host area
 4. The host loads FortiBOM content in a controlled integration container
-5. Adapter code handles communication between Fortisku and the embedded BOM tool
-6. Theme bridge CSS makes the embedded content look much closer to Fortisku
+5. Adapter code handles communication between SE Toolbox and the embedded BOM tool
+6. Theme bridge CSS makes the embedded content look much closer to SE Toolbox
 
 ### Integration boundary
 
 The boundary should be explicit:
 
-- Fortisku wrapper page
+- SE Toolbox wrapper page
 - FortiBOM integration host
 - adapter methods/events
 
 That lets us later swap:
 
-- full FortiBOM shell -> Fortisku-native shell
-- individual product pages -> native Fortisku product modules
+- full FortiBOM shell -> SE Toolbox-native shell
+- individual product pages -> native SE Toolbox product modules
 
 without rebuilding the whole tool in one pass
 
@@ -126,12 +126,12 @@ Recommended workflow:
 3. when your friend updates the project:
    - pull or refresh the vendored snapshot
    - review changes at the adapter boundary
-   - test the BOM Builder route in Fortisku
+   - test the BOM Builder route in SE Toolbox
 4. only patch FortiBOM locally when truly necessary
 
 ### Practical rule
 
-Do not scatter FortiBOM edits across Fortisku.
+Do not scatter FortiBOM edits across SE Toolbox.
 
 Keep local integration changes in:
 
@@ -149,9 +149,9 @@ The easiest way to make it feel native without rewriting everything is to theme 
 
 Create a BOM-specific bridge stylesheet that:
 
-- maps FortiBOM colors toward Fortisku tokens
+- maps FortiBOM colors toward SE Toolbox tokens
 - removes or neutralizes the dark shell when embedded
-- aligns cards, spacing, buttons, and tables with Fortisku
+- aligns cards, spacing, buttons, and tables with SE Toolbox
 - keeps Fortinet red as the primary action color
 
 Recommended file:
@@ -160,7 +160,7 @@ Recommended file:
 
 ### Design goal
 
-The user should feel like they are still inside Fortisku, not switching to another product.
+The user should feel like they are still inside SE Toolbox, not switching to another product.
 
 That means:
 
@@ -169,7 +169,7 @@ That means:
 - no duplicate “app within app” top bar
 - consistent panel backgrounds, borders, typography, and button language
 
-## Best-Fit Fortisku Structure
+## Best-Fit SE Toolbox Structure
 
 Add a new canonical route:
 
@@ -197,7 +197,7 @@ If needed during migration:
 
 - `src/features/bom-builder/iframe-host.js`
 
-This keeps BOM Builder aligned with the current Fortisku architecture instead of introducing another standalone pattern.
+This keeps BOM Builder aligned with the current SE Toolbox architecture instead of introducing another standalone pattern.
 
 ## Architecture Decision
 
@@ -221,9 +221,9 @@ This keeps BOM Builder aligned with the current Fortisku architecture instead of
 
 ## Migration Strategy
 
-### Phase 1: Native Fortisku Host Page
+### Phase 1: Native SE Toolbox Host Page
 
-Create a Fortisku-native BOM Builder page with:
+Create a SE Toolbox-native BOM Builder page with:
 
 - standard toolbox shell
 - page intro and route wiring
@@ -250,15 +250,15 @@ These are likely to prove the model quickly and cover common SE workflows.
 For the first pass, we can choose one of two paths:
 
 - Preferred:
-  convert product logic into Fortisku JS modules
+  convert product logic into SE Toolbox JS modules
 - Faster temporary path:
-  host selected FortiBOM product pages inside an internal BOM Builder content region while Fortisku owns the outer shell and adapter layer
+  host selected FortiBOM product pages inside an internal BOM Builder content region while SE Toolbox owns the outer shell and adapter layer
 
-My recommendation is to start with the adapter/plugin path first so you can absorb upstream changes, then replace individual products with native Fortisku modules only when they are stable and valuable enough to justify it.
+My recommendation is to start with the adapter/plugin path first so you can absorb upstream changes, then replace individual products with native SE Toolbox modules only when they are stable and valuable enough to justify it.
 
 ### Phase 3: Product Module Refactor
 
-Replace iframe-backed product pages with native Fortisku modules.
+Replace iframe-backed product pages with native SE Toolbox modules.
 
 Each product module should expose a structured config definition or renderer and return normalized BOM rows to the shared BOM cart layer.
 
@@ -288,13 +288,13 @@ Once the pattern is stable, migrate the remaining products:
 
 ### Overall Approach
 
-The BOM Builder should match Fortisku's existing UI language instead of reusing FortiBOM's app chrome.
+The BOM Builder should match SE Toolbox's existing UI language instead of reusing FortiBOM's app chrome.
 
 That means:
 
 - use the shared top nav
-- keep the page inside Fortisku's content width and shell
-- use Fortisku panel styling and shared tokens
+- keep the page inside SE Toolbox's content width and shell
+- use SE Toolbox panel styling and shared tokens
 - keep interactions practical and dense, but not visually heavy
 
 ### Product Navigation
@@ -313,7 +313,7 @@ My recommendation:
 - use a page-local category strip and product picker at the top
 - keep the BOM cart below or beside the configurator
 
-This will feel more consistent with Fortisku than a second full app sidebar.
+This will feel more consistent with SE Toolbox than a second full app sidebar.
 
 ### Visual Redesign
 
@@ -323,13 +323,13 @@ Current FortiBOM look:
 - gray-blue neutrals
 - internal-app feel
 
-Recommended Fortisku-aligned redesign:
+Recommended SE Toolbox-aligned redesign:
 
-- background: Fortisku surface neutrals
+- background: SE Toolbox surface neutrals
 - cards: white / panel backgrounds already used in toolbox pages
 - primary accent: Fortinet red
-- secondary states: existing Fortisku muted grays
-- keep status callouts, but reduce their color intensity slightly to match the rest of Fortisku
+- secondary states: existing SE Toolbox muted grays
+- keep status callouts, but reduce their color intensity slightly to match the rest of SE Toolbox
 
 ### Components to Reuse Stylistically
 
@@ -383,10 +383,10 @@ But centralize export logic into shared BOM Builder modules instead of leaving i
 
 ## Recommended Phase 1 Deliverable
 
-The first Fortisku implementation should include:
+The first SE Toolbox implementation should include:
 
 - `/bom-builder/` page
-- shared Fortisku shell and navigation
+- shared SE Toolbox shell and navigation
 - plugin host area for FortiBOM
 - theme bridge styling
 - project metadata form
@@ -409,15 +409,15 @@ Why:
 1. Add `/bom-builder/` route and nav entry
 2. Vendor `FortiBOM` into a controlled local path
 3. Create `src/features/bom-builder/` scaffold
-4. Build Fortisku-native shell for the BOM Builder page
+4. Build SE Toolbox-native shell for the BOM Builder page
 5. Add adapter + theme bridge
 6. Wire FortiGate as the first integrated product flow
 7. Validate add-to-cart, reorder, export, and import flows
-8. Then decide which pieces stay upstream-driven and which should become native Fortisku modules
+8. Then decide which pieces stay upstream-driven and which should become native SE Toolbox modules
 
 ## Strong Recommendation
 
-If we want this to stay maintainable and updateable, the BOM Builder should become a Fortisku feature with an upstream-friendly plugin boundary, not a blind embed and not a full rewrite on day one.
+If we want this to stay maintainable and updateable, the BOM Builder should become a SE Toolbox feature with an upstream-friendly plugin boundary, not a blind embed and not a full rewrite on day one.
 
 That means:
 
@@ -425,4 +425,4 @@ That means:
 - do not reuse the standalone shell
 - preserve the ability to pull in upstream changes
 - migrate incrementally
-- style it from Fortisku's shared UI system from day one
+- style it from SE Toolbox's shared UI system from day one

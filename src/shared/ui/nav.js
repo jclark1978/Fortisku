@@ -186,8 +186,8 @@ function buildShell(nav) {
     <div class="forti-sidebar-brand">
       <div class="forti-brand-mark">FS</div>
       <div class="forti-brand-text">
-        <span class="forti-brand-name">Fabric SE</span>
-        <span class="forti-brand-sub">SE Toolbox</span>
+        <span class="forti-brand-name">SE Toolbox</span>
+        <span class="forti-brand-sub">Fortinet Utilities</span>
       </div>
     </div>
   `;
@@ -214,7 +214,7 @@ function buildShell(nav) {
   topbar.className = "forti-topbar";
   topbar.innerHTML = `
     <div class="forti-breadcrumb">
-      <span class="forti-bc-root">Fabric SE</span>
+      <span class="forti-bc-root">SE Toolbox</span>
       <span class="forti-bc-sep">${icon("chevRight", 12)}</span>
       <span class="forti-bc-current" id="forti-bc-current"></span>
     </div>

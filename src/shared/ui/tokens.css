@@ -193,7 +193,7 @@
   --brand-warn: var(--state-warning-text);
   --brand-danger: var(--state-danger-text);
 
-  /* Fabric SE shell tokens — Standard (unified) light */
+  /* SE Toolbox shell tokens — Standard (unified) light */
   --sb: #1a1d23;
   --sb-h: #21252d;
   --sb-a: rgba(188, 0, 4, 0.18);
@@ -254,7 +254,7 @@ body[data-design-theme="forge"] {
   --shadow-md: 0 4px 20px rgba(42, 47, 58, 0.06);
   --shadow-lg: 0 4px 20px rgba(42, 47, 58, 0.06);
 
-  /* Fabric SE shell tokens — FabricBOM (forge) light */
+  /* SE Toolbox shell tokens — FabricBOM (forge) light */
   --sb: #1a1d23;
   --sb-h: #2a2f3a;
   --sb-a: rgba(238, 49, 36, 0.18);
@@ -353,7 +353,7 @@ body[data-design-theme="fortigate"] {
   --state-danger-border: var(--color-danger-200);
   --state-danger-text: var(--color-danger-700);
 
-  /* Fabric SE shell tokens — SE Classic (fortigate) light */
+  /* SE Toolbox shell tokens — SE Classic (fortigate) light */
   --sb: #2a3134;
   --sb-h: #333d41;
   --sb-a: rgba(4, 100, 52, 0.18);

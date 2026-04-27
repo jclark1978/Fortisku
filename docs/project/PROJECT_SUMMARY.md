@@ -4,7 +4,7 @@
 
 SE Toolbox is a static, browser-only toolkit for working with Fortinet data and lightweight internal workflows. It runs entirely client-side, uses no backend, and can be served from any simple static host.
 
-The project started as a SKU finder and has grown into a small suite of related tools for a Fortinet SE:
+The project started as a SKU finder and has grown into a broader SE Toolbox suite of related tools for a Fortinet SE:
 
 - SKU Finder
 - BOM Builder
@@ -23,9 +23,9 @@ The codebase is now organized by feature instead of keeping every page module fl
 ### Top-level pages
 
 - `index.html`
-  - Main SKU Finder page and current toolbox landing page
+  - Main SE Toolbox landing page and shared SKU Finder workspace
 - `fortisku/`
-  - Optional compatibility alias for the SKU Finder route
+  - Optional compatibility alias for the main SE Toolbox route
 - `bom-builder/`
   - Canonical BOM Builder integration preview page
 - `hardware-lifecycle/`

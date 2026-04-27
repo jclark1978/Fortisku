@@ -34,7 +34,7 @@ body.theme-dark {
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.28);
   --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.36);
 
-  /* Fabric SE shell tokens — Standard (unified) dark */
+  /* SE Toolbox shell tokens — Standard (unified) dark */
   --sb: #1a1d23;
   --sb-h: #21252d;
   --sb-a: rgba(188, 0, 4, 0.18);
@@ -96,7 +96,7 @@ body.theme-dark[data-design-theme="fortigate"] {
   --shadow-md: none;
   --shadow-lg: none;
 
-  /* Fabric SE shell tokens — SE Classic (fortigate) dark */
+  /* SE Toolbox shell tokens — SE Classic (fortigate) dark */
   --sb: #2a3134;
   --sb-h: #333d41;
   --sb-a: rgba(4, 100, 52, 0.2);
@@ -166,7 +166,7 @@ body.theme-dark[data-design-theme="forge"] {
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.32);
   --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.4);
 
-  /* Fabric SE shell tokens — FabricBOM (forge) dark */
+  /* SE Toolbox shell tokens — FabricBOM (forge) dark */
   --sb: #1a1d23;
   --sb-h: #2a2f3a;
   --sb-a: rgba(238, 49, 36, 0.18);
