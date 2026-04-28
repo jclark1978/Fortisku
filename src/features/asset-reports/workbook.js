@@ -354,8 +354,8 @@ function buildWorksheetXml({ detailRows, assetCounts, renewalCounts, refs }) {
     buildDateConditionalFormatting("D", detailStartRow, detailEndRow, referenceYear, 1),
     buildQuarterConditionalFormatting("E", detailStartRow, detailEndRow, referenceYear, 5),
     buildDateConditionalFormatting("J", assetStartRow, assetEndRow, referenceYear, 9),
-    buildLinkedDateConditionalFormatting("K", "J", assetStartRow, assetEndRow, referenceYear, 13),
-    buildLinkedDateConditionalFormatting("L", "J", assetStartRow, assetEndRow, referenceYear, 17),
+    buildDateConditionalFormatting("K", assetStartRow, assetEndRow, referenceYear, 13),
+    buildDateConditionalFormatting("L", assetStartRow, assetEndRow, referenceYear, 17),
     buildQuarterConditionalFormatting("N", renewalStartRow, renewalEndRow, referenceYear, 21),
     buildLinkedQuarterConditionalFormatting("O", "N", renewalStartRow, renewalEndRow, referenceYear, 25)
   ].join("");
@@ -463,16 +463,6 @@ function buildQuarterConditionalFormatting(column, startRow, endRow, referenceYe
     <cfRule type="expression" dxfId="1" priority="${priorityStart + 1}" stopIfTrue="1"><formula>IFERROR(VALUE(RIGHT(${column}${startRow},4))=${referenceYear},FALSE)</formula></cfRule>
     <cfRule type="expression" dxfId="2" priority="${priorityStart + 2}" stopIfTrue="1"><formula>IFERROR(VALUE(RIGHT(${column}${startRow},4))=${referenceYear + 1},FALSE)</formula></cfRule>
     <cfRule type="expression" dxfId="3" priority="${priorityStart + 3}" stopIfTrue="1"><formula>IFERROR(VALUE(RIGHT(${column}${startRow},4))&gt;${referenceYear + 1},FALSE)</formula></cfRule>
-  </conditionalFormatting>`;
-}
-
-function buildLinkedDateConditionalFormatting(targetColumn, sourceColumn, startRow, endRow, referenceYear, priorityStart) {
-  const ref = `${targetColumn}${startRow}:${targetColumn}${endRow}`;
-  return `<conditionalFormatting sqref="${ref}">
-    <cfRule type="expression" dxfId="0" priority="${priorityStart}" stopIfTrue="1"><formula>AND($${sourceColumn}${startRow}&lt;&gt;\"\",IFERROR(YEAR($${sourceColumn}${startRow})&lt;${referenceYear},FALSE))</formula></cfRule>
-    <cfRule type="expression" dxfId="1" priority="${priorityStart + 1}" stopIfTrue="1"><formula>AND($${sourceColumn}${startRow}&lt;&gt;\"\",IFERROR(YEAR($${sourceColumn}${startRow})=${referenceYear},FALSE))</formula></cfRule>
-    <cfRule type="expression" dxfId="2" priority="${priorityStart + 2}" stopIfTrue="1"><formula>AND($${sourceColumn}${startRow}&lt;&gt;\"\",IFERROR(YEAR($${sourceColumn}${startRow})=${referenceYear + 1},FALSE))</formula></cfRule>
-    <cfRule type="expression" dxfId="3" priority="${priorityStart + 3}" stopIfTrue="1"><formula>AND($${sourceColumn}${startRow}&lt;&gt;\"\",IFERROR(YEAR($${sourceColumn}${startRow})&gt;${referenceYear + 1},FALSE))</formula></cfRule>
   </conditionalFormatting>`;
 }
 
