@@ -623,6 +623,7 @@ tbody tr:nth-child(even) td { background: var(--forti-table-stripe); }
   </div>
 </div>
 
+<script src="../js/toolbox-shared.js"></script>
 <script>
 // ─────────────────────────────────────────────
 //  State
@@ -1037,38 +1038,21 @@ function escHtml(s) {
 }
 
 // ─────────────────────────────────────────────
-//  Pricing IndexDB (same DB as index.html)
+//  Pricing — reads from toolbox_shared via shared adapter
 // ─────────────────────────────────────────────
-let _pricingDb = null;
-let _pricingCache = null;
+let _pricingCache  = null;
 let _pricingLoaded = false;
-
-function openPricingDB() {
-  if (_pricingDb) return Promise.resolve(_pricingDb);
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open('fabricbom_pricing', 1);
-    req.onupgradeneeded = e => e.target.result.createObjectStore('pricing');
-    req.onsuccess = e => { _pricingDb = e.target.result; resolve(_pricingDb); };
-    req.onerror = e => reject(e.target.error);
-  });
-}
 
 async function getPricingData() {
   if (_pricingLoaded) return _pricingCache;
   try {
-    const db = await openPricingDB();
-    const data = await new Promise((resolve, reject) => {
-      const tx = db.transaction('pricing', 'readonly');
-      const req = tx.objectStore('pricing').get('current');
-      req.onsuccess = e => resolve(e.target.result || null);
-      req.onerror = e => reject(e.target.error);
-    });
-    _pricingCache = data;
+    const dataset = await getDataset('pricing');
+    _pricingCache  = (dataset && dataset.data) ? dataset.data : null;
     _pricingLoaded = true;
-    return data;
+    return _pricingCache;
   } catch(e) {
     _pricingLoaded = true;
-    _pricingCache = null;
+    _pricingCache  = null;
     return null;
   }
 }
@@ -1167,15 +1151,13 @@ document.addEventListener('click', e => {
 });
 
 // ─────────────────────────────────────────────
-//  Pricing search helpers
+//  Pricing search helpers (normalized shared row shape)
 // ─────────────────────────────────────────────
 function rowToAcItem(row) {
   return {
-    sku:     row.SKU || '',
-    desc1:   row['Description #1'] || '',
-    desc2:   row['Description #2'] || '',
-    product: row.Product || '',
-    item:    row.Item || '',
+    sku:   row.sku   || '',
+    desc1: row.description1 || '',
+    desc2: row.description2 || '',
   };
 }
 
@@ -1185,7 +1167,7 @@ async function searchBySku(query) {
   const q = query.trim().toUpperCase();
   if (q.length < 2) return [];
   return data.rows
-    .filter(row => (row.SKU || '').toUpperCase().includes(q))
+    .filter(row => (row.sku || '').toUpperCase().includes(q))
     .slice(0, 15)
     .map(rowToAcItem);
 }
@@ -1197,7 +1179,7 @@ async function searchByDesc(query) {
   if (!terms.length || terms[0].length < 3) return [];
   return data.rows
     .filter(row => {
-      const d = (row['Description #1'] || '').toLowerCase();
+      const d = (row.description1 || '').toLowerCase();
       return terms.every(t => d.includes(t));
     })
     .slice(0, 15)
@@ -1207,16 +1189,16 @@ async function searchByDesc(query) {
 async function findExactSku(sku) {
   const data = await getPricingData();
   if (!data || !data.rows) return null;
-  const q = sku.trim().toUpperCase();
-  const row = data.rows.find(r => (r.SKU || '').toUpperCase() === q);
+  const q   = sku.trim().toUpperCase();
+  const row = data.rows.find(r => (r.sku || '').toUpperCase() === q);
   return row ? rowToAcItem(row) : null;
 }
 
 async function findExactDesc(desc) {
   const data = await getPricingData();
   if (!data || !data.rows) return null;
-  const q = desc.trim().toLowerCase();
-  const row = data.rows.find(r => (r['Description #1'] || '').toLowerCase() === q);
+  const q   = desc.trim().toLowerCase();
+  const row = data.rows.find(r => (r.description1 || '').toLowerCase() === q);
   return row ? rowToAcItem(row) : null;
 }
 

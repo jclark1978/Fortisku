@@ -1,9 +1,12 @@
-const CACHE = 'fabricbom-v3.0.0.4-fortisku';
+const CACHE = 'fabricbom-v3.1.0.1-fortisku';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.json',
+  './js/toolbox-shared.js',
+  './js/pricing-normalize.js',
+  './js/xlsx.mini.min.js',
   './favicon.ico',
   './icons/pwa-192x192.png',
   './icons/pwa-512x512.png',
