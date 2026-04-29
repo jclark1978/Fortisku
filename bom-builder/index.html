@@ -12,10 +12,6 @@
   <div class="app">
     <header>
       <div class="header-row">
-        <div>
-          <h1>BOM Builder</h1>
-          <p>SE Toolbox-native BOM generation powered by an upstream-synced FabricBOM workspace and SE Toolbox wrapper.</p>
-        </div>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color mode" aria-pressed="false">
           <span class="theme-toggle-track" aria-hidden="true">
             <span class="theme-icon theme-icon-sun">☀</span>
@@ -28,35 +24,7 @@
     </header>
 
     <main>
-      <section class="panel bom-builder-intro" aria-labelledby="bom-builder-heading">
-        <div class="panel-header">
-          <h2 id="bom-builder-heading">Build a Project BOM</h2>
-          <span class="integration-badge">Plugin-backed</span>
-        </div>
-        <p>
-          Open a product configurator from the left sidebar, add the items you need, and manage the combined quote
-          in Project BOM. Use this page when you want to build a customer BOM without leaving SE Toolbox.
-        </p>
-        <p class="bom-builder-guidance">
-          Use the shared navigation to jump into products, Project BOM, or Saved Projects while keeping the same
-          SE Toolbox shell, theme, and shared SKU Finder pricing database.
-        </p>
-
-        <div class="bom-builder-actions">
-          <button id="bom-builder-project-button" type="button" class="ui-btn ui-btn--secondary bom-button secondary">Project BOM</button>
-          <button id="bom-builder-saved-button" type="button" class="ui-btn ui-btn--secondary bom-button secondary">Saved Projects</button>
-          <a id="bom-builder-open-full-link" class="ui-btn ui-btn--secondary action-link" href="../vendor/FortiBOM/index.html" target="_blank" rel="noopener noreferrer">Open Full FabricBOM</a>
-        </div>
-
-        <p id="bom-builder-status" class="status-message info" role="status" aria-live="polite">
-          Loading the embedded BOM workspace…
-        </p>
-      </section>
-
-      <section class="panel bom-builder-host-panel" aria-labelledby="bom-builder-host-heading">
-        <div class="panel-header">
-          <h2 id="bom-builder-host-heading">Embedded FabricBOM Workspace</h2>
-        </div>
+      <section class="panel bom-builder-host-panel">
         <iframe
           id="bom-builder-frame"
           class="bom-builder-frame"
