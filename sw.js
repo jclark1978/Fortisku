@@ -1,4 +1,4 @@
-const CACHE_NAME = "fortisku-cache-v21";
+const CACHE_NAME = "fortisku-cache-v22";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -61,7 +61,12 @@ const APP_SHELL = [
   "./vendor/minisearch.min.js",
   "./vendor/idb-keyval.mjs",
   "./vendor/FortiBOM/index.html",
+  "./vendor/FortiBOM/js/toolbox-shared.js",
+  "./vendor/FortiBOM/js/pricing-normalize.js",
+  "./vendor/FortiBOM/js/xlsx.mini.min.js",
   "./vendor/FortiBOM/products/fortigate-bomgen.html",
+  "./vendor/FortiBOM/products/custom-sku-bomgen.html",
+  "./vendor/FortiBOM/products/custom-sku-bomgen-mobile.html",
   "./vendor/xlsx.mjs",
   "./sw.js"
 ];

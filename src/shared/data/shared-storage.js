@@ -32,7 +32,8 @@ export async function saveSharedDataset(key, payload) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
-    const req = store.put({ ...payload, key });
+    const record = { ...payload, key };
+    const req = store.keyPath === "key" ? store.put(record) : store.put(record, key);
     req.onsuccess = () => { db.close(); resolve(); };
     req.onerror = () => { db.close(); reject(req.error); };
   });

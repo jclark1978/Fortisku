@@ -545,7 +545,7 @@
   </div>
 </div>
 
-<input type="file" id="pricing-file" accept=".csv" style="display:none" onchange="pricingFileChosen(this)">
+<input type="file" id="pricing-file" accept=".xlsx,.xls" style="display:none" onchange="pricingFileChosen(this)">
 <div id="toast"></div>
 
 <!-- Copy/Export dropdown menu (position:fixed so it escapes overflow-y:auto parents) -->
@@ -668,6 +668,10 @@
   </div>
 </div>
 
+<script src="js/toolbox-shared.js"></script>
+<script src="js/pricing-normalize.js"></script>
+<!-- SheetJS xlsx — browser-safe workbook parser. Vendor this file at js/xlsx.mini.min.js for full offline/PWA support. -->
+<script src="js/xlsx.mini.min.js"></script>
 <script>
 const CATALOG = [
   { file:'fortigate-bomgen.html',    label:'FortiGate (FGT)',      cat:'Network Security' },
@@ -890,10 +894,15 @@ function showAbout() {
   document.getElementById('pf').style.display = 'none';
   const ws = document.getElementById('ws');
   ws.style.display = 'flex';
-  ws.querySelector('h2').textContent = 'FabricBOM v1.0.1b';
-  ws.querySelector('p').textContent = 'Cross-product Bill of Materials generator for Fortinet deployments. Build BOMs per product, then combine them into a Project BOM.';
-  ws.querySelector('p').innerHTML += '<br><br>Disclaimer: FabricBOM is not an officially sanctioned Fortinet product. Always validate output against the official Fortinet product ordering guides.';
-  ws.querySelector('p').innerHTML += '<br><br><a href="https://github.com/msalty/FortiBOM/issues" target="_blank" rel="noopener noreferrer">Report an issue on GitHub</a>';
+  ws.innerHTML = `
+    <svg class="wl" viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="8" fill="#EE3124"/><path d="M12 16h32v6H12zM12 25h20v6H12zM12 34h32v6H12z" fill="white"/></svg>
+    <h2>FabricBOM v1.0.1b</h2>
+    <p>Cross-product Bill of Materials generator for Fortinet deployments. Build BOMs per product, then combine them into a Project BOM.</p>
+    <div class="hint" style="max-width:380px;text-align:left;">
+      <strong style="color:#4A5168;display:block;margin-bottom:4px;">Disclaimer</strong>
+      FabricBOM is not an officially sanctioned Fortinet product. Always validate output against the official Fortinet product ordering guides.
+    </div>
+    <a href="https://github.com/msalty/FabricBOM/issues" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--forti-red);text-decoration:none;">Report an issue on GitHub →</a>`;
 }
 
 // ── postMessage RECEIVER ─────────────────────────────────────────────────────
@@ -1026,9 +1035,9 @@ document.addEventListener('click', e => {
 async function renderGroups() {
   let priceMap = null;
   try {
-    const pricingRaw = await getPricingIDB();
-    if (pricingRaw && pricingRaw.rows && pricingRaw.rows.length) {
-      priceMap = new Map(pricingRaw.rows.map(r => [r['SKU'], r['Price']]));
+    const pricingDataset = await getDataset(TOOLBOX_KEY_PRICING);
+    if (pricingDataset && pricingDataset.data && pricingDataset.data.rows && pricingDataset.data.rows.length) {
+      priceMap = new Map(pricingDataset.data.rows.map(r => [r.sku, r]));
     }
   } catch(e) { /* pricing unavailable */ }
   const hasPricing = priceMap !== null;
@@ -1077,12 +1086,13 @@ async function renderGroups() {
         const isExcluded = effectiveKind === 'excl';
         let priceCells = '';
         if (hasPricing) {
-          const listPrice = priceMap.get(r.sku || '');
-          const listPriceNum = listPrice ? parseFloat(String(listPrice).replace(/[^0-9.]/g, '')) : NaN;
+          const pricingRow     = resolvePricingRow(priceMap, r.sku || '', getCurrentTerm());
+          const listPriceNum   = (pricingRow && typeof pricingRow.price === 'number') ? pricingRow.price : NaN;
+          const listPriceDisplay = formatListPriceDisplay(pricingRow);
           const totalNum = (!isNaN(listPriceNum) && typeof r.qty === 'number') ? listPriceNum * r.qty : NaN;
           if (!isExcluded && !isNaN(totalNum)) { grandTotal += totalNum; grandTotalValid = true; }
           const totalDisplay = isExcluded ? '$0.00' : (!isNaN(totalNum) ? '$'+totalNum.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '');
-          priceCells = `<td class="nc" style="text-align:right;white-space:nowrap;">${listPrice ? h(listPrice) : ''}</td><td class="nc" style="text-align:right;white-space:nowrap;">${totalDisplay}</td>`;
+          priceCells = `<td class="nc" style="text-align:right;white-space:nowrap;">${listPriceDisplay ? h(listPriceDisplay) : ''}</td><td class="nc" style="text-align:right;white-space:nowrap;">${totalDisplay}</td>`;
         }
         const detailRows = [];
         if (r.desc) detailRows.push(`<tr><td class="det-k">Description</td><td class="det-v nc">${h(r.desc)}</td></tr>`);
@@ -1281,6 +1291,33 @@ function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 // changes — it just triggers a re-render; renderGroups reads the current term.
 function getCurrentTerm() {
   return document.getElementById('pi-term').value; // 'DD', '12', '36', or '60'
+}
+
+function resolvePricingRow(priceMap, sku, term) {
+  if (!priceMap || !sku) return null;
+
+  const exact = priceMap.get(sku);
+  if (exact) return exact;
+
+  const skuText = String(sku);
+  if (term === 'DD' || !/-DD$/i.test(skuText)) {
+    return null;
+  }
+
+  return priceMap.get(skuText.replace(/-DD$/i, `-${term}`)) || null;
+}
+
+function formatListPriceDisplay(pricingRow) {
+  if (!pricingRow) return '';
+  const rawDisplay = typeof pricingRow.priceDisplay === 'string' ? pricingRow.priceDisplay.trim() : '';
+  if (rawDisplay && rawDisplay !== '-') return rawDisplay;
+  if (typeof pricingRow.price === 'number' && !isNaN(pricingRow.price)) {
+    return '$' + pricingRow.price.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+  return '';
 }
 
 function applyTermToSku(sku, term) {
@@ -1630,9 +1667,9 @@ async function toggleProjectMenu(e) {
   if (menu.classList.contains('on')) { menu.classList.remove('on'); return; }
   const btn = e.currentTarget;
   try {
-    const pricing = await getPricingIDB();
+    const pricing = await getDataset(TOOLBOX_KEY_PRICING);
     const sfdc = document.getElementById('project-sfdc-section');
-    if (sfdc) sfdc.style.display = (pricing && pricing.rows && pricing.rows.length) ? '' : 'none';
+    if (sfdc) sfdc.style.display = (pricing && pricing.data && pricing.data.rows && pricing.data.rows.length) ? '' : 'none';
   } catch(_) {}
   const rect = btn.getBoundingClientRect();
   menu.style.top  = (rect.bottom + 4) + 'px';
@@ -1930,157 +1967,102 @@ function checkBOMFragment() {
   }
 }
 
-// ── PRICING (IndexedDB) ────────────────────────────────────────────────────────
-let _pricingDb = null;
+// ── PRICING (toolbox_shared IndexedDB via shared adapter) ─────────────────────
 
-function openPricingDB() {
-  if (_pricingDb) return Promise.resolve(_pricingDb);
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open('fabricbom_pricing', 1);
-    req.onupgradeneeded = e => e.target.result.createObjectStore('pricing');
-    req.onsuccess = e => { _pricingDb = e.target.result; resolve(_pricingDb); };
-    req.onerror = e => reject(e.target.error);
+async function parsePricingXLSX(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        if (typeof XLSX === 'undefined') {
+          resolve({ ok: false, error: 'Workbook parser (SheetJS) is not loaded. Check your internet connection and reload.' });
+          return;
+        }
+        const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+
+        // Read cover sheet label from C7 if present
+        let coverLabel = null;
+        const coverName = wb.SheetNames.find(n => /^(cover\s?sheet|coversheet|cover)$/i.test(n.trim()));
+        if (coverName) {
+          const cws = wb.Sheets[coverName];
+          const c7  = cws && cws['C7'];
+          if (c7 && c7.v) coverLabel = String(c7.v).trim() || null;
+        }
+
+        // Target sheet: 'DataSet' if present, else first sheet
+        const sheetName = wb.SheetNames.find(n => /^dataset$/i.test(n.trim())) || wb.SheetNames[0];
+        const ws = wb.Sheets[sheetName];
+        const allRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+        // Detect header row: first row within first 30 that has a SKU synonym and a description synonym
+        let headerRowIdx = -1;
+        let headerRow    = null;
+        for (let i = 0; i < Math.min(allRows.length, 30); i++) {
+          const cells = allRows[i].map(c => _pnNormalKey(String(c)));
+          const hasSku  = PRICING_HEADER_MAP.sku.some(s => cells.includes(_pnNormalKey(s)));
+          const hasDesc = PRICING_HEADER_MAP.description1.some(s => cells.includes(_pnNormalKey(s)));
+          if (hasSku && hasDesc) { headerRowIdx = i; headerRow = allRows[i].map(c => String(c).trim()); break; }
+        }
+
+        if (headerRowIdx === -1) {
+          resolve({ ok: false, error: 'Could not find a pricing header row. The sheet must contain at least a SKU column and a Description column.' });
+          return;
+        }
+
+        const dataRows = [];
+        for (let i = headerRowIdx + 1; i < allRows.length; i++) {
+          const cells = allRows[i];
+          if (cells.every(c => String(c).trim() === '')) continue;
+          const obj = {};
+          headerRow.forEach((hdr, idx) => { if (hdr) obj[hdr] = String(cells[idx] !== undefined ? cells[idx] : '').trim(); });
+          dataRows.push(obj);
+        }
+
+        if (!dataRows.length) {
+          resolve({ ok: false, error: 'No data rows found after the header row.' });
+          return;
+        }
+
+        const normalizedRows = normalizePricingRows(dataRows);
+        if (!normalizedRows.length) {
+          resolve({ ok: false, error: 'No valid pricing rows found. Ensure the sheet has non-empty SKU values.' });
+          return;
+        }
+
+        resolve({ ok: true, normalizedRows, label: coverLabel, sheetName });
+      } catch (err) {
+        resolve({ ok: false, error: 'Could not parse workbook: ' + err.message });
+      }
+    };
+    reader.onerror = () => resolve({ ok: false, error: 'Could not read file.' });
+    reader.readAsArrayBuffer(file);
   });
-}
-async function savePricingIDB(data) {
-  const db = await openPricingDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('pricing', 'readwrite');
-    tx.objectStore('pricing').put(data, 'current');
-    tx.oncomplete = resolve;
-    tx.onerror = e => reject(e.target.error);
-  });
-}
-async function getPricingIDB() {
-  const db = await openPricingDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('pricing', 'readonly');
-    const req = tx.objectStore('pricing').get('current');
-    req.onsuccess = e => resolve(e.target.result || null);
-    req.onerror = e => reject(e.target.error);
-  });
-}
-async function deletePricingIDB() {
-  const db = await openPricingDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('pricing', 'readwrite');
-    tx.objectStore('pricing').delete('current');
-    tx.oncomplete = resolve;
-    tx.onerror = e => reject(e.target.error);
-  });
-}
-
-function parsePricingLine(line) {
-  const cells = []; let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (inQ) {
-      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
-      else if (c === '"') { inQ = false; }
-      else { cur += c; }
-    } else {
-      if (c === '"') { inQ = true; }
-      else if (c === ',') { cells.push(cur); cur = ''; }
-      else { cur += c; }
-    }
-  }
-  cells.push(cur);
-  return cells;
-}
-
-function parsePricingCSV(text) {
-  // Split into logical CSV lines respecting quoted fields that may contain newlines
-  const rawLines = [];
-  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  let lineBuf = '', inQ = false;
-  for (let i = 0; i < normalized.length; i++) {
-    const c = normalized[i];
-    if (c === '"') {
-      if (inQ && normalized[i + 1] === '"') { lineBuf += '""'; i++; }
-      else { inQ = !inQ; lineBuf += c; }
-    } else if (c === '\n' && !inQ) {
-      rawLines.push(lineBuf); lineBuf = '';
-    } else {
-      lineBuf += c;
-    }
-  }
-  rawLines.push(lineBuf);
-  let name = '', effectiveDate = '', headerRowIdx = -1, foundDate = false;
-
-  for (let i = 0; i < Math.min(rawLines.length, 30); i++) {
-    const cells = parsePricingLine(rawLines[i]);
-    const first = cells[0].trim();
-
-    if (first.startsWith('Effective Date:')) {
-      effectiveDate = first.replace('Effective Date:', '').trim();
-      foundDate = true;
-      continue;
-    }
-    // Name row: before effective date, first cell non-empty, all others empty
-    if (!name && !foundDate && first && cells.slice(1).every(c => !c.trim())) {
-      name = first;
-      continue;
-    }
-    // Header row: first cell is "Comments" and row contains "SKU"
-    const lc = cells.map(c => c.trim().toLowerCase());
-    if (lc[0] === 'comments' && lc.includes('sku')) {
-      headerRowIdx = i;
-      break;
-    }
-  }
-
-  if (headerRowIdx === -1) {
-    return { ok: false, error: 'Could not find the pricing header row. Please verify this is a Fortinet price list CSV.' };
-  }
-
-  const headers = parsePricingLine(rawLines[headerRowIdx]).map(h => h.trim());
-  const rows = [];
-  for (let i = headerRowIdx + 1; i < rawLines.length; i++) {
-    if (!rawLines[i].trim()) continue;
-    const cells = parsePricingLine(rawLines[i]);
-    if (cells.every(c => !c.trim())) continue;
-    const row = {};
-    headers.forEach((hdr, idx) => { if (hdr) row[hdr] = (cells[idx] || '').trim(); });
-    rows.push(row);
-  }
-
-  if (!rows.length) {
-    return { ok: false, error: 'No pricing data rows found after the header row.' };
-  }
-
-  return {
-    ok: true,
-    name: name || 'Fortinet Price List',
-    effectiveDate: effectiveDate || '',
-    headers,
-    rows,
-    uploadedAt: new Date().toISOString()
-  };
 }
 
 async function renderPricingSection() {
   const el = document.getElementById('pricing-content');
   if (!el) return;
   try {
-    const data = await getPricingIDB();
-    if (!data) {
+    const dataset = await getDataset(TOOLBOX_KEY_PRICING);
+    if (!dataset) {
       el.innerHTML = `
         <div id="pricing-drop" onclick="document.getElementById('pricing-file').click()"
              ondragover="pricingDragOver(event)" ondragleave="pricingDragLeave(event)" ondrop="pricingDrop(event)">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="opacity:.35"><rect x="4" y="4" width="24" height="24" rx="3" stroke="#6B7589" stroke-width="1.5"/><path d="M10 16h12M16 10v12" stroke="#6B7589" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop a Fortinet Pricing CSV here or click to browse</div>
-          <p>The price list name and effective date will be read automatically from the file header.</p>
+          <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop a Fortinet Pricing Workbook (.xlsx) here or click to browse</div>
+          <p>The price list label will be read automatically from the Cover Sheet tab (cell C7) when present.</p>
         </div>`;
     } else {
-      const when = new Date(data.uploadedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
-      const rowCount = data.rows.length.toLocaleString();
+      const src      = dataset.source || {};
+      const rowCount = ((dataset.meta && dataset.meta.rowCount) || 0).toLocaleString();
+      const when     = src.importedAt ? new Date(src.importedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '';
       el.innerHTML = `
         <div class="sp-list">
           <div class="sp-card">
             <div class="sp-accent"></div>
             <div class="sp-body">
-              <div class="sp-name">${h(data.name)}</div>
-              <div class="sp-meta">Effective: ${h(data.effectiveDate || '—')} &middot; ${rowCount} items &middot; Uploaded ${when}</div>
+              <div class="sp-name">${h(src.label || 'Fortinet Price List')}</div>
+              <div class="sp-meta">${rowCount} items &middot; Imported ${when}</div>
             </div>
             <div class="sp-actions">
               <button class="btn bd" onclick="deletePricing()">
@@ -2103,28 +2085,30 @@ function pricingFileChosen(inp) { if(inp.files[0]) handlePricingFile(inp.files[0
 
 function handlePricingFile(file) {
   const el = document.getElementById('pricing-content');
-  if (el) el.innerHTML = `<div style="padding:20px;text-align:center;font-size:13px;color:var(--c-text2);">Processing pricing data…</div>`;
-  const reader = new FileReader();
-  reader.onload = async ev => {
-    const result = parsePricingCSV(ev.target.result);
+  if (el) el.innerHTML = `<div style="padding:20px;text-align:center;font-size:13px;color:var(--c-text2);">Processing pricing workbook…</div>`;
+  parsePricingXLSX(file).then(async result => {
     if (!result.ok) { toast('⚠ ' + result.error); renderPricingSection(); return; }
+    const envelope = buildPricingEnvelope(result.normalizedRows, {
+      app:       'FabricBOM',
+      format:    'xlsx',
+      label:     result.label,
+      importedAt: new Date().toISOString(),
+    });
     try {
-      await savePricingIDB(result);
-      toast(`✓ Pricing saved: "${result.name}"`);
+      await saveDataset(TOOLBOX_KEY_PRICING, envelope);
+      toast(`✓ Pricing saved: ${result.normalizedRows.length.toLocaleString()} items`);
       renderPricingSection();
     } catch(e) {
       toast('⚠ Could not save pricing data: ' + e.message);
       renderPricingSection();
     }
-  };
-  reader.onerror = () => { toast('⚠ Could not read file.'); renderPricingSection(); };
-  reader.readAsText(file);
+  });
 }
 
 async function deletePricing() {
   if (!confirm('Delete the saved pricing data?')) return;
   try {
-    await deletePricingIDB();
+    await deleteDataset(TOOLBOX_KEY_PRICING);
     toast('✓ Pricing data deleted');
     renderPricingSection();
   } catch(e) {
