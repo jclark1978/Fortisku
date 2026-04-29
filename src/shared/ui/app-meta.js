@@ -1,7 +1,7 @@
 export const APP_METADATA = {
   author: "Jeff Clark",
-  version: "2026.04.1",
-  lastUpdated: "2026-04-28",
+  version: "2026.04.3",
+  lastUpdated: "2026-04-29",
   versionScheme: "CalVer: YYYY.MM.PATCH"
 };
 

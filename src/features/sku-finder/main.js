@@ -8,6 +8,8 @@ import {
   estimateSizeBytes,
   SCHEMA_VERSION
 } from "../../shared/data/storage.js";
+import { saveSharedDataset, deleteSharedDataset } from "../../shared/data/shared-storage.js";
+import { buildPricingDataset } from "../../shared/data/pricing-mapper.js";
 import { initUI } from "./ui.js";
 import { rowsToCSV } from "../../shared/data/csv.js";
 import {
@@ -122,6 +124,11 @@ async function handleUpload({ file, sheetName }) {
     meta.storedBytes = storedBytes;
     await savePersisted(rows, exported, meta);
     await saveOrderingGuideRows(result.orderingGuideRows);
+    try {
+      await saveSharedDataset("pricing", buildPricingDataset(rows, meta));
+    } catch (err) {
+      console.warn("Failed to publish shared pricing dataset", err);
+    }
     notifyAdminRequirementsChanged();
 
     ui.renderDatasetReady(meta, storedBytes);
@@ -159,6 +166,11 @@ async function handleClear() {
   }
 
   await clearPersisted();
+  try {
+    await deleteSharedDataset("pricing");
+  } catch (err) {
+    console.warn("Failed to clear shared pricing dataset", err);
+  }
   notifyAdminRequirementsChanged();
   rows = [];
   rowsById = new Map();

@@ -8,6 +8,7 @@ import {
 } from "./storage.js";
 import { startLifecycleApp } from "../../shared/lifecycle/app.js";
 import { initLifecycleRssUI } from "./ui.js";
+import { buildHardwareLifecycleDataset } from "../../shared/data/lifecycle-mapper.js";
 
 startLifecycleApp({
   currentNav: "hardware-lifecycle",
@@ -24,6 +25,10 @@ startLifecycleApp({
     estimateSizeBytes: estimateLifecycleRssSizeBytes,
     loadPersisted: loadLifecycleRssPersisted,
     savePersisted: saveLifecycleRssPersisted
+  },
+  shared: {
+    key: "hardware_lifecycle",
+    buildDataset: buildHardwareLifecycleDataset
   },
   messages: {
     restoreLogLabel: "Failed to restore Hardware LifeCycle data",

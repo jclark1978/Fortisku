@@ -8,6 +8,7 @@ const BRAND_ABOUT_DELAY_MS = 3000;
 const ICONS = {
   search: `<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>`,
   layers: `<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>`,
+  database: `<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>`,
   refreshCw: `<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>`,
   bookOpen: `<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>`,
   eraser: `<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>`,
@@ -77,7 +78,8 @@ const TOOLBOX_ITEMS = [
   },
   { key: "ordering-guides", label: "Ordering Guides", href: "ordering-guides/", icon: "bookOpen" },
   { key: "asset-reports", label: "Asset Report Cleanup", href: "asset-reports/", icon: "eraser" },
-  { key: "lab-portal", label: "Lab Portal Generator", href: "lab-portal/", icon: "flaskConical" }
+  { key: "lab-portal", label: "Lab Portal Generator", href: "lab-portal/", icon: "flaskConical" },
+  { key: "data-sources", label: "Data Sources", href: "data-sources/", icon: "database" }
 ];
 
 function normalizeCurrent(current) {

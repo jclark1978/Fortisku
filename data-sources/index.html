@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SE Toolbox - Data Sources</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../src/shared/ui/toolbox-shell.css" />
+  <link rel="stylesheet" href="../src/shared/ui/lifecycle-page.css" />
+  <script src="../src/shared/ui/theme-init.js"></script>
+  <style>
+    .ds-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .ds-card {
+      background: var(--color-surface-1);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+    }
+
+    .ds-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+
+    .ds-card-title {
+      font-size: var(--text-body-md-size);
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .ds-badge {
+      font-size: var(--text-body-sm-size);
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .ds-badge--ok {
+      background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+      color: var(--color-accent);
+    }
+
+    .ds-badge--empty {
+      background: var(--color-surface-2);
+      color: var(--color-text-muted);
+    }
+
+    .ds-description {
+      font-size: var(--text-body-sm-size);
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-2);
+    }
+
+    .ds-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      font-size: var(--text-body-sm-size);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+      min-height: 1.4em;
+    }
+
+    .ds-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .ds-card-status {
+      margin-top: var(--space-3);
+      min-height: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-row">
+        <div>
+          <h1>Data Sources</h1>
+          <p>Import and manage the datasets used across SE Toolbox tools. All data is stored locally in your browser.</p>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color mode" aria-pressed="false">
+          <span class="theme-toggle-track" aria-hidden="true">
+            <span class="theme-icon theme-icon-sun">☀</span>
+            <span class="theme-icon theme-icon-moon">☾</span>
+            <span class="theme-toggle-knob"></span>
+          </span>
+        </button>
+      </div>
+      <nav id="toolbox-nav" class="top-nav" aria-label="Primary navigation"></nav>
+    </header>
+
+    <main>
+      <section class="panel" aria-labelledby="ds-heading">
+        <div class="panel-header">
+          <h2 id="ds-heading">Datasets</h2>
+        </div>
+
+        <div class="ds-grid">
+
+          <!-- Pricing -->
+          <div class="ds-card" id="ds-card-pricing">
+            <div class="ds-card-header">
+              <span class="ds-card-title">Pricing</span>
+              <span class="ds-badge ds-badge--empty" id="ds-pricing-badge">No data</span>
+              <span class="spinner" id="ds-pricing-spinner" hidden>Processing…</span>
+            </div>
+            <p class="ds-description">SKU pricelist from an Excel workbook. Used by SKU Finder and BOM Builder.</p>
+            <div class="ds-meta" id="ds-pricing-meta"></div>
+            <div class="ds-actions">
+              <button type="button" class="ui-btn ui-btn--primary" id="ds-pricing-import-btn">Import from Excel</button>
+              <input type="file" id="ds-pricing-file" accept=".xlsx,.xls" hidden />
+              <button type="button" class="ui-btn ui-btn--secondary secondary" id="ds-pricing-clear-btn" disabled>Clear shared data</button>
+            </div>
+            <p class="status-message ds-card-status" id="ds-pricing-status" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- Hardware LifeCycle -->
+          <div class="ds-card" id="ds-card-hardware_lifecycle">
+            <div class="ds-card-header">
+              <span class="ds-card-title">Hardware LifeCycle</span>
+              <span class="ds-badge ds-badge--empty" id="ds-hw-badge">No data</span>
+              <span class="spinner" id="ds-hw-spinner" hidden>Processing…</span>
+            </div>
+            <p class="ds-description">Hardware lifecycle milestones from the Fortinet RSS feed.</p>
+            <div class="ds-meta" id="ds-hw-meta"></div>
+            <div class="ds-actions">
+              <button type="button" class="ui-btn ui-btn--primary" id="ds-hw-refresh-btn">Refresh from RSS</button>
+              <button type="button" class="ui-btn ui-btn--secondary secondary" id="ds-hw-clear-btn" disabled>Clear shared data</button>
+            </div>
+            <p class="status-message ds-card-status" id="ds-hw-status" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- Software LifeCycle -->
+          <div class="ds-card" id="ds-card-software_lifecycle">
+            <div class="ds-card-header">
+              <span class="ds-card-title">Software LifeCycle</span>
+              <span class="ds-badge ds-badge--empty" id="ds-sw-badge">No data</span>
+              <span class="spinner" id="ds-sw-spinner" hidden>Processing…</span>
+            </div>
+            <p class="ds-description">Software lifecycle milestones from the Fortinet RSS feed.</p>
+            <div class="ds-meta" id="ds-sw-meta"></div>
+            <div class="ds-actions">
+              <button type="button" class="ui-btn ui-btn--primary" id="ds-sw-refresh-btn">Refresh from RSS</button>
+              <button type="button" class="ui-btn ui-btn--secondary secondary" id="ds-sw-clear-btn" disabled>Clear shared data</button>
+            </div>
+            <p class="status-message ds-card-status" id="ds-sw-status" role="status" aria-live="polite"></p>
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Clearing shared data here removes only the shared interoperability copy. Feature-specific data on each tool page is unaffected.
+    </footer>
+  </div>
+
+  <!-- Hardware LifeCycle RSS modal -->
+  <dialog id="ds-hw-modal" class="rss-modal" aria-labelledby="ds-hw-modal-title">
+    <div class="rss-modal-content">
+      <div class="rss-modal-header">
+        <h3 id="ds-hw-modal-title">Refresh Hardware LifeCycle from RSS</h3>
+        <button id="ds-hw-close-btn" type="button" class="ui-btn ui-btn--secondary secondary">Close</button>
+      </div>
+      <p>Open the Fortinet RSS feed in a new tab, select all, copy the XML, then click Paste from clipboard.</p>
+      <div class="rss-modal-actions">
+        <button id="ds-hw-open-feed-btn" type="button" class="ui-btn ui-btn--primary">Open Fortinet RSS</button>
+        <button id="ds-hw-paste-clip-btn" type="button" class="ui-btn ui-btn--secondary secondary">Paste from clipboard</button>
+      </div>
+      <p id="ds-hw-modal-status" class="rss-modal-status info" role="status" aria-live="polite"></p>
+      <textarea
+        id="ds-hw-paste-input"
+        class="paste-box ui-textarea"
+        hidden
+        spellcheck="false"
+        placeholder="Paste the Fortinet RSS XML here, then press Ctrl+Enter to import..."
+        aria-label="Paste Hardware LifeCycle RSS XML"
+      ></textarea>
+    </div>
+  </dialog>
+
+  <!-- Software LifeCycle RSS modal -->
+  <dialog id="ds-sw-modal" class="rss-modal" aria-labelledby="ds-sw-modal-title">
+    <div class="rss-modal-content">
+      <div class="rss-modal-header">
+        <h3 id="ds-sw-modal-title">Refresh Software LifeCycle from RSS</h3>
+        <button id="ds-sw-close-btn" type="button" class="ui-btn ui-btn--secondary secondary">Close</button>
+      </div>
+      <p>Open the Fortinet RSS feed in a new tab, select all, copy the XML, then click Paste from clipboard.</p>
+      <div class="rss-modal-actions">
+        <button id="ds-sw-open-feed-btn" type="button" class="ui-btn ui-btn--primary">Open Fortinet RSS</button>
+        <button id="ds-sw-paste-clip-btn" type="button" class="ui-btn ui-btn--secondary secondary">Paste from clipboard</button>
+      </div>
+      <p id="ds-sw-modal-status" class="rss-modal-status info" role="status" aria-live="polite"></p>
+      <textarea
+        id="ds-sw-paste-input"
+        class="paste-box ui-textarea"
+        hidden
+        spellcheck="false"
+        placeholder="Paste the Fortinet RSS XML here, then press Ctrl+Enter to import..."
+        aria-label="Paste Software LifeCycle RSS XML"
+      ></textarea>
+    </div>
+  </dialog>
+
+  <script type="module" src="../src/features/data-sources/main.js"></script>
+</body>
+</html>

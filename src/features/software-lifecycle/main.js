@@ -8,6 +8,7 @@ import {
 } from "./storage.js";
 import { startLifecycleApp } from "../../shared/lifecycle/app.js";
 import { initSoftwareLifecycleUI } from "./ui.js";
+import { buildSoftwareLifecycleDataset } from "../../shared/data/lifecycle-mapper.js";
 
 startLifecycleApp({
   currentNav: "software-lifecycle",
@@ -24,6 +25,10 @@ startLifecycleApp({
     estimateSizeBytes: estimateSoftwareLifecycleSizeBytes,
     loadPersisted: loadSoftwareLifecyclePersisted,
     savePersisted: saveSoftwareLifecyclePersisted
+  },
+  shared: {
+    key: "software_lifecycle",
+    buildDataset: buildSoftwareLifecycleDataset
   },
   messages: {
     restoreLogLabel: "Failed to restore Software LifeCycle data",
