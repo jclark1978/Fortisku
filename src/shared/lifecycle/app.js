@@ -1,6 +1,7 @@
 import { initThemeToggle } from "../ui/theme.js";
 import { initToolboxNav } from "../ui/nav.js";
 import { notifyAdminRequirementsChanged } from "../ui/admin-alerts.js";
+import { saveSharedDataset, deleteSharedDataset } from "../data/shared-storage.js";
 
 const MAX_RENDERED_ROWS = 200;
 const POPUP_WIDTH = 760;
@@ -15,7 +16,8 @@ export function startLifecycleApp(config) {
     createUi,
     search,
     storage,
-    messages
+    messages,
+    shared = null
   } = config;
 
   let rows = [];
@@ -161,6 +163,13 @@ export function startLifecycleApp(config) {
     }
 
     await storage.clearPersisted();
+    if (shared) {
+      try {
+        await deleteSharedDataset(shared.key);
+      } catch (err) {
+        console.warn("Failed to clear shared lifecycle dataset", err);
+      }
+    }
     notifyAdminRequirementsChanged();
     rows = [];
     rowsById = new Map();
@@ -217,6 +226,13 @@ export function startLifecycleApp(config) {
     const storedBytes = storage.estimateSizeBytes(rows, exported);
     meta.storedBytes = storedBytes;
     await storage.savePersisted(rows, exported, meta);
+    if (shared) {
+      try {
+        await saveSharedDataset(shared.key, shared.buildDataset(rows, meta));
+      } catch (err) {
+        console.warn("Failed to publish shared lifecycle dataset", err);
+      }
+    }
     notifyAdminRequirementsChanged();
 
     ui.renderDatasetReady(meta, storedBytes);
