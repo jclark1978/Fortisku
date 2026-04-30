@@ -34,6 +34,15 @@
       color: var(--color-text-primary);
     }
 
+    a.ds-card-title {
+      text-decoration: none;
+    }
+
+    a.ds-card-title:hover,
+    a.ds-card-title:focus-visible {
+      text-decoration: underline;
+    }
+
     .ds-badge {
       font-size: var(--text-body-sm-size);
       font-weight: 500;
@@ -110,7 +119,7 @@
           <!-- Pricing -->
           <div class="ds-card" id="ds-card-pricing">
             <div class="ds-card-header">
-              <span class="ds-card-title">Pricing</span>
+              <a class="ds-card-title" href="https://fortinet.sharepoint.com/sites/pricing" target="_blank" rel="noopener noreferrer">Pricing</a>
               <span class="ds-badge ds-badge--empty" id="ds-pricing-badge">No data</span>
               <span class="spinner" id="ds-pricing-spinner" hidden>Processing…</span>
             </div>
