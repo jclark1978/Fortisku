@@ -15,9 +15,11 @@ The current direction is:
 
 As of this migration pass:
 
-- the vendored upstream snapshot has been refreshed from the forked `Development` branch derived from `msalty/FabricBOM`
+- the vendored upstream snapshot has been refreshed from the canonical `msalty/FabricBOM` repository
+- the latest refresh used `https://github.com/msalty/FabricBOM.git` branch `dev` at commit `e787a56` because a `Development` branch was not present
 - the BOM Builder wrapper still embeds the vendored app through `/bom-builder/`
 - SE Toolbox navigation can now reach the newer upstream products
+- SE Toolbox navigation can reach upstream's Pricing Dataset Search page when shared pricing data exists
 - pricing is being standardized onto a shared IndexedDB dataset contract
 - the theme bridge has been expanded to cover the newer upstream shell controls
 - the embedded FabricBOM pricing flow now uses workbook import (`.xlsx` / `.xls`) instead of the legacy CSV-only path
@@ -31,6 +33,9 @@ Current local integration points:
 - `src/features/bom-builder/theme-bridge.css`
 - `src/shared/data/shared-storage.js`
 - `vendor/FortiBOM/`
+- `vendor/FortiBOM/docs/`
+- `vendor/FortiBOM/forti-icons/`
+- `vendor/FortiBOM/products/asku.html`
 - `sw.js`
 
 Note:
@@ -320,11 +325,21 @@ Practical rule:
 - do not add fallback pricing that silently assumes `-12`, `-36`, or `-60` while the active term is still `DD`
 - term selection must remain explicit and user-controlled through `pi-term`
 
+## Upstream Source Of Truth
+
+Use the public upstream repository as the default refresh source:
+
+- canonical repository: `https://github.com/msalty/FabricBOM.git`
+- default branch preference: use the upstream development branch when present; currently the public branch is `dev`
+- do not refresh from personal forks unless that is expressly stated for the task
+- if a previously documented branch such as `Development` is not present, verify the available upstream branches and record the branch and commit used
+- do not preserve local vendored helper files when upstream now contains the correct shared data implementation; stale helpers can silently override the canonical contract
+
 ## Upstream Refresh Workflow
 
 Recommended workflow for future updates:
 
-1. refresh the vendored snapshot from `msalty/FabricBOM`
+1. refresh the vendored snapshot from the canonical `msalty/FabricBOM` repository
 2. compare upstream changes against local wrapper assumptions and the shared data contract
 3. preserve only the minimum local integration patches
 4. verify:
@@ -334,6 +349,7 @@ Recommended workflow for future updates:
    - Saved Projects still works
    - workbook-based shared pricing still resolves through `toolbox_shared` using DB version `2`
    - shared pricing reads/writes still use the `pricing` key in `datasets`
+   - Pricing Dataset Search reads the shared `pricing` record through upstream's current `toolbox_shared` v2 implementation
    - custom SKU search still resolves after adapting from shared `data.rows`
    - Project BOM list price renders from the shared row `Price` value or a clearly derived equivalent
    - Project BOM totals only resolve against the exact term selected in `pi-term`
@@ -356,11 +372,13 @@ When pulling a newer upstream `FabricBOM` snapshot, protect these integration ex
 
 - FabricBOM reads pricing from `toolbox_shared` rather than `fabricbom_pricing`
 - FabricBOM opens `toolbox_shared` with DB version `2`
+- FabricBOM does not load stale local vendored helper files that open `toolbox_shared` with an older DB version
 - FabricBOM reads the shared `pricing` record with top-level fields `key`, `version`, `source`, `data`, and `meta`
 - FabricBOM treats `source.type` as `csv` or `xlsx`, not the older `app` / `format` / `label` shape
 - FabricBOM derives any normalized runtime pricing rows from shared `data.rows` instead of expecting them to already be the stored contract
 - FabricBOM standalone pricing import uses the workbook flow rather than a CSV-only path
 - FabricBOM standalone pricing import loads its workbook parser from a vendored local asset, not a CDN dependency
+- Pricing Dataset Search reads the shared `pricing` record through upstream's current `toolbox_shared` v2 implementation
 - Custom SKU search uses an adapter built from the shared pricing dataset
 - Project BOM totals use a numeric price derived from shared pricing rows
 - Project BOM list price displays the shared `Price` value or a clearly derived equivalent
@@ -445,11 +463,12 @@ Do this only as a deliberate follow-up after:
 1. smoke-test `/bom-builder/` in the browser
 2. verify one standard product flow end to end
 3. verify `Search & Custom Entry` against the shared workbook-derived pricing dataset record
-4. verify Project BOM pricing/export behavior
-5. verify no legacy normalized-envelope assumptions remain in vendor helpers before pulling upstream changes
-6. verify no legacy CSV-only pricing assumptions remain after upstream refresh
-7. verify service worker cache invalidation whenever vendor helper assets or workbook parser assets change
-8. decide whether to keep the vendor path as-is for now or schedule the path rename as a separate cleanup pass
+4. verify `Pricing Dataset Search` appears only when shared pricing data exists and reads from `toolbox_shared`
+5. verify Project BOM pricing/export behavior
+6. verify no stale local helper file is overriding upstream's current `toolbox_shared` v2 implementation
+7. verify no legacy CSV-only pricing assumptions remain after upstream refresh
+8. verify service worker cache invalidation whenever vendor helper assets or workbook parser assets change
+9. decide whether to keep the vendor path as-is for now or schedule the path rename as a separate cleanup pass
 
 ## Strong Recommendation
 

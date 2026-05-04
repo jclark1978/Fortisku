@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FabricBOM – Help & FAQ</title>
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="../icons/pwa-192x192.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="theme-color" content="#1A1D23">
+<style>
+  :root {
+    --forti-red: #EE3124;
+    --forti-dark: #1A1D23;
+    --forti-sidebar: #21252D;
+    --forti-sidebar-hover: #2A2F3A;
+    --forti-sidebar-active: #2E3340;
+    --forti-border: #363C4A;
+    --forti-text-primary: #E8EAF0;
+    --forti-text-secondary: #8A93A8;
+    --forti-text-muted: #555E72;
+    --forti-content-bg: #F2F4F7;
+    --hh: 52px;
+    --sw: 240px;
+    --c-white: #fff;
+    --c-border: #DDE1E9;
+    --c-text: #2A2F3A;
+    --c-text2: #6B7589;
+    --c-textm: #9BA5BA;
+    --c-sh: #F7F9FC;
+    --c-th: #EEF1F6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--forti-dark);
+    color: var(--forti-text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  #top-bar {
+    height: var(--hh);
+    background: var(--forti-dark);
+    border-bottom: 1px solid var(--forti-border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    flex-shrink: 0;
+    z-index: 200;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-icon { width: 28px; height: 28px; flex-shrink: 0; }
+  .product-name { font-size: 15px; font-weight: 600; color: var(--forti-text-primary); letter-spacing: .01em; }
+  .product-name span { color: var(--forti-red); }
+  .tb-div { width: 1px; height: 24px; background: var(--forti-border); margin: 0 4px; }
+  .tb-sub { font-size: 12px; color: var(--forti-text-secondary); letter-spacing: .03em; text-transform: uppercase; }
+  .spacer { flex: 1; }
+  .tb-back {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 3px;
+    border: 1px solid var(--forti-border);
+    background: rgba(255,255,255,.04);
+    text-decoration: none;
+    font-size: 12px;
+    color: var(--forti-text-secondary);
+    font-family: inherit;
+    transition: background .12s, color .12s;
+  }
+  .tb-back:hover { background: rgba(255,255,255,.08); color: var(--forti-text-primary); }
+  .tb-back svg { width: 13px; height: 13px; }
+
+  /* LAYOUT */
+  #main { display: flex; flex: 1; overflow: hidden; }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sw);
+    background: var(--forti-sidebar);
+    border-right: 1px solid var(--forti-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width .25s ease, border .25s ease;
+  }
+  #sidebar.collapsed { width: 0; overflow: hidden; border-right: none; }
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--forti-border); border-radius: 2px; }
+  .nsl {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--forti-text-muted);
+    padding: 20px 16px 8px;
+  }
+  .ni {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background .12s;
+    border-left: 2px solid transparent;
+    color: inherit;
+    text-decoration: none;
+  }
+  .ni:hover { background: var(--forti-sidebar-hover); }
+  .ni.active { background: var(--forti-sidebar-active); border-left-color: var(--forti-red); }
+  .ni-label {
+    font-size: 13px;
+    color: var(--forti-text-secondary);
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ni.active .ni-label { color: var(--forti-text-primary); font-weight: 500; }
+  .n-sep { height: 1px; background: var(--forti-border); margin: 8px 0; }
+
+  /* CONTENT */
+  #content {
+    flex: 1;
+    background: var(--forti-content-bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  #content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+  }
+  #content-scroll::-webkit-scrollbar { width: 6px; }
+  #content-scroll::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+
+  /* BREADCRUMB BAR */
+  #ch { height: 40px; background: #fff; border-bottom: 1px solid #DDE1E9; display: flex; align-items: center; padding: 0 20px; gap: 6px; flex-shrink: 0; flex-wrap: nowrap; overflow: hidden; min-width: 0; }
+  .bci { font-size: 12px; color: #6B7589; white-space: nowrap; flex-shrink: 0; }
+  .bcs { font-size: 11px; color: #B0B8CC; flex-shrink: 0; }
+  .bci.cur { color: #2A2F3A; font-weight: 500; }
+
+  .content-inner {
+    max-width: 820px;
+    padding: 24px 24px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--c-text);
+    padding-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 13px;
+    color: var(--c-text2);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* CARDS */
+  .lc {
+    background: var(--c-white);
+    border: 1px solid var(--c-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .lch {
+    background: var(--c-sh);
+    border-bottom: 1px solid var(--c-border);
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lch h2 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--c-text2);
+  }
+  .lch-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--forti-red);
+  }
+  .lcb { padding: 0; }
+
+  /* Q&A ITEMS */
+  details.qa {
+    border-bottom: 1px solid var(--c-border);
+  }
+  details.qa:last-child { border-bottom: none; }
+
+  details.qa summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 18px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--c-text);
+    user-select: none;
+    transition: background .12s;
+    position: relative;
+  }
+  details.qa summary::-webkit-details-marker { display: none; }
+  details.qa summary::before {
+    content: '';
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid var(--c-textm);
+    border-bottom: 1.5px solid var(--c-textm);
+    transform: rotate(-45deg);
+    flex-shrink: 0;
+    transition: transform .15s;
+    margin-left: 2px;
+  }
+  details.qa[open] summary::before {
+    transform: rotate(45deg) translateY(-2px);
+  }
+  details.qa summary:hover { background: var(--c-sh); }
+  details.qa[open] summary {
+    background: var(--c-sh);
+    border-bottom: 1px solid var(--c-border);
+    color: var(--forti-red);
+  }
+  details.qa[open] summary::before {
+    border-color: var(--forti-red);
+  }
+
+  .qa-body {
+    padding: 14px 18px 16px 37px;
+    font-size: 13px;
+    color: var(--c-text2);
+    line-height: 1.65;
+  }
+  .qa-body p { margin-bottom: 10px; }
+  .qa-body p:last-child { margin-bottom: 0; }
+  .qa-body strong { color: var(--c-text); font-weight: 600; }
+  .qa-body em { font-style: italic; }
+  .qa-body ul, .qa-body ol {
+    padding-left: 18px;
+    margin: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .qa-body li { line-height: 1.55; }
+  .qa-body .note {
+    background: #FFF8E1;
+    border-left: 3px solid #F7941D;
+    border-radius: 0 3px 3px 0;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #7A5A00;
+    line-height: 1.55;
+  }
+  .qa-body .note strong { color: #5A4000; }
+  .qa-body code {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: var(--c-th);
+    border: 1px solid var(--c-border);
+    border-radius: 2px;
+    padding: 1px 5px;
+    color: var(--c-text);
+  }
+
+  /* scroll-margin so anchor links clear the fixed top bar */
+  .section-anchor { scroll-margin-top: 24px; }
+
+  /* MEDIA THUMBNAIL */
+  .media-thumb {
+    display: inline-block;
+    margin-top: 14px;
+    cursor: pointer;
+    border: 1px solid var(--c-border);
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 380px;
+    width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+    text-decoration: none;
+  }
+  .media-thumb:hover { border-color: var(--forti-red); box-shadow: 0 2px 14px rgba(0,0,0,.12); }
+  .media-thumb img { display: block; width: 100%; height: auto; }
+  .media-caption {
+    font-size: 11px;
+    color: var(--c-textm);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .media-caption svg { flex-shrink: 0; }
+
+  /* LIGHTBOX */
+  #lb-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.88);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: zoom-out;
+  }
+  #lb-overlay.open { display: flex; }
+  #lb-img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.6);
+    object-fit: contain;
+    cursor: default;
+  }
+  #lb-close {
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    color: #fff;
+    border-radius: 3px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    font-family: inherit;
+    transition: background .12s;
+  }
+  #lb-close:hover { background: rgba(255,255,255,.2); }
+
+  #ham-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    color: var(--forti-text-secondary);
+    flex-shrink: 0;
+    border-radius: 3px;
+  }
+  #ham-btn:hover { color: var(--forti-text-primary); background: rgba(255,255,255,.06); }
+
+  #sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 90;
+  }
+  #sidebar-overlay.on { display: block; }
+
+  @media (max-width: 768px) {
+    #sidebar {
+      position: fixed;
+      top: var(--hh);
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      width: 240px !important;
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+    }
+    #sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.45); }
+    #sidebar-overlay.on { display: block; }
+    .content-inner { padding: 16px 16px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="top-bar">
+  <button id="ham-btn" aria-label="Toggle menu" onclick="toggleSidebar()">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <a class="logo-wrap" href="../index.html" title="Back to FabricBOM">
+    <svg class="logo-icon" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="4" fill="#EE3124"/>
+      <path d="M6 8h16v3H6zM6 12.5h10v3H6zM6 17h16v3H6z" fill="white"/>
+    </svg>
+    <span class="product-name"><span>Fabric</span>BOM</span>
+  </a>
+  <div class="tb-div"></div>
+  <div class="spacer"></div>
+  <a class="tb-back" href="../index.html">
+    <svg viewBox="0 0 13 13" fill="none">
+      <path d="M5.5 2.5L2 6l3.5 3.5M2 6h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to App
+  </a>
+</div>
+
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div id="main">
+  <nav id="sidebar" aria-label="FAQ sections">
+    <div class="nsl">Working with BOMs</div>
+    <a class="ni active" href="#adding-products" onclick="closeSidebar()">
+      <span class="ni-label">Adding Products</span>
+    </a>
+    <a class="ni" href="#editing-items" onclick="closeSidebar()">
+      <span class="ni-label">Editing Items</span>
+    </a>
+    <a class="ni" href="#group-headers" onclick="closeSidebar()">
+      <span class="ni-label">Group Headers</span>
+    </a>
+    <a class="ni" href="#editing-project-info" onclick="closeSidebar()">
+      <span class="ni-label">Project Information</span>
+    </a>
+    <a class="ni" href="#saving" onclick="closeSidebar()">
+      <span class="ni-label">Saving a BOM</span>
+    </a>
+    <a class="ni" href="#opening" onclick="closeSidebar()">
+      <span class="ni-label">Opening Saved Projects</span>
+    </a>
+    <a class="ni" href="#restoring" onclick="closeSidebar()">
+      <span class="ni-label">Restoring a Version</span>
+    </a>
+    <div class="n-sep"></div>
+    <div class="nsl">Help Topics</div>
+    <a class="ni" href="#pricing" onclick="closeSidebar()">
+      <span class="ni-label">Pricing</span>
+    </a>
+    <a class="ni" href="#readonly" onclick="closeSidebar()">
+      <span class="ni-label">Read-Only Mode</span>
+    </a>
+    <a class="ni" href="#export-import" onclick="closeSidebar()">
+      <span class="ni-label">Exporting &amp; Importing</span>
+    </a>
+    <a class="ni" href="#printing" onclick="closeSidebar()">
+      <span class="ni-label">Printing</span>
+    </a>
+    <a class="ni" href="#data-privacy" onclick="closeSidebar()">
+      <span class="ni-label">Data Storage &amp; Privacy</span>
+    </a>
+  </nav>
+
+  <div id="content">
+    <div id="ch">
+      <span class="bci">FabricBOM</span>
+      <span class="bcs">›</span>
+      <span class="bci cur">Help &amp; FAQ</span>
+    </div>
+    <div id="content-scroll">
+    <div class="content-inner">
+
+      <div>
+        <div class="page-title">Help &amp; FAQ</div>
+        <div class="page-sub">Common questions and answers about using FabricBOM. Click any question to expand the answer.</div>
+      </div>
+
+      <!-- ADDING PRODUCTS -->
+      <div id="adding-products" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="4" width="14" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M8 7v2M7 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Adding a Product to a Project BOM</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I add a new SKU or part number to my Project BOM?</summary>
+            <div class="qa-body">
+              <p>There are a few ways to add a new SKU (Stock Keeping Unit) or part number to your Project BOM:</p>
+              <ul>
+                <li><strong>The "Add Item" Button:</strong> Under the <em>Project Information</em> section, there is a red <strong>Add Item</strong> dropdown menu. Clicking this will give you options to append a new product line or group directly to your current build.</li>
+                <li><strong>Product Categories:</strong> In the left-hand sidebar, products are categorized by solution (e.g., <em>Network Security</em>, <em>Cloud Security</em>, <em>Network Access</em>). Clicking on a specific product family like <strong>FortiGate (FGT)</strong> or <strong>FortiSwitch (FSW)</strong> will allow you to browse and select specific SKUs to add to your BOM.</li>
+                <li><strong>Search &amp; Custom Entry:</strong> If you know the exact part number (like <code>FG-401G</code> or <code>FC-10-348GF</code>), you can use the <strong>Filter products…</strong> search bar at the top left, or scroll down to the <strong>CATALOG SEARCH</strong> section and click <strong>Search &amp; Custom Entry</strong> to manually look up and add the SKU.</li>
+              </ul>
+              <a class="media-thumb" href="javascript:void(0)" onclick="openLightbox('screenshots/fabricbom-docs-adding_sku.gif')" aria-label="View full-size walkthrough">
+                <img src="screenshots/fabricbom-docs-adding_sku.gif" alt="Walkthrough: adding a SKU to a Project BOM" loading="lazy">
+              </a>
+              <div class="media-caption">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="5" stroke="currentColor" stroke-width="1"/><path d="M5.5 3.5v3M5.5 8v.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                Click to view full size
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- EDITING ITEMS -->
+      <div id="editing-items" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M9.5 2.5l4 4L5 15H1v-4L9.5 2.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M7.5 4.5l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Editing Items on a Project BOM</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I edit an existing item on a Project BOM?</summary>
+            <div class="qa-body">
+              <p>This is only applicable if the BOM is <strong>not</strong> in Read-Only mode. You can make changes directly within the table for that specific product block:</p>
+              <ul>
+                <li><strong>Change Quantity:</strong> Click directly into the number box in the <strong>QTY</strong> column to adjust the unit count.</li>
+                <li><strong>Change Item Type:</strong> Click the dropdown in the <strong>TYPE</strong> column (showing options like <em>REQUIRED</em>, <em>OPTIONAL</em>, or <em>EXCLUDED</em>) to change how the item is factored into your project.</li>
+                <li><strong>Update Notes:</strong> Click the text field in the <strong>NOTES</strong> column to add, modify, or delete custom details.</li>
+                <li><strong>Edit the Item Header:</strong> To rename the title of a product block, click the small <strong>pencil icon</strong> located at the top-right corner of that block.</li>
+                <li><strong>Remove an Item:</strong> To delete a block entirely, click the <strong>✕</strong> button next to the pencil icon.</li>
+              </ul>
+            </div>
+          </details>
+
+          <a class="media-thumb" href="javascript:void(0)" onclick="openLightbox('screenshots/fabricbom-docs-editing_bom_items.gif')" aria-label="View full-size walkthrough">
+            <img src="screenshots/fabricbom-docs-editing_bom_items.gif" alt="Walkthrough: editing items on a Project BOM" loading="lazy">
+          </a>
+
+        </div>
+      </div>
+
+      <!-- GROUP HEADERS -->
+      <div id="group-headers" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M1 4h14M1 8h10M1 12h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Adding and Working with Group Headers</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I add a header to my Project BOM?</summary>
+            <div class="qa-body">
+              <p>To add a custom section header, navigate to your active Project BOM. Just below the Project Information section at the top of your workspace, click the red <strong>Add Item</strong> dropdown menu (or <strong>Add SKU</strong>) and select the option to <strong>Add Header</strong>.</p>
+            </div>
+          </details>
+
+          <details class="qa">
+            <summary>Why should I use headers in my build?</summary>
+            <div class="qa-body">
+              <p>Headers are an excellent way to keep your Bill of Materials clean and organized, especially for larger or more complex projects. You can use them to logically group products by:</p>
+              <ul>
+                <li><strong>Physical location</strong> — e.g., "HQ Data Center," "Branch Offices"</li>
+                <li><strong>Solution category</strong> — e.g., "Core Networking," "Endpoint Security"</li>
+                <li><strong>Deployment phase</strong> — e.g., "Phase 1," "Phase 2"</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="qa">
+            <summary>How do I customize the text of a new header?</summary>
+            <div class="qa-body">
+              <p>Once a header block is added to your project workspace, click directly on the default text or use the <strong>Edit</strong> (pencil) icon on that block to rename it to whatever fits your organizational needs.</p>
+            </div>
+          </details>
+
+          <details class="qa">
+            <summary>Can I reorganize my BOM using these headers?</summary>
+            <div class="qa-body">
+              <p>Absolutely. FabricBOM is designed to be flexible. You can drag and drop your configured product blocks to move them beneath your newly created headers, allowing you to structure your final export exactly how you want to present it.</p>
+            </div>
+          </details>
+
+          <details class="qa">
+            <summary>How do I delete a header I no longer need?</summary>
+            <div class="qa-body">
+              <p>Just like any other item on your BOM, look for the <strong>✕</strong> (remove) button located on the right side of the header block. Clicking this will remove the header from your project layout.</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- EDITING PROJECT INFO -->
+      <div id="editing-project-info" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="2" width="14" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M4 6h8M4 9h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Editing Project Information</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I edit the Project Information on a Project BOM?</summary>
+            <div class="qa-body">
+              <ol>
+                <li><strong>Locate the Project Information Section:</strong> Look at the white box at the top of your main working area, just above the "Add Item" button. This section displays details like your project name, Engineer, Date, and Term.</li>
+                <li><strong>Click the Edit Button:</strong> In the top-right corner of that white box, click the <strong>Edit</strong> button (which features a small pencil icon).</li>
+              </ol>
+              <p>Clicking this will allow you to modify those top-level project details.</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- SAVING -->
+      <div id="saving" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            <rect x="4" y="1" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.1"/>
+            <rect x="3" y="9" width="10" height="6" rx=".5" stroke="currentColor" stroke-width="1.1"/>
+          </svg>
+          <h2>Saving a Project BOM</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I save my current Project BOM?</summary>
+            <div class="qa-body">
+              <ol>
+                <li><strong>Locate the File Menu:</strong> On the right side of the screen, just above your first list of items (and right next to the <strong>Share</strong> button), you will see a button labeled <strong>File</strong>.</li>
+                <li><strong>Save the Project:</strong> Click the <strong>File</strong> dropdown menu and select <strong>Save</strong> or <strong>Save As…</strong> to store your current build.</li>
+              </ol>
+              <p>Once your project is saved, you can easily retrieve it later by clicking on <strong>Saved Projects</strong> in the top-left sidebar menu.</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- OPENING SAVED PROJECTS -->
+      <div id="opening" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M1 4.5A1.5 1.5 0 0 1 2.5 3h3.086a1 1 0 0 1 .707.293L7.5 4.5H13.5A1.5 1.5 0 0 1 15 6v6a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12V4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+          <h2>Opening Previously Saved Projects</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I open a previously saved Project BOM?</summary>
+            <div class="qa-body">
+              <ol>
+                <li><strong>Locate the Left Sidebar:</strong> Look at the dark grey menu panel on the far left.</li>
+                <li><strong>Click on "Saved Projects":</strong> Under the top <strong>PROJECT</strong> heading, click on <strong>Saved Projects</strong>.</li>
+              </ol>
+              <p>Clicking this will take you to a screen where you can view, select, and load any of your previously saved builds.</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- RESTORING A VERSION -->
+      <div id="restoring" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M1.5 8A6.5 6.5 0 1 0 8 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M1.5 3.5V8h4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Restoring a Previous Version</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I restore a previous version of a Project BOM?</summary>
+            <div class="qa-body">
+              <p>FabricBOM retains a history of your previous saves, allowing you to easily recover an older version if an accidental overwrite occurs.</p>
+              <ol>
+                <li>Navigate to the <strong>Saved Projects</strong> menu in the left-hand sidebar.</li>
+                <li>Locate the project you need to restore in the main viewing area.</li>
+                <li>Beneath the project details, click the toggle labeled <strong>▼ [X] prior save(s)</strong> to expand the version history for that specific build.</li>
+                <li>Locate the desired previous save by reviewing the date and time stamps.</li>
+                <li>Click the <strong>Load</strong> button to the right of the target timestamp.</li>
+              </ol>
+              <div class="note">
+                <strong>Note:</strong> Clicking <strong>Load</strong> on a previous save will revert your active workspace to that exact historical state. Be sure to save your current work as a new file first if you do not wish to lose it.
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- PRICING -->
+      <div id="pricing" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M8 4v1.5M8 10.5V12M6 7.5c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Pricing</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>Can I view and upload pricing information in FabricBOM?</summary>
+            <div class="qa-body">
+              <p>Yes. FabricBOM allows you to seamlessly upload and view your pricing data so it can be applied to your project builds.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>Where do I go to upload my pricing file?</summary>
+            <div class="qa-body">
+              <p>Navigate to the <strong>Saved Projects</strong> menu located in the left-hand sidebar. Scroll down just below your list of saved projects, and you will find the <strong>SAVED PRICING</strong> section.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>How do I upload the pricing file?</summary>
+            <div class="qa-body">
+              <p>Inside the <strong>SAVED PRICING</strong> section, there is a designated upload area (a dashed box with a "+" icon). You can either drag and drop your file directly into this box, or click anywhere inside the box to browse your computer and select your file.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>What file formats are supported for pricing uploads?</summary>
+            <div class="qa-body">
+              <p>The tool currently accepts standard Fortinet price lists in either <strong>CSV</strong> or <strong>XLSX</strong> format.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>What happens after I upload the file?</summary>
+            <div class="qa-body">
+              <p>FabricBOM will automatically read the file to determine the name and effective date of the price list. Once successfully uploaded, the system will begin applying those specific prices to the items in your Project BOMs.</p>
+              <a class="media-thumb" href="javascript:void(0)" onclick="openLightbox('screenshots/fabricbom-docs-saving_pricing.gif')" aria-label="View full-size walkthrough">
+                <img src="screenshots/fabricbom-docs-saving_pricing.gif" alt="Walkthrough: uploading and saving a pricing file" loading="lazy">
+              </a>
+              <div class="media-caption">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="5" stroke="currentColor" stroke-width="1"/><path d="M5.5 3.5v3M5.5 8v.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                Click to view full size
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- READ-ONLY MODE -->
+      <div id="readonly" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <rect x="2.5" y="7" width="11" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M5 7V4.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="8" cy="11" r="1" fill="currentColor"/>
+          </svg>
+          <h2>Read-Only (RO) Mode</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I mark my Project BOM as Read-Only?</summary>
+            <div class="qa-body">
+              <p>In the white Project Information box at the top of your workspace, locate the small checkbox labeled <strong>RO</strong> (next to the Save button). Click the checkbox to toggle Read-Only mode on.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>What does marking a BOM as Read-Only actually do?</summary>
+            <div class="qa-body">
+              <p>Activating Read-Only mode locks the current BOM, preventing accidental edits, quantity changes, or overwrites.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>Will I be prompted to enter a password when making a BOM Read-Only?</summary>
+            <div class="qa-body">
+              <p>Yes. When you check the <strong>RO</strong> box, a prompt will appear asking if you would like to require a password to unlock the BOM. You can choose to generate a password or proceed without one by clicking <strong>No, read-only only</strong>.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>What is the difference between using a password and not using one?</summary>
+            <div class="qa-body">
+              <p><strong>Without a password:</strong> The BOM is locked from editing, but all fields and information remain fully visible to anyone viewing it.</p>
+              <p><strong>With a password:</strong> The BOM is locked, and specific sensitive fields—namely the <em>Customer / Opportunity</em>, <em>Opportunity ID</em>, and <em>Project Scope / Notes</em>—are hidden from anyone who does not have the password to unlock it. These items are encrypted on all exports from a locked BOM and will require a password to decrypt.</p>
+              <div class="note">
+                <strong>Summary:</strong> Without a password, the BOM is read-only but all line items are visible. With a password, <strong>Opportunity ID</strong> and <strong>Project Scope / Notes</strong> are hidden from anyone who doesn't have it.
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- EXPORT / IMPORT -->
+      <div id="export-import" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M8 10V2M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2>Exporting &amp; Importing</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I export my current Project BOM?</summary>
+            <div class="qa-body">
+              <p>You can export your current build directly from your workspace. Look at the menu panel on the far right side of your screen. Under the <strong>FILE</strong> heading, click the <strong>Export FabricBOM</strong> button. This will download a copy of your project file to your computer.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>How do I import a previously exported Project BOM?</summary>
+            <div class="qa-body">
+              <p>To load an external BOM file into the tool, navigate to the menu panel on the far right side of your screen. Under the <strong>FILE</strong> heading, click the <strong>Import FabricBOM</strong> button. This will prompt you to browse your computer and select the FabricBOM file you wish to upload and open.</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- PRINTING -->
+      <div id="printing" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <rect x="3" y="1" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <rect x="3" y="10" width="10" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M3 8H1.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5H3M13 8h1.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="12.5" cy="9.5" r=".75" fill="currentColor"/>
+          </svg>
+          <h2>Printing</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>How do I print my Project BOM?</summary>
+            <div class="qa-body">
+              <p>Because FabricBOM is a web-based tool, you can print your BOM using a couple of straightforward methods:</p>
+              <ul>
+                <li><strong>Directly from your web browser:</strong> The application is built to be printer-friendly. Simply press <strong>Ctrl + P</strong> (Windows/Linux) or <strong>Cmd + P</strong> (Mac), or navigate to your browser's settings menu and select "Print."</li>
+                <li><strong>Export to a spreadsheet first (Recommended for formatting):</strong> If you want more control over page breaks, column widths, or custom formatting, export your build first using the <strong>File</strong> menu, then open and print the file using Microsoft Excel or your preferred spreadsheet application.</li>
+              </ul>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- DATA PRIVACY -->
+      <div id="data-privacy" class="lc section-anchor">
+        <div class="lch">
+          <svg class="lch-icon" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7 3.5-1 6-3.5 6-7V4L8 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2>Data Storage &amp; Privacy</h2>
+        </div>
+        <div class="lcb">
+
+          <details class="qa" open>
+            <summary>Where is my project data and pricing information stored? Is it secure?</summary>
+            <div class="qa-body">
+              <p>Yes, your data is completely secure. FabricBOM is designed with a strict privacy-first approach. All of your information—including your saved Project BOMs, uploaded price lists, and project details—is stored entirely <strong>locally on your own computer</strong>.</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>Does FabricBOM send my data to a cloud server?</summary>
+            <div class="qa-body">
+              <p>No. Instead of transmitting your sensitive project details or proprietary pricing to an external database or cloud server, FabricBOM utilizes your web browser's built-in, secure storage system (technically known as <em>IndexedDB</em>).</p>
+            </div>
+          </details>
+
+          <details class="qa" open>
+            <summary>What does local storage mean for my data privacy?</summary>
+            <div class="qa-body">
+              <p>Because everything is saved directly to your local browser profile, your data never leaves your machine. This ensures that you maintain complete control over your information, and no third parties—or even the tool's creators—can access or view your builds.</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="lb-overlay" onclick="closeLightbox()">
+  <button id="lb-close" onclick="closeLightbox()" aria-label="Close">&#x2715;</button>
+  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<script>
+  function openLightbox(src) {
+    const img = document.getElementById('lb-img');
+    img.src = src;
+    document.getElementById('lb-overlay').classList.add('open');
+  }
+  function closeLightbox() {
+    document.getElementById('lb-overlay').classList.remove('open');
+    document.getElementById('lb-img').src = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const o = document.getElementById('sidebar-overlay');
+    if (window.innerWidth <= 768) {
+      const open = s.classList.toggle('open');
+      open ? o.classList.add('on') : o.classList.remove('on');
+    } else {
+      s.classList.toggle('collapsed');
+    }
+  }
+  function closeSidebar() {
+    if (window.innerWidth <= 768) {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('on');
+    }
+  }
+
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('#sidebar .ni');
+  const content = document.getElementById('content-scroll');
+
+  function updateActive() {
+    const atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 4;
+    let current = sections[0].id;
+    if (atBottom) {
+      current = sections[sections.length - 1].id;
+    } else {
+      const contentTop = content.getBoundingClientRect().top;
+      sections.forEach(s => {
+        if (s.getBoundingClientRect().top - contentTop <= 80) current = s.id;
+      });
+    }
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+
+  content.addEventListener('scroll', updateActive, { passive: true });
+
+  // Smooth-scroll anchor clicks
+  navLinks.forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeSidebar();
+      }
+    });
+  });
+</script>
+</body>
+</html>

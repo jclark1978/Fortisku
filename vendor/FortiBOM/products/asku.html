@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pricing Dataset Search</title>
+<style>
+  :root {
+    --red:#EE3124; --border:#DDE1E9; --bg:#F2F4F7; --white:#FFFFFF;
+    --text:#2A2F3A; --text2:#6B7589; --textm:#9BA5BA;
+    --sh:#F7F9FC; --ib:#C8CDD9; --th:#EEF1F6; --ts:#F7F9FC;
+    --accent:#EE3124;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif; background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; padding: 20px; min-height: 100vh; }
+  #app { width: 100%; }
+
+  /* PAGE HEADER */
+  .ph { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 14px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+  .ph-icon { width: 36px; height: 36px; background: var(--red); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ph-icon svg { width: 20px; height: 20px; }
+  .ph h1 { font-size: 16px; font-weight: 600; }
+  .ph .sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 14px; overflow: hidden; }
+  .ch { background: var(--sh); border-bottom: 1px solid var(--border); padding: 9px 18px; display: flex; align-items: center; gap: 8px; }
+  .ch h2 { font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: .04em; text-transform: uppercase; }
+  .cb { padding: 14px 18px; }
+
+  /* CONTROLS */
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  input[type="text"] {
+    flex: 1; min-width: 220px; height: 32px; padding: 0 10px;
+    font-size: 13px; font-family: inherit;
+    border: 1px solid var(--ib); border-radius: 3px;
+    background: var(--white); color: var(--text); outline: none;
+    transition: border-color .15s;
+  }
+  input[type="text"]:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(238,49,36,.1); }
+  input[type="text"]::placeholder { color: var(--textm); }
+  select {
+    height: 32px; padding: 0 10px; font-size: 13px; font-family: inherit;
+    border: 1px solid var(--ib); border-radius: 3px;
+    background: var(--white); color: var(--text); outline: none; cursor: pointer; min-width: 170px;
+  }
+  select:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(238,49,36,.1); }
+
+  /* META CHIPS */
+  .meta-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .meta-chip { background: var(--sh); border: 1px solid var(--border); border-radius: 3px; padding: 5px 10px; font-size: 12px; color: var(--text2); }
+  .meta-chip strong { color: var(--text); font-weight: 500; }
+
+  /* STATUS BAR */
+  .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; color: var(--text2); }
+  .badge { display: inline-block; background: var(--th); border: 1px solid var(--border); border-radius: 3px; padding: 2px 10px; font-size: 11px; font-weight: 600; color: var(--text2); }
+
+  /* TABLE */
+  .table-wrap { border: 1px solid var(--border); border-radius: 3px; overflow: auto; max-height: calc(100vh - 300px); }
+  table { border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  thead th {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--th);
+    color: var(--text2);
+    font-weight: 700; font-size: 10px;
+    text-transform: uppercase; letter-spacing: .05em;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    user-select: none;
+    overflow: hidden;
+  }
+  .th-inner {
+    display: flex; align-items: center; gap: 4px;
+    cursor: pointer;
+    padding: 8px 20px 8px 10px;
+  }
+  .th-inner:hover { color: var(--text); }
+  thead th.sorted { color: var(--text); }
+  thead th .sort-icon { opacity: 0.35; font-style: normal; flex-shrink: 0; }
+  thead th.sorted .sort-icon { opacity: 1; }
+  thead th.drag-over-left  { border-left:  2px solid var(--red); }
+  thead th.drag-over-right { border-right: 2px solid var(--red); }
+  thead th.dragging { opacity: 0.35; }
+  .resize-handle {
+    position: absolute; top: 0; right: 0;
+    width: 6px; height: 100%;
+    cursor: col-resize; z-index: 4;
+  }
+  .resize-handle:hover, .resize-handle.active { background: var(--red); opacity: 0.5; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) td { background: var(--ts); }
+  tbody tr:hover td { background: var(--th); }
+  tbody td { padding: 7px 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+  td.price { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text); }
+  td.center { text-align: center; }
+  .muted { color: var(--textm); }
+  mark { background: rgba(238,49,36,.12); border-radius: 2px; padding: 0 1px; color: inherit; }
+  .empty-state { padding: 2.5rem; text-align: center; color: var(--text2); font-size: 13px; }
+  .page-note { padding: 9px 11px; text-align: center; font-size: 11px; color: var(--text2); background: var(--sh); border-top: 1px solid var(--border); }
+
+  /* CONTEXT MENU */
+  #col-menu {
+    position: fixed; z-index: 9999;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 6px 0;
+    min-width: 210px;
+    display: none;
+  }
+  .menu-header { padding: 6px 14px 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--textm); border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+  .menu-items { max-height: 340px; overflow-y: auto; }
+  #col-menu label { display: flex; align-items: center; gap: 10px; padding: 7px 14px; font-size: 13px; color: var(--text); cursor: pointer; }
+  #col-menu label:hover { background: var(--sh); }
+  #col-menu input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; accent-color: var(--red); }
+  .menu-footer { border-top: 1px solid var(--border); margin-top: 4px; padding: 6px 14px 2px; display: flex; gap: 12px; }
+  .menu-footer button { font-size: 12px; color: var(--text2); background: none; border: none; cursor: pointer; padding: 4px 0; font-family: inherit; }
+  .menu-footer button:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PAGE HEADER -->
+  <div class="ph">
+    <div class="ph-icon">
+      <svg viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="3" width="16" height="14" rx="2" stroke="white" stroke-width="1.4"/>
+        <path d="M2 7h16" stroke="white" stroke-width="1.4"/>
+        <path d="M6 11h8M6 14h5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Pricing Dataset Search</h1>
+      <div class="sub">Search the imported price list from <code>toolbox_shared</code> IndexedDB. Right-click any column header to show/hide columns. Drag headers to reorder. Drag the right edge to resize.</div>
+    </div>
+  </div>
+
+  <!-- META + CONTROLS CARD -->
+  <div class="card">
+    <div class="ch">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#6B7589" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="#6B7589" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <h2>Search &amp; Filter</h2>
+    </div>
+    <div class="cb">
+      <div id="meta-bar" class="meta-bar" style="display:none"></div>
+      <div class="controls">
+        <input type="text" id="search-input" placeholder='FortiGate AND hardware, "FortiGate 100" OR switch, NOT bundle' oninput="onSearch()" />
+        <select id="family-filter" onchange="onSearch()">
+          <option value="">All product families</option>
+        </select>
+        <select id="type-filter" onchange="onSearch()">
+          <option value="">All product types</option>
+        </select>
+      </div>
+      <div class="status-bar">
+        <span id="result-count" class="badge">Loading…</span>
+        <span id="query-hint" style="font-size:11px;color:var(--textm)"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS CARD -->
+  <div class="card">
+    <div class="ch">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1.5" width="11" height="10" rx="1.5" stroke="#6B7589" stroke-width="1.2"/><path d="M3.5 5h6M3.5 7h6M3.5 9h3.5" stroke="#6B7589" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <h2>Results</h2>
+    </div>
+    <div class="table-wrap" id="table-wrap">
+      <table id="results-table">
+        <thead><tr id="thead-row"></tr></thead>
+        <tbody id="results-body">
+          <tr><td class="empty-state">Loading data from IndexedDB…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div id="col-menu">
+  <div class="menu-header">Show / hide columns</div>
+  <div class="menu-items" id="col-menu-items"></div>
+  <div class="menu-footer">
+    <button onclick="showAllCols()">Show all</button>
+    <button onclick="resetCols()">Reset</button>
+  </div>
+</div>
+
+<script>
+const PAGE = 500;
+let allRows = [];
+let currentSort = { col: 'Price', dir: 1 };
+let _db = null;
+
+/* ── Column registry ── */
+const ALL_COLS = [
+  { key: 'SKU',                       label: 'SKU',         width: 120, align: 'left'   },
+  { key: 'Product',                   label: 'Product',     width: 160, align: 'left'   },
+  { key: 'Product Family Group',      label: 'Family',      width: 150, align: 'left'   },
+  { key: 'Product Type',              label: 'Type',        width: 110, align: 'left'   },
+  { key: 'Description #1',           label: 'Description', width: 240, align: 'left'   },
+  { key: 'Price',                     label: 'Price',       width: 100, align: 'right'  },
+  { key: 'Pillar',                    label: 'Pillar',      width: 100, align: 'left'   },
+  { key: 'FED',                       label: 'FED',         width: 60,  align: 'center' },
+  { key: 'E-Rate',                    label: 'E-Rate',      width: 72,  align: 'center' },
+  { key: 'Identifier',                label: 'Identifier',  width: 120, align: 'left'   },
+  { key: 'Category',                  label: 'Category',    width: 120, align: 'left'   },
+  { key: 'AutoStart',                 label: 'AutoStart',   width: 90,  align: 'center' },
+  { key: 'Term (Month)',              label: 'Term',        width: 70,  align: 'center' },
+  { key: 'COO',                       label: 'COO',         width: 60,  align: 'center' },
+  { key: 'GSA',                       label: 'GSA',         width: 60,  align: 'center' },
+  { key: 'Description #2',           label: 'Desc #2',     width: 200, align: 'left'   },
+  { key: 'UPC Code',                  label: 'UPC',         width: 110, align: 'left'   },
+  { key: 'Item',                      label: 'Item',        width: 80,  align: 'left'   },
+  { key: 'Single Pack Weight (lbs.)', label: 'Wt (lbs)',   width: 80,  align: 'right'  },
+];
+
+const DEFAULT_VISIBLE = new Set(['SKU','Product','Product Family Group','Product Type','Description #1','Price','Pillar','FED','E-Rate']);
+
+let colOrder   = ALL_COLS.map(c => c.key);
+let colVisible = new Set(DEFAULT_VISIBLE);
+const colDefs  = Object.fromEntries(ALL_COLS.map(c => [c.key, c]));
+
+function visibleCols() {
+  return colOrder.filter(k => colVisible.has(k)).map(k => colDefs[k]);
+}
+
+/* ── IDB ── */
+function openDB() {
+  if (_db) return Promise.resolve(_db);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('toolbox_shared', 2);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (db.objectStoreNames.contains('datasets')) db.deleteObjectStore('datasets');
+      db.createObjectStore('datasets', { keyPath: 'key' });
+    };
+    req.onsuccess = e => { _db = e.target.result; res(_db); };
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+async function loadPricing() {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx  = db.transaction('datasets', 'readonly');
+    const req = tx.objectStore('datasets').get('pricing');
+    req.onsuccess = e => res(e.target.result || null);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+/* ── Helpers ── */
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtPrice(v) {
+  if (v === '' || v == null) return '<span class="muted">—</span>';
+  const n = parseFloat(v);
+  if (isNaN(n)) return esc(v);
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/* ── Boolean query parser ── */
+function tokenize(input) {
+  const tokens = []; let i = 0;
+  while (i < input.length) {
+    if (/\s/.test(input[i])) { i++; continue; }
+    if (input[i] === '"') {
+      let j = i + 1;
+      while (j < input.length && input[j] !== '"') j++;
+      tokens.push({ type: 'TERM', value: input.slice(i+1, j).toLowerCase() });
+      i = j + 1; continue;
+    }
+    if (input[i] === '(') { tokens.push({ type:'LPAREN' }); i++; continue; }
+    if (input[i] === ')') { tokens.push({ type:'RPAREN' }); i++; continue; }
+    if (input.slice(i,i+2) === '&&') { tokens.push({ type:'AND' }); i+=2; continue; }
+    if (input.slice(i,i+2) === '||') { tokens.push({ type:'OR'  }); i+=2; continue; }
+    if (input[i] === '&') { tokens.push({ type:'AND' }); i++; continue; }
+    if (input[i] === '|') { tokens.push({ type:'OR'  }); i++; continue; }
+    if (input[i] === '!') { tokens.push({ type:'NOT' }); i++; continue; }
+    let j = i;
+    while (j < input.length && !/[\s()"&|!]/.test(input[j])) j++;
+    const word = input.slice(i, j), up = word.toUpperCase();
+    if      (up === 'AND') tokens.push({ type:'AND' });
+    else if (up === 'OR')  tokens.push({ type:'OR'  });
+    else if (up === 'NOT') tokens.push({ type:'NOT' });
+    else tokens.push({ type:'TERM', value: word.toLowerCase() });
+    i = j;
+  }
+  return tokens;
+}
+function parse(tokens) {
+  let pos = 0;
+  const peek    = () => tokens[pos];
+  const consume = () => tokens[pos++];
+  function expr() {
+    let n = andExpr();
+    while (peek()?.type === 'OR') { consume(); n = { op:'OR', left:n, right:andExpr() }; }
+    return n;
+  }
+  function andExpr() {
+    let n = notExpr();
+    while (peek() && peek().type !== 'OR' && peek().type !== 'RPAREN') {
+      if (peek().type === 'AND') consume();
+      if (!peek() || peek().type === 'OR' || peek().type === 'RPAREN') break;
+      n = { op:'AND', left:n, right:notExpr() };
+    }
+    return n;
+  }
+  function notExpr() {
+    if (peek()?.type === 'NOT') { consume(); return { op:'NOT', operand:atom() }; }
+    return atom();
+  }
+  function atom() {
+    const t = peek(); if (!t) return null;
+    if (t.type === 'LPAREN') { consume(); const n = expr(); if (peek()?.type==='RPAREN') consume(); return n; }
+    if (t.type === 'TERM')   { consume(); return { op:'TERM', value:t.value }; }
+    consume(); return null;
+  }
+  return expr();
+}
+const SEARCH_FIELDS = ['SKU','Identifier','Product','Product Family Group','Product Type','Description #1','Description #2','Pillar','Item'];
+function rowText(r) { return SEARCH_FIELDS.map(f=>(r[f]||'').toLowerCase()).join('\0'); }
+function evalNode(n, t) {
+  if (!n) return true;
+  if (n.op==='TERM') return t.includes(n.value);
+  if (n.op==='AND')  return evalNode(n.left,t) && evalNode(n.right,t);
+  if (n.op==='OR')   return evalNode(n.left,t) || evalNode(n.right,t);
+  if (n.op==='NOT')  return !evalNode(n.operand,t);
+  return true;
+}
+function collectTerms(n, out=[]) {
+  if (!n) return out;
+  if (n.op==='TERM' && n.value) out.push(n.value);
+  if (n.left)    collectTerms(n.left, out);
+  if (n.right)   collectTerms(n.right, out);
+  if (n.operand) collectTerms(n.operand, out);
+  return out;
+}
+let parsedQuery = null, highlightTerms = [];
+function compileQuery(raw) {
+  const tr = raw.trim();
+  if (!tr) { parsedQuery = null; highlightTerms = []; return; }
+  try { parsedQuery = parse(tokenize(tr)); highlightTerms = collectTerms(parsedQuery); }
+  catch(e) { parsedQuery = null; highlightTerms = []; }
+}
+function hi(text) {
+  if (!highlightTerms.length) return esc(text);
+  const escaped = esc(text); if (!text) return escaped;
+  const pats = highlightTerms.filter(t=>t.length).map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+  if (!pats.length) return escaped;
+  return escaped.replace(new RegExp('('+pats.join('|')+')','gi'),'<mark>$1</mark>');
+}
+
+/* ── Filter / sort ── */
+function filteredRows() {
+  compileQuery(document.getElementById('search-input').value || '');
+  const fam = document.getElementById('family-filter').value;
+  const typ = document.getElementById('type-filter').value;
+  let rows = allRows.filter(r => {
+    if (fam && r['Product Family Group'] !== fam) return false;
+    if (typ && r['Product Type'] !== typ) return false;
+    if (!parsedQuery) return true;
+    return evalNode(parsedQuery, rowText(r));
+  });
+  const { col, dir } = currentSort;
+  rows.sort((a,b) => col==='Price'
+    ? dir*((parseFloat(a[col])||0)-(parseFloat(b[col])||0))
+    : dir*String(a[col]||'').localeCompare(String(b[col]||'')));
+  return rows;
+}
+
+/* ── Table width helper ── */
+function syncTableWidth() {
+  const wrap = document.getElementById('table-wrap');
+  const cols = visibleCols();
+  const totalW = cols.reduce((s,c)=>s+c.width, 0);
+  document.getElementById('results-table').style.width = Math.max(totalW, wrap.clientWidth) + 'px';
+}
+
+/* ── Build thead ── */
+function buildThead() {
+  syncTableWidth();
+  const tr   = document.getElementById('thead-row');
+  tr.innerHTML = '';
+  const cols = visibleCols();
+
+  cols.forEach(col => {
+    const th = document.createElement('th');
+    th.style.width    = col.width + 'px';
+    th.style.minWidth = '40px';
+    th.dataset.col    = col.key;
+    if (currentSort.col === col.key) th.classList.add('sorted');
+
+    const inner = document.createElement('div');
+    inner.className = 'th-inner';
+    const sortIcon = currentSort.col===col.key ? (currentSort.dir===1?'↑':'↓') : '↕';
+    inner.innerHTML = `<span>${esc(col.label)}</span><span class="sort-icon">${sortIcon}</span>`;
+    inner.addEventListener('click', e => { if (!e._resizeClick) sortBy(col.key); });
+    th.appendChild(inner);
+
+    const rh = document.createElement('div');
+    rh.className = 'resize-handle';
+    rh.addEventListener('mousedown', e => { e.stopPropagation(); e._resizeClick = true; startResize(e, col, th); });
+    th.appendChild(rh);
+
+    th.addEventListener('contextmenu', e => { e.preventDefault(); openColMenu(e.clientX, e.clientY); });
+
+    th.draggable = true;
+    th.addEventListener('dragstart',  e => onDragStart(e, col.key));
+    th.addEventListener('dragover',   e => onDragOver(e, th, col.key));
+    th.addEventListener('dragleave',  ()  => clearDrop(th));
+    th.addEventListener('drop',       e => onDrop(e, col.key));
+    th.addEventListener('dragend',    ()  => {
+      document.querySelectorAll('thead th').forEach(t => { clearDrop(t); t.classList.remove('dragging'); });
+    });
+
+    tr.appendChild(th);
+  });
+}
+
+/* ── Render tbody ── */
+function renderTable(rows) {
+  const tbody   = document.getElementById('results-body');
+  const cols    = visibleCols();
+  const colSpan = cols.length || 1;
+  const count   = rows.length;
+
+  document.getElementById('result-count').textContent = count.toLocaleString() + ' row' + (count!==1?'s':'');
+
+  if (count === 0) {
+    tbody.innerHTML = `<tr><td colspan="${colSpan}" class="empty-state">No results match your search.</td></tr>`;
+    return;
+  }
+
+  const shown = rows.slice(0, PAGE);
+  const html  = shown.map(r => {
+    const cells = cols.map(col => {
+      const raw = r[col.key] ?? '';
+      if (col.key === 'Price')      return `<td class="price">${fmtPrice(raw)}</td>`;
+      if (col.align === 'center')   return `<td class="center">${raw ? hi(raw) : '<span class="muted">—</span>'}</td>`;
+      if (col.align === 'right')    return `<td style="text-align:right">${hi(raw)}</td>`;
+      return `<td title="${esc(raw)}">${hi(raw)}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  const extra = count > PAGE
+    ? `<tr><td colspan="${colSpan}" class="page-note">Showing first ${PAGE.toLocaleString()} of ${count.toLocaleString()} results — narrow your search to see more</td></tr>`
+    : '';
+
+  tbody.innerHTML = html + extra;
+}
+
+function redraw() { buildThead(); renderTable(filteredRows()); }
+
+/* ── Sort ── */
+function sortBy(col) {
+  if (currentSort.col === col) currentSort.dir *= -1;
+  else { currentSort.col = col; currentSort.dir = 1; }
+  redraw();
+}
+
+/* ── Column context menu ── */
+function openColMenu(x, y) {
+  const menu  = document.getElementById('col-menu');
+  const items = document.getElementById('col-menu-items');
+  items.innerHTML = '';
+
+  ALL_COLS.forEach(col => {
+    const label = document.createElement('label');
+    const cb    = document.createElement('input');
+    cb.type    = 'checkbox';
+    cb.checked = colVisible.has(col.key);
+    cb.addEventListener('change', () => {
+      if (cb.checked) {
+        colVisible.add(col.key);
+      } else {
+        if (colVisible.size <= 1) { cb.checked = true; return; }
+        colVisible.delete(col.key);
+      }
+      redraw();
+    });
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + col.label));
+    items.appendChild(label);
+  });
+
+  menu.style.display = 'block';
+  const mw = menu.offsetWidth  || 220;
+  const mh = menu.offsetHeight || 400;
+  menu.style.left = Math.min(x, window.innerWidth  - mw - 8) + 'px';
+  menu.style.top  = Math.min(y, window.innerHeight - mh - 8) + 'px';
+}
+
+function closeColMenu() { document.getElementById('col-menu').style.display = 'none'; }
+
+document.addEventListener('mousedown', e => {
+  if (!document.getElementById('col-menu').contains(e.target)) closeColMenu();
+});
+
+function showAllCols() {
+  ALL_COLS.forEach(c => colVisible.add(c.key));
+  closeColMenu(); redraw();
+}
+function resetCols() {
+  colVisible = new Set(DEFAULT_VISIBLE);
+  colOrder   = ALL_COLS.map(c => c.key);
+  closeColMenu(); redraw();
+}
+
+/* ── Column resize ── */
+function startResize(e, col, th) {
+  e.preventDefault();
+  const startX = e.clientX, startW = col.width;
+  const rh = th.querySelector('.resize-handle');
+  rh.classList.add('active');
+  document.body.style.cursor = 'col-resize';
+
+  function onMove(ev) {
+    col.width = Math.max(40, startW + ev.clientX - startX);
+    th.style.width = col.width + 'px';
+    syncTableWidth();
+  }
+  function onUp() {
+    rh.classList.remove('active');
+    document.body.style.cursor = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup',   onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onUp);
+}
+
+/* ── Column drag-to-reorder ── */
+let dragKey = null;
+
+function onDragStart(e, key) {
+  dragKey = key;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', key);
+  setTimeout(() => e.currentTarget.classList.add('dragging'), 0);
+}
+function dropSide(e, th) {
+  const r = th.getBoundingClientRect();
+  return e.clientX < r.left + r.width / 2 ? 'left' : 'right';
+}
+function clearDrop(th) {
+  th.classList.remove('drag-over-left', 'drag-over-right');
+}
+function onDragOver(e, th, key) {
+  if (!dragKey || dragKey === key) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  clearDrop(th);
+  th.classList.add(dropSide(e, th) === 'left' ? 'drag-over-left' : 'drag-over-right');
+}
+function onDrop(e, targetKey) {
+  e.preventDefault();
+  if (!dragKey || dragKey === targetKey) { dragKey = null; return; }
+  const side = dropSide(e, e.currentTarget);
+  const from = colOrder.indexOf(dragKey);
+  colOrder.splice(from, 1);
+  const to = colOrder.indexOf(targetKey);
+  colOrder.splice(side === 'left' ? to : to + 1, 0, dragKey);
+  dragKey = null;
+  redraw();
+}
+
+/* ── Search ── */
+function onSearch() {
+  const raw  = document.getElementById('search-input').value || '';
+  compileQuery(raw);
+  const hint = document.getElementById('query-hint');
+  hint.textContent = (raw.trim() && highlightTerms.length)
+    ? 'matching: ' + highlightTerms.map(t => `"${t}"`).join(', ')
+    : '';
+  renderTable(filteredRows());
+}
+
+/* ── Init ── */
+async function init() {
+  try {
+    const record = await loadPricing();
+    if (!record?.data?.rows) {
+      document.getElementById('results-body').innerHTML =
+        '<tr><td class="empty-state">No pricing data found. Import a price list first.</td></tr>';
+      document.getElementById('result-count').textContent = '0 rows';
+      buildThead();
+      return;
+    }
+    allRows = record.data.rows;
+
+    const mb = document.getElementById('meta-bar');
+    mb.style.display = 'flex';
+    mb.innerHTML = `
+      <div class="meta-chip">Dataset: <strong>${esc(record.data.name || 'Fortinet Price List')}</strong></div>
+      <div class="meta-chip">Effective: <strong>${esc(record.data.effectiveDate || '—')}</strong></div>
+      <div class="meta-chip">Rows: <strong>${allRows.length.toLocaleString()}</strong></div>
+      <div class="meta-chip">Source: <strong>${esc(record.source?.filename || record.source?.type || '—')}</strong></div>
+    `;
+
+    const families = [...new Set(allRows.map(r=>r['Product Family Group']).filter(Boolean))].sort();
+    const types    = [...new Set(allRows.map(r=>r['Product Type']).filter(Boolean))].sort();
+    const famSel   = document.getElementById('family-filter');
+    const typSel   = document.getElementById('type-filter');
+    families.forEach(f => { const o=document.createElement('option'); o.value=f; o.textContent=f; famSel.appendChild(o); });
+    types.forEach(t    => { const o=document.createElement('option'); o.value=t; o.textContent=t; typSel.appendChild(o); });
+
+    redraw();
+  } catch (err) {
+    document.getElementById('results-body').innerHTML =
+      `<tr><td class="empty-state">Error reading IndexedDB: ${esc(err.message)}</td></tr>`;
+    document.getElementById('result-count').textContent = 'Error';
+    console.error(err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

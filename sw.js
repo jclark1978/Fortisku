@@ -1,4 +1,4 @@
-const CACHE_NAME = "fortisku-cache-v22";
+const CACHE_NAME = "fortisku-cache-v24";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -61,10 +61,10 @@ const APP_SHELL = [
   "./vendor/minisearch.min.js",
   "./vendor/idb-keyval.mjs",
   "./vendor/FortiBOM/index.html",
-  "./vendor/FortiBOM/js/toolbox-shared.js",
-  "./vendor/FortiBOM/js/pricing-normalize.js",
   "./vendor/FortiBOM/js/xlsx.mini.min.js",
+  "./vendor/FortiBOM/docs/help-faq.html",
   "./vendor/FortiBOM/products/fortigate-bomgen.html",
+  "./vendor/FortiBOM/products/asku.html",
   "./vendor/FortiBOM/products/custom-sku-bomgen.html",
   "./vendor/FortiBOM/products/custom-sku-bomgen-mobile.html",
   "./vendor/xlsx.mjs",
@@ -121,7 +121,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.pathname.startsWith("/vendor/")) {
-    event.respondWith(cacheFirst(event.request));
+    event.respondWith(networkFirst(event.request));
     return;
   }
 

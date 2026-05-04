@@ -59,7 +59,7 @@
   .ni.active{background:var(--forti-sidebar-active);border-left-color:var(--forti-red);}
   .ni.proj{border-left-color:transparent;}
   .ni.proj.live{border-left-color:#F7941D;}
-  .ni-icon{width:18px;height:18px;flex-shrink:0;opacity:.7;}
+  .ni-icon{width:18px;height:18px;flex-shrink:0;opacity:.7;object-fit:contain;}
   .ni.active .ni-icon,.ni.proj .ni-icon{opacity:1;}
   .ni-label{font-size:13px;color:var(--forti-text-secondary);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .ni.active .ni-label,.ni.proj .ni-label{color:var(--forti-text-primary);font-weight:500;}
@@ -76,10 +76,15 @@
 
   /* CONTENT */
   #content{flex:1;background:var(--forti-content-bg);overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-  #ch{height:40px;background:#fff;border-bottom:1px solid #DDE1E9;display:flex;align-items:center;padding:0 20px;gap:6px;flex-shrink:0;}
-  .bci{font-size:12px;color:#6B7589;}
-  .bcs{font-size:11px;color:#B0B8CC;}
+  #ch{height:40px;background:#fff;border-bottom:1px solid #DDE1E9;display:flex;align-items:center;padding:0 20px;gap:6px;flex-shrink:0;flex-wrap:nowrap;overflow:hidden;min-width:0;}
+  .bci{font-size:12px;color:#6B7589;white-space:nowrap;flex-shrink:0;}
+  .bcs{font-size:11px;color:#B0B8CC;flex-shrink:0;}
   .bci.cur{color:#2A2F3A;font-weight:500;}
+  #bc-proj-sep,#bc-proj{display:none;}
+  #ch.has-proj #bc{color:#6B7589;font-weight:400;}
+  #ch.has-proj #bc-proj-sep{display:inline;}
+  #ch.has-proj #bc-proj{display:inline-block;max-width:min(50vw,420px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;}
+  @media (max-width:600px){#ch.has-proj #bc-proj{max-width:40vw;}}
   #pfw{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   #pf{border:none;width:100%;flex:1;}
   #ws{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;color:#6B7589;text-align:center;}
@@ -109,13 +114,13 @@
   textarea.pi{resize:vertical;min-height:52px;}
 
   /* Summary bar */
-  .sbar{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;padding:12px 18px;display:flex;align-items:center;flex-wrap:wrap;gap:16px;}
-  .si .sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-textm);}
-  .si .sv{font-size:18px;font-weight:600;color:var(--c-text);}
+  .sbar{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;padding:8px 14px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;}
+  .si .sl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-textm);}
+  .si .sv{font-size:13px;font-weight:600;color:var(--c-text);}
   .si.hi .sv{color:var(--forti-red);}
 
   /* Buttons */
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:3px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:background .12s;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:3px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:background .12s;}
   .btn svg{width:13px;height:13px;flex-shrink:0;}
   .bp{background:var(--forti-red);color:#fff;border-color:var(--forti-red);}
   .bp:hover{background:#d42a1e;}
@@ -123,7 +128,7 @@
   .bs:hover{background:var(--c-sh);}
   .bd{background:#FEF0EE;color:#C0392B;border-color:#F5C6C2;}
   .bd:hover{background:#F5C6C2;}
-  .act-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-left:auto;}
+  .act-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%;}
 
   /* BOM groups */
   .bg{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;overflow:hidden;}
@@ -133,6 +138,9 @@
   .bg-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;border-radius:2px;padding:1px 6px;}
   .bg-del{background:#FEF0EE;border:1px solid #F5C6C2;color:#C0392B;font-size:11px;font-weight:600;padding:3px 8px;border-radius:2px;cursor:pointer;font-family:inherit;margin-left:auto;}
   .bg-del:hover{background:#F5C6C2;}
+  .bg-edit{background:none;border:1px solid var(--c-ib);border-radius:2px;color:var(--c-text2);padding:4px 6px;cursor:pointer;display:inline-flex;align-items:center;transition:background .12s;}
+  .bg-edit:hover{background:var(--c-sh);color:var(--c-text);}
+  .bg-edit svg{width:11px;height:11px;}
 
   /* BOM table */
   .bt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -149,12 +157,16 @@
   .qty-input:focus{border-color:#4A90D9;outline:none;background:#fff;}
   .qty-input::-webkit-inner-spin-button,.qty-input::-webkit-outer-spin-button{opacity:0;}
   .qty-input:hover::-webkit-inner-spin-button,.qty-input:focus::-webkit-inner-spin-button{opacity:1;}
+  .note-input{width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:3px;background:transparent;font-size:11px;color:var(--c-textm);font-family:inherit;padding:1px 3px;resize:none;overflow-y:auto;vertical-align:top;line-height:1.4;}
+  .note-input:hover{border-color:var(--c-border);}
+  .note-input:focus{border-color:#4A90D9;outline:none;background:#fff;}
   .nc{color:var(--c-textm);font-size:11px;}
   .br{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;padding:1px 4px;}
   .br-r{background:#FEE0DE;color:#C0392B;border:1px solid #F5C6C2;}
   .br-o{background:#EEF3FF;color:#3557A5;border:1px solid #B8CBF5;}
   .br-m{background:#FFF8EE;color:#8A5800;border:1px solid #F5D9A0;}
   .br-ex{background:#F0F0F2;color:#6B7280;border:1px solid #D1D5DB;}
+  .br-attn{background:#FFF3CD;color:#7A4F00;border:1px solid #FECB2E;}
 
   /* Responsive column hiding for BOM table */
   .col-exp{visibility:hidden;width:0;max-width:0;overflow:hidden;padding:0!important;border-width:0!important;}
@@ -212,10 +224,12 @@
   .bgr-label{font-size:13px;font-weight:700;color:var(--c-text);flex:1;}
   .bgr-note{font-size:11px;color:var(--c-text2);font-style:italic;}
   .bgr-actions{display:flex;gap:5px;align-items:center;padding:0 10px;}
-  .bgr-btn{background:none;border:1px solid var(--c-ib);border-radius:2px;color:var(--c-text2);font-size:11px;font-weight:600;padding:3px 8px;cursor:pointer;font-family:inherit;transition:background .12s;}
+  .bgr-btn{background:none;border:1px solid var(--c-ib);border-radius:2px;color:var(--c-text2);font-size:11px;font-weight:600;padding:3px 8px;cursor:pointer;font-family:inherit;transition:background .12s;display:inline-flex;align-items:center;}
+  .bgr-btn svg{width:11px;height:11px;}
   .bgr-btn:hover{background:var(--c-sh);color:var(--c-text);}
   .bgr-btn.del{border-color:#F5C6C2;color:#C0392B;background:#FEF0EE;}
   .bgr-btn.del:hover{background:#F5C6C2;}
+  .bgr-price{font-size:12px;font-weight:700;color:var(--forti-red);background:#fff;border:1px solid var(--c-border);border-radius:3px;padding:2px 8px;white-space:nowrap;margin-left:4px;}
 
   /* Project Total */
   #project-total{background:var(--c-white);border:1px solid var(--c-border);border-radius:4px;padding:14px 20px;display:flex;justify-content:flex-end;align-items:center;gap:20px;}
@@ -329,17 +343,19 @@
 
   /* Print */
   /* Project Info view/edit toggle */
-  .pi-edit-btn{margin-left:auto;background:none;border:1px solid var(--c-ib);border-radius:3px;padding:3px 9px;cursor:pointer;color:var(--c-text2);font-size:11px;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .12s,border-color .12s;}
+  .pi-edit-btn{margin-left:0;background:none;border:1px solid var(--c-ib);border-radius:3px;padding:3px 9px;cursor:pointer;color:var(--c-text2);font-size:11px;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .12s,border-color .12s;}
   .pi-edit-btn:hover{background:var(--c-sh);border-color:var(--c-text2);}
   .pi-edit-btn.active{background:#EEF3FF;border-color:#B8CBF5;color:#3557A5;}
   .pi-edit-btn svg{width:11px;height:11px;flex-shrink:0;}
-  .pi-clear-btn{background:none;border:1px solid var(--c-ib);border-radius:3px;padding:3px 9px;cursor:pointer;color:var(--c-text2);font-size:11px;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .12s,border-color .12s;}
-  .pi-clear-btn:hover{background:#FEF2F2;border-color:#FCA5A5;color:#B91C1C;}
-  .pi-clear-btn svg{width:11px;height:11px;flex-shrink:0;}
+  .pi-clear-btn{margin-left:0;background:#FEF0EE;color:#C0392B;border:1px solid #F5C6C2;border-radius:3px;padding:3px 5px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .12s,border-color .12s;}
+  .pi-clear-btn:hover{background:#F5C6C2;}
+  .pi-clear-btn svg{width:13px;height:13px;flex-shrink:0;}
+  #proj-info-card{border-left:3px solid var(--forti-red);box-shadow:0 2px 8px rgba(0,0,0,.07);}
   #proj-info-card.view-mode #pi-clear-btn{display:none!important;}
   #pi-view{display:none;padding:0;}
   #proj-info-card.view-mode .pfg{display:none;}
-  #proj-info-card.view-mode #pi-view{display:block;}
+  #proj-info-card.view-mode.pi-expanded #pi-view{display:block;}
+  #proj-info-card.view-mode:not(.pi-expanded) .lcb{padding:8px 18px;}
   .pi-vg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px 24px;}
   .pi-vf{display:flex;flex-direction:column;gap:2px;}
   .pi-vf.full{grid-column:1/-1;}
@@ -350,25 +366,113 @@
   .pi-vv.empty{color:var(--c-textm);font-style:italic;}
   .pi-vv.pi-cust-val{font-size:17px;font-weight:600;color:var(--c-text);}
   .pi-vg .pi-vf.cust-row{grid-column:1/-1;margin-bottom:4px;padding-bottom:10px;border-bottom:1px solid var(--c-border);}
+  /* Collapsed summary bar */
+  #pi-summary{display:none;align-items:center;gap:0;overflow:hidden;flex-wrap:wrap;row-gap:6px;}
+  #proj-info-card.view-mode #pi-summary{display:flex;}
+  #proj-info-card.view-mode.pi-expanded #pi-summary{display:none;}
+  .pi-sum-cust{font-size:14px;font-weight:600;color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;}
+  .pi-sum-cust.empty{color:var(--c-textm);font-style:italic;}
+  .pi-sum-divider{width:1px;height:18px;background:var(--c-border);flex-shrink:0;margin:0 12px;}
+  .pi-sum-chip{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+  .pi-sum-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--c-textm);}
+  .pi-sum-val{font-size:12px;color:var(--c-text2);white-space:nowrap;}
+  /* Expand/collapse chevron button */
+  .pi-expand-btn{background:none;border:1px solid var(--c-ib);border-radius:3px;padding:3px 8px;cursor:pointer;color:var(--c-text2);font-size:11px;font-weight:500;font-family:inherit;display:none;align-items:center;gap:4px;transition:background .12s,border-color .12s;flex-shrink:0;}
+  .pi-expand-btn:hover{background:var(--c-sh);border-color:var(--c-text2);}
+  .pi-expand-btn svg{width:9px;height:9px;flex-shrink:0;transition:transform .2s;}
+  #proj-info-card.view-mode .pi-expand-btn{display:inline-flex;}
+  #proj-info-card.view-mode.pi-expanded .pi-expand-btn svg{transform:rotate(180deg);}
 
   /* Term applied warning (still at default -DD) */
   #sum-term.term-warn{color:#8A5800;}
+
+  /* Password protection buttons */
+  #pw-lock-btn{background:none;border:1px solid var(--c-ib);border-radius:3px;padding:3px 6px;cursor:pointer;display:none;align-items:center;gap:4px;color:var(--c-text2);font-size:11px;font-weight:500;font-family:inherit;transition:background .12s;}
+  #pw-lock-btn:hover{background:var(--c-sh);}
+  #pw-lock-btn svg{width:11px;height:11px;flex-shrink:0;}
+  #pw-unlock-btn{background:#FFF8EE;color:#8A5800;border:1px solid #F5D9A0;border-radius:3px;padding:3px 10px;cursor:pointer;display:none;align-items:center;gap:5px;font-size:11px;font-weight:500;font-family:inherit;transition:background .12s;}
+  #pw-unlock-btn:hover{background:#F5D9A0;}
+  #pw-unlock-btn svg{width:11px;height:11px;flex-shrink:0;}
+  #proj-info-card.bom-locked .pi-cust-wrap,
+  #proj-info-card.bom-locked .pi-opp-wrap,
+  #proj-info-card.bom-locked .pi-notes-wrap{display:none;}
+  /* Password modals */
+  .pw-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;}
+  .pw-modal.on{display:flex;}
+  .pw-box{background:#fff;border-radius:5px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3);}
+  .pw-box h3{font-size:14px;font-weight:700;color:var(--c-text);padding:16px 18px;border-bottom:1px solid var(--c-border);background:var(--c-sh);display:flex;align-items:center;gap:8px;}
+  .pw-body{padding:18px;display:flex;flex-direction:column;gap:12px;}
+  .pw-foot{padding:12px 18px;border-top:1px solid var(--c-border);display:flex;justify-content:flex-end;gap:8px;background:var(--c-sh);}
+  .pw-display{display:flex;align-items:center;gap:8px;background:#F7F9FC;border:1px solid var(--c-border);border-radius:3px;padding:10px 14px;}
+  .pw-val{font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:#1A4E82;flex:1;letter-spacing:.05em;word-break:break-all;}
+  .pw-copy-btn{background:none;border:1px solid var(--c-ib);border-radius:3px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:500;color:var(--c-text2);font-family:inherit;white-space:nowrap;transition:background .12s;flex-shrink:0;}
+  .pw-copy-btn:hover{background:var(--c-sh);}
+  .pw-warn{font-size:11px;color:#8A5800;background:#FFF8EE;border:1px solid #F5D9A0;border-radius:3px;padding:8px 12px;}
+  .pw-input{width:100%;box-sizing:border-box;border:1px solid var(--c-ib);border-radius:3px;padding:8px 10px;font-size:15px;font-family:'Courier New',monospace;letter-spacing:.05em;outline:none;transition:border-color .15s;}
+  .pw-input:focus{border-color:var(--forti-red);box-shadow:0 0 0 2px rgba(238,49,36,.1);}
+  .pw-input.error{border-color:#E74C3C;background:#FEF0EE;}
+  .pw-err{font-size:12px;color:#C0392B;display:none;margin-top:-4px;}
+  .pw-err.on{display:block;}
+  .pw-desc{font-size:13px;color:var(--c-text);line-height:1.6;}
+  .pw-note{font-size:11px;color:var(--c-text2);line-height:1.5;}
+
+  /* Read Only checkbox (visible only in edit mode) */
+  #pi-readonly-wrap{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--c-ib);border-radius:3px;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s;}
+  #pi-readonly-wrap:hover{background:var(--c-sh);border-color:var(--c-text2);}
+  #pi-readonly-wrap input{cursor:pointer;accent-color:var(--forti-red);margin:0;}
+  #pi-readonly-wrap span{font-size:11px;font-weight:500;color:var(--c-text2);font-family:inherit;}
+  #proj-info-card.view-mode #pi-readonly-wrap{display:none!important;}
+
+  /* BOM Read Only state */
+  #pbv.bom-readonly .bg-edit,
+  #pbv.bom-readonly .bg-del,
+  #pbv.bom-readonly .bgr-actions,
+  #pbv.bom-readonly #add-btn,
+  #pbv.bom-readonly #clear-btn{display:none!important;}
+  #pbv.bom-readonly .qty-input,
+  #pbv.bom-readonly .note-input,
+  #pbv.bom-readonly .label-input{pointer-events:none;background:transparent!important;}
+  #pbv.bom-readonly .type-btn{pointer-events:none;cursor:default;}
+  #pbv.bom-readonly .drag-handle{pointer-events:none;cursor:default;opacity:.25;}
+
+  /* Project Info Read Only state — lock fields but keep checkbox interactive */
+  #proj-info-card.pi-readonly .pfg input,
+  #proj-info-card.pi-readonly .pfg select,
+  #proj-info-card.pi-readonly .pfg textarea{background:var(--c-sh)!important;color:var(--c-text2)!important;cursor:not-allowed;}
+  #proj-info-card.pi-readonly .pi-clear-btn{display:none!important;}
 
   /* Welcome screen step list */
   .ws-steps{list-style:none;text-align:left;display:inline-flex;flex-direction:column;gap:8px;margin:0;}
   .ws-steps li{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#4A5168;line-height:1.5;}
   .ws-steps li .sn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--forti-red);color:#fff;font-size:10px;font-weight:700;flex-shrink:0;}
 
+  /* Save status dot */
+  .save-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:none;transition:background .3s;}
+  .save-dot.saved{display:inline-block;background:rgba(74,196,100,0.6);}
+  .save-dot.dirty{display:inline-block;background:rgba(247,148,29,0.85);}
+
+  .pbv-watermark{margin-top:auto;padding:14px 4px 4px;text-align:center;font-size:11px;color:var(--c-textm);display:flex;align-items:center;justify-content:center;gap:6px;opacity:.75;}
+  .pbv-watermark a{display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none;font-weight:600;}
+  .pbv-watermark a:hover{color:var(--forti-red);}
+  .pbv-watermark .pbv-wm-logo{width:14px;height:14px;flex-shrink:0;}
+
+  @media print {
+    .pbv-watermark{margin-top:24px;opacity:1;color:#555;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .pbv-watermark a{color:#555;}
+  }
+
   @media print {
     body{background:#fff;overflow:auto;height:auto;}
     #top-bar,#sidebar,#ch,.act-row,#toast,#pfw,#copy-menu,#project-menu,#add-menu{display:none!important;}
     #main{display:block;}
     #pbv{display:flex!important;overflow:visible;padding:20px;}
-    .bg-del,.bgr-actions{display:none!important;}
+    .bg-del,.bg-edit,.bgr-actions{display:none!important;}
     .lc,.bg{break-inside:avoid;}
-    .pi-edit-btn,.pi-clear-btn{display:none!important;}
+    .pi-edit-btn,.pi-clear-btn,.pi-expand-btn{display:none!important;}
     #proj-info-card .pfg{display:none!important;}
     #proj-info-card #pi-view{display:block!important;}
+    #proj-info-card #pi-summary{display:none!important;}
+    #proj-info-card.view-mode:not(.pi-expanded) .lcb{padding:18px!important;}
     .pi-vv a{color:#1A4E82;text-decoration:none;border-bottom:1px solid #B8CBF5;}
   }
 </style>
@@ -387,9 +491,9 @@
   <div class="tb-div"></div>
   <span class="tb-sub"><!-- Project BOM Generator--></span>
   <div class="spacer"></div>
-  <button id="cart-btn" onclick="showPBV()" title="View Project BOM">
+  <button id="cart-btn" onclick="showPBV()" title="Project BOM">
     <svg viewBox="0 0 15 15" fill="none"><path d="M1 1h2l2 7h7l1-5H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="12" cy="13" r="1" fill="currentColor"/></svg>
-    Project BOM
+    <span id="bom-save-dot" class="save-dot"></span>
     <span id="cbadge">0</span>
   </button>
 </div>
@@ -401,6 +505,7 @@
     <div class="ni proj" id="nav-proj" onclick="showPBV()">
       <svg class="ni-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="#E8EAF0" stroke-width="1.2"/><path d="M5 6h8M5 9h8M5 12h5" stroke="#E8EAF0" stroke-width="1.2" stroke-linecap="round"/></svg>
       <span class="ni-label">Project BOM</span>
+      <span id="nav-bom-save-dot" class="save-dot" style="margin-left:2px;"></span>
       <span class="ni-badge" id="sb-badge">0</span>
     </div>
     <div class="ni" id="nav-saved" onclick="showSavedProjects()">
@@ -421,6 +526,10 @@
       <svg class="ni-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#8A93A8" stroke-width="1.2"/><path d="M9 8v5M9 6.5v.5" stroke="#8A93A8" stroke-width="1.4" stroke-linecap="round"/></svg>
       <span class="ni-label">About</span>
     </div>
+    <a class="ni" href="docs/help-faq.html" target="_blank" rel="noopener" style="text-decoration:none;">
+      <svg class="ni-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#8A93A8" stroke-width="1.2"/><path d="M9 10.5v-.4c0-.4.2-.7.6-.9.9-.4 1.4-1.6.6-2.6A2 2 0 0 0 7 8" stroke="#8A93A8" stroke-width="1.3" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".75" fill="#8A93A8"/></svg>
+      <span class="ni-label">Help & FAQ</span>
+    </a>
   </nav>
 
   <div id="content">
@@ -428,12 +537,17 @@
       <span class="bci">FabricBOM</span>
       <span class="bcs">›</span>
       <span class="bci cur" id="bc">Select a product</span>
+      <span class="bcs" id="bc-proj-sep">›</span>
+      <span class="bci cur" id="bc-proj"></span>
     </div>
 
     <!-- Product iframe area -->
     <div id="pfw">
       <div id="ws">
-        <svg class="wl" viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="8" fill="#EE3124"/><path d="M12 16h32v6H12zM12 25h20v6H12zM12 34h32v6H12z" fill="white"/></svg>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;opacity:0.4;">
+          <svg style="width:28px;height:28px;flex-shrink:0;" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="4" fill="#EE3124"/><path d="M6 8h16v3H6zM6 12.5h10v3H6zM6 17h16v3H6z" fill="white"/></svg>
+          <span style="font-size:22px;font-weight:700;letter-spacing:.01em;"><span style="color:var(--forti-red);">Fabric</span><span style="color:#2A2F3A;">BOM</span></span>
+        </div>
         <h2>Select a product to begin</h2>
         <ol class="ws-steps">
           <li><span class="sn">1</span>Pick a product from the left sidebar</li>
@@ -442,9 +556,11 @@
           <li><span class="sn">4</span>Repeat for each product, then open Project BOM</li>
         </ol>
         <div class="hint">Multiple runs of the same product are supported</div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="btn bs" onclick="openImport()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round"/></svg>Import from CSV</button>
-          <button class="btn bs" onclick="openSkuModal()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" rx="1" stroke="#6B7589" stroke-width="1.1"/><path d="M3.5 6.5h6M6.5 5v3" stroke="#6B7589" stroke-width="1.1" stroke-linecap="round"/></svg>Add SKU</button>
+        <div class="hint">Already know your SKUs? Use <strong>Add SKU</strong> or load a project from <strong>Saved Projects</strong> — the product pages are optional.</div>
+        <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+          <button class="btn bs" onclick="openImport()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round"/></svg>Import FBOM</button>
+          <button class="btn bp" onclick="openSkuModal()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" rx="1" stroke="#fff" stroke-width="1.1"/><path d="M3.5 6.5h6M6.5 5v3" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/></svg>Add SKU</button>
+          <a class="demo-bom-link btn bs" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none;align-items:center;gap:6px;"><svg viewBox="0 0 13 13" fill="none" style="width:13px;height:13px;"><path d="M7.5 1.5h4v4M11 2L6 7M5.5 2.5H2a1 1 0 0 0-1 1V11a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V7.5" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="demo-bom-label">Try a demo BOM</span></a>
         </div>
       </div>
       <iframe id="pf" style="display:none;" title="Product BOM Generator"></iframe>
@@ -457,19 +573,34 @@
         <div class="lch">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1.5" stroke="#6B7589" stroke-width="1.2"/><path d="M3.5 4.5h6M3.5 6.5h4" stroke="#6B7589" stroke-width="1.2" stroke-linecap="round"/></svg>
           <h2>Project Information</h2>
+          <div style="flex:1;min-width:0;"></div>
+          <button class="pi-expand-btn" id="pi-expand-btn" onclick="togglePiExpand()" title="Show / hide full project details">
+            <svg viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Details
+          </button>
+          <button class="pi-clear-btn" id="pi-clear-btn" onclick="clearPiFields()" title="Clear all project information fields">
+            <svg viewBox="0 0 13 13" fill="none"><path d="M2 3.5h9M5 3.5V2h3v1.5M5.5 6v4M7.5 6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 3.5l.5 7a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <label id="pi-readonly-wrap" title="Lock the BOM and project info against edits">
+            <input type="checkbox" id="pi-readonly" onchange="handleReadOnlyChange(this)">
+            <span>RO</span>
+          </label>
+          <button id="pw-lock-btn" onclick="openPwViewModal()" title="Password protected — click to manage">
+            <svg viewBox="0 0 11 13" fill="none"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="currentColor"/></svg>
+          </button>
+          <button id="pw-unlock-btn" onclick="openPwUnlockModal()" title="This BOM is password-protected — click to unlock">
+            <svg viewBox="0 0 11 13" fill="none"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="currentColor"/></svg>
+            Unlock
+          </button>
           <button class="pi-edit-btn" id="pi-edit-btn" onclick="togglePiEdit()" title="Toggle edit mode">
             <svg viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2L3 10H1V8L7.5 1.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
             <span id="pi-edit-label">View</span>
           </button>
-          <button class="pi-clear-btn" id="pi-clear-btn" onclick="clearPiFields()" title="Clear all project information fields">
-            <svg viewBox="0 0 11 11" fill="none"><path d="M2 2l7 7M9 2l-7 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Clear
-          </button>
         </div>
         <div class="lcb">
           <div class="pfg">
-            <div class="pg"><label class="pl">Customer / Opportunity <span class="r">*</span></label><input type="text" class="pi" id="pi-cust" placeholder="e.g. Acme Corp – Network Refresh 2025"></div>
-            <div class="pg"><label class="pl">Opportunity ID</label><input type="text" class="pi" id="pi-opp" placeholder="e.g. OPP-2025-01234"></div>
+            <div class="pg full pi-cust-wrap"><label class="pl">Customer / Opportunity <span class="r">*</span></label><input type="text" class="pi" id="pi-cust" placeholder="e.g. Acme Corp – Network Refresh 2025"></div>
+            <div class="pg pi-opp-wrap"><label class="pl">Opportunity ID</label><input type="text" class="pi" id="pi-opp" placeholder="e.g. OPP-2025-01234"></div>
             <div class="pg"><label class="pl">SE / Engineer</label><input type="text" class="pi" id="pi-eng" placeholder="Your name"></div>
             <div class="pg"><label class="pl">Date</label><input type="text" class="pi" id="pi-date"></div>
             <div class="pg">
@@ -482,23 +613,22 @@
               </select>
               <div style="font-size:10px;color:var(--c-textm);margin-top:3px;">Replaces <code>-DD</code> suffix on all SKUs in this project BOM</div>
             </div>
-            <div class="pg full"><label class="pl">Project Scope / Notes</label><textarea class="pi" id="pi-notes" placeholder="Optional: overall project scope, deployment context, or assumptions…"></textarea></div>
+            <div class="pg full pi-notes-wrap"><label class="pl">Project Scope / Notes</label><textarea class="pi" id="pi-notes" placeholder="Optional: overall project scope, deployment context, or assumptions…"></textarea></div>
           </div>
+          <div id="pi-summary"></div>
           <div id="pi-view"></div>
         </div>
       </div>
 
-      <!-- Summary + Actions -->
+      <!-- Actions -->
       <div class="sbar" id="sbar">
-        <div class="si"><div class="sl">Product Groups</div><div class="sv" id="sum-g">0</div></div>
-        <div class="si hi"><div class="sl">Total Line Items</div><div class="sv" id="sum-l">0</div></div>
-        <div class="si"><div class="sl">Total Units / Licenses</div><div class="sv" id="sum-q">0</div></div>
-        <div class="si"><div class="sl">Term Applied</div><div class="sv" id="sum-term" style="font-size:14px;">-DD</div></div>
         <div class="act-row">
-          <button class="btn bp" id="project-btn" onclick="toggleProjectMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/></svg>Save / Export<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <button class="btn bs" id="add-btn" onclick="toggleAddMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="4" width="11" height="5" rx="1" stroke="#6B7589" stroke-width="1.1"/><path d="M4 6.5h5M6.5 5.5v2" stroke="#6B7589" stroke-width="1.1" stroke-linecap="round"/></svg>Add<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-<button class="btn bs" id="copy-export-btn" onclick="toggleCopyMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="3.5" y="1" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/><rect x="1" y="3" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/></svg>Copy / Share<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <button class="btn bd" onclick="clearCart()"><svg viewBox="0 0 13 13" fill="none"><path d="M2 3.5h9M5 3.5V2h3v1.5M5.5 6v4M7.5 6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 3.5l.5 7a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Clear All</button>
+          <button class="btn bp" id="add-btn" onclick="toggleAddMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="4" width="11" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M4 6.5h5M6.5 5.5v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>Add Item<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <button class="btn bs" id="project-btn" onclick="toggleProjectMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/></svg>File<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="btn bs" id="copy-export-btn" onclick="toggleCopyMenu(event)"><svg viewBox="0 0 13 13" fill="none"><rect x="3.5" y="1" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/><rect x="1" y="3" width="8" height="9" rx="1" stroke="#6B7589" stroke-width="1.1"/></svg>Share<svg viewBox="0 0 10 6" fill="none" style="width:9px;height:9px;margin-left:1px;"><path d="M1 1l4 4 4-4" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button id="clear-btn" class="btn bd" onclick="clearCart()" title="Clear All"><svg viewBox="0 0 13 13" fill="none"><path d="M2 3.5h9M5 3.5V2h3v1.5M5.5 6v4M7.5 6v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 3.5l.5 7a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          </div>
         </div>
       </div>
 
@@ -507,17 +637,37 @@
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M4 4h8l6 22h20l4-14H14" stroke="#9BA5BA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="40" r="3" fill="#9BA5BA"/><circle cx="36" cy="40" r="3" fill="#9BA5BA"/></svg>
         <h3>Project BOM is empty</h3>
         <p>Select a product from the left sidebar, configure it, and click <strong>Add to Project BOM</strong>. You can add multiple products and run the same product page multiple times to build a complete project quote.</p>
-        <button class="btn bs" onclick="openImport()" style="margin-top:4px;"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round"/></svg>Import from CSV</button>
-        <button class="btn bs" onclick="openSkuModal()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" rx="1" stroke="#6B7589" stroke-width="1.1"/><path d="M3.5 6.5h6M6.5 5v3" stroke="#6B7589" stroke-width="1.1" stroke-linecap="round"/></svg>Add SKU</button>
+        <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+          <button class="btn bs" onclick="openImport()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round"/></svg>Import FBOM</button>
+          <button class="btn bp" onclick="openSkuModal()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" rx="1" stroke="#fff" stroke-width="1.1"/><path d="M3.5 6.5h6M6.5 5v3" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/></svg>Add SKU</button>
+          <a class="demo-bom-link btn bs" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none;align-items:center;gap:6px;"><svg viewBox="0 0 13 13" fill="none" style="width:13px;height:13px;"><path d="M7.5 1.5h4v4M11 2L6 7M5.5 2.5H2a1 1 0 0 0-1 1V11a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V7.5" stroke="#6B7589" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="demo-bom-label">Try a demo BOM</span></a>
+        </div>
       </div>
 
       <!-- BOM groups container -->
       <div id="bgc"></div>
 
+      <!-- BOM Summary Stats -->
+      <div class="sbar" id="bom-stats">
+        <div class="si"><div class="sl">Groups</div><div class="sv" id="sum-g">0</div></div>
+        <div class="si hi"><div class="sl">Line Items</div><div class="sv" id="sum-l">0</div></div>
+        <div class="si"><div class="sl">Units / Lic.</div><div class="sv" id="sum-q">0</div></div>
+        <div class="si"><div class="sl">Term</div><div class="sv" id="sum-term">-DD</div></div>
+      </div>
+
       <!-- Project Total (only shown when pricing data is loaded) -->
       <div id="project-total" style="display:none;">
         <span class="pt-label">Project Total</span>
         <span class="pt-value" id="pt-value"></span>
+      </div>
+
+      <!-- Watermark -->
+      <div class="pbv-watermark">
+        Powered by
+        <a href="https://msalty.github.io/FabricBOM/" target="_blank" rel="noopener noreferrer">
+          <svg class="pbv-wm-logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect width="28" height="28" rx="4" fill="#EE3124"/><path d="M6 8h16v3H6zM6 12.5h10v3H6zM6 17h16v3H6z" fill="white"/></svg>
+          <span>FabricBOM</span>
+        </a>
       </div>
     </div>
 
@@ -527,6 +677,7 @@
         <div class="lch">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="#6B7589" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="#6B7589" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="#6B7589" stroke-width="1.1"/></svg>
           <h2>Saved Projects</h2>
+          <button class="btn bs" style="margin-left:auto;font-size:11px;padding:4px 10px;" onclick="backupProjects()" title="Download a Markdown backup of all saved projects"><svg viewBox="0 0 13 13" fill="none" style="width:12px;height:12px;"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Backup All</button>
         </div>
         <div id="spv-filter-wrap">
           <input id="spv-filter" type="text" placeholder="Filter by project name, opportunity ID, or SE…" oninput="filterSavedProjects(this.value)" autocomplete="off" spellcheck="false">
@@ -541,16 +692,24 @@
         </div>
         <div id="pricing-content" class="lcb"></div>
       </div>
+      <div class="pbv-watermark">
+        Powered by
+        <a href="https://msalty.github.io/FabricBOM/" target="_blank" rel="noopener noreferrer">
+          <svg class="pbv-wm-logo" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect width="28" height="28" rx="4" fill="#EE3124"/><path d="M6 8h16v3H6zM6 12.5h10v3H6zM6 17h16v3H6z" fill="white"/></svg>
+          <span>FabricBOM</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>
 
-<input type="file" id="pricing-file" accept=".xlsx,.xls" style="display:none" onchange="pricingFileChosen(this)">
+<input type="file" id="pricing-file" accept=".csv,.xlsx" style="display:none" onchange="pricingFileChosen(this)">
 <div id="toast"></div>
 
 <!-- Copy/Export dropdown menu (position:fixed so it escapes overflow-y:auto parents) -->
 <div id="copy-menu">
   <div class="dm-section">Share</div>
+  <button class="dm-item" onclick="shareHyperlink()"><svg viewBox="0 0 13 13" fill="none"><path d="M5.5 7.5a3 3 0 0 0 4.243 0l1.5-1.5a3 3 0 0 0-4.243-4.243L6.25 2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M7.5 5.5a3 3 0 0 0-4.243 0L1.757 7a3 3 0 0 0 4.243 4.243L6.75 10.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>Share Hyperlink</button>
   <button class="dm-item" onclick="shareBOM()"><svg viewBox="0 0 13 13" fill="none"><circle cx="10" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><circle cx="10" cy="10.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><circle cx="3" cy="6.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M8.5 3.5L4.5 5.5M4.5 7.5L8.5 9.5" stroke="currentColor" stroke-width="1.1"/></svg>Share BOM URL</button>
   <div class="dm-sep"></div>
   <div class="dm-section">Copy to Clipboard</div>
@@ -580,8 +739,8 @@
   <button class="dm-item" onclick="saveProject();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="4" y="1" width="5" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/><rect x="3" y="7" width="7" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/></svg>Save Project</button>
   <div class="dm-sep"></div>
   <div class="dm-section">File</div>
-  <button class="dm-item" onclick="exportCSV();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Export CSV</button>
-  <button class="dm-item" onclick="openImport();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Import CSV</button>
+  <button class="dm-item" onclick="exportCSV();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Export FabricBOM</button>
+  <button class="dm-item" onclick="openImport();closeProjectMenu()"><svg viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Import FabricBOM</button>
   <div id="project-sfdc-section" style="display:none">
     <div class="dm-sep"></div>
     <div class="dm-section">SFDC Export (Download CSV)</div>
@@ -598,14 +757,14 @@
   <div id="imp-box">
     <h3>
       <svg width="14" height="14" viewBox="0 0 13 13" fill="none"><path d="M6.5 9V1M9.5 6l-3 3-3-3" stroke="#2A2F3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1" stroke="#2A2F3A" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Import Project from CSV
+      Import Project from FabricBOM
     </h3>
     <div id="imp-body">
       <div id="imp-drop" onclick="document.getElementById('imp-file').click()" ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" ondrop="impDrop(event)">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="opacity:.35"><rect x="4" y="4" width="24" height="24" rx="3" stroke="#6B7589" stroke-width="1.5"/><path d="M10 16h12M16 10v12" stroke="#6B7589" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop a CSV file here or click to browse</div>
-        <p>Must be a FortiBOM-exported CSV. Project info and all product groups will be restored.</p>
-        <input type="file" id="imp-file" accept=".csv" style="display:none" onchange="impFileChosen(this)">
+        <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop an .fbom <span title="go ahead, drop it" aria-hidden="true">😉</span> … or click to browse.</div>
+        <p>Must be a FabricBOM-exported .fbom file. Project info and all product groups will be restored.</p>
+        <input type="file" id="imp-file" accept=".fbom" style="display:none" onchange="impFileChosen(this)">
       </div>
       <div id="imp-warn" style="display:none;font-size:12px;color:#8A5800;background:#FFF8EE;border:1px solid #F5D9A0;border-radius:3px;padding:8px 12px;"></div>
     </div>
@@ -629,6 +788,10 @@
         <label class="pl">Note (optional)</label>
         <input type="text" class="pi" id="grp-note" placeholder="e.g. Requires FortiCare Essential">
       </div>
+      <div class="pg" style="flex-direction:row;align-items:center;gap:8px;margin-top:2px;">
+        <input type="checkbox" id="grp-show-pricing" style="width:auto;cursor:pointer;accent-color:var(--forti-red);">
+        <label class="pl" for="grp-show-pricing" style="text-transform:none;font-size:12px;font-weight:500;cursor:pointer;letter-spacing:0;">Show group pricing total on header</label>
+      </div>
     </div>
     <div id="grp-foot">
       <button class="btn bs" onclick="closeGroupModal()">Cancel</button>
@@ -644,6 +807,7 @@
   <button class="kp-item" data-kind="opt" onclick="setKind('opt')"><span class="br br-o">Optional</span></button>
   <button class="kp-item" data-kind="inc" onclick="setKind('inc')"><span class="br br-o">Included</span></button>
   <button class="kp-item" data-kind="excl" onclick="setKind('excl')"><span class="br br-ex">Excluded</span></button>
+  <button class="kp-item" data-kind="attn" onclick="setKind('attn')"><span class="br br-attn">Attention</span></button>
   <div class="kp-sep"></div>
   <button class="kp-item" data-kind="" onclick="setKind('')" style="color:var(--c-text2)">Clear override</button>
 </div>
@@ -668,9 +832,75 @@
   </div>
 </div>
 
-<script src="js/toolbox-shared.js"></script>
-<script src="js/pricing-normalize.js"></script>
-<!-- SheetJS xlsx — browser-safe workbook parser. Vendor this file at js/xlsx.mini.min.js for full offline/PWA support. -->
+<!-- Password Setup Modal -->
+<div id="pw-setup-modal" class="pw-modal">
+  <div class="pw-box">
+    <h3>
+      <svg width="14" height="14" viewBox="0 0 11 13" fill="none"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="#2A2F3A" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="#2A2F3A" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="#2A2F3A"/></svg>
+      Require a Password?
+    </h3>
+    <div class="pw-body">
+      <p class="pw-desc">This BOM is now read-only. Would you also like to require a password to unlock it?</p>
+      <p class="pw-note">Without a password, the BOM is read-only but all fields are visible. With a password, <strong>Opportunity ID</strong> and <strong>Project Scope / Notes</strong> are hidden from anyone who doesn't have it.</p>
+      <div id="pw-setup-reveal" style="display:none;flex-direction:column;gap:8px;">
+        <div class="pw-display">
+          <span class="pw-val" id="pw-setup-val"></span>
+          <button class="pw-copy-btn" onclick="copySetupPassword()">Copy</button>
+        </div>
+        <p class="pw-warn">Save this password now — it won't be shown again after you close this dialog. Recipients will need it to unlock the BOM.</p>
+      </div>
+    </div>
+    <div class="pw-foot">
+      <button class="btn bs" onclick="skipPasswordSetup()">No, read-only only</button>
+      <button class="btn bs" id="pw-setup-gen-btn" onclick="generateAndShowSetupPassword()">Generate Password</button>
+      <button class="btn bp" id="pw-setup-confirm-btn" style="display:none" onclick="confirmPasswordSetup()">Done — I've saved it</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Unlock Modal -->
+<div id="pw-unlock-modal" class="pw-modal">
+  <div class="pw-box">
+    <h3>
+      <svg width="14" height="14" viewBox="0 0 11 13" fill="none"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="#2A2F3A" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="#2A2F3A" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="#2A2F3A"/></svg>
+      Unlock BOM
+    </h3>
+    <div class="pw-body">
+      <p class="pw-desc">This BOM is password-protected. Enter the password to reveal all fields and unlock editing.</p>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <input type="password" class="pw-input" id="pw-unlock-input" placeholder="Enter password…" onkeydown="if(event.key==='Enter')attemptUnlock()">
+        <span class="pw-err" id="pw-unlock-err">Incorrect password — try again.</span>
+      </div>
+    </div>
+    <div class="pw-foot">
+      <button class="btn bs" onclick="closePwUnlockModal()">Cancel</button>
+      <button class="btn bp" onclick="attemptUnlock()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password View / Manage Modal -->
+<div id="pw-view-modal" class="pw-modal">
+  <div class="pw-box">
+    <h3>
+      <svg width="14" height="14" viewBox="0 0 11 13" fill="none"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="#2A2F3A" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="#2A2F3A" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="#2A2F3A"/></svg>
+      Password Protection
+    </h3>
+    <div class="pw-body">
+      <p class="pw-note">This BOM is password-protected. Share this password with recipients who need to unlock it.</p>
+      <div class="pw-display">
+        <span class="pw-val" id="pw-view-val">••••••••••••</span>
+        <button class="pw-copy-btn" id="pw-view-toggle" onclick="togglePwVisibility()">Show</button>
+        <button class="pw-copy-btn" id="pw-view-copy" onclick="copyViewPassword()">Copy</button>
+      </div>
+    </div>
+    <div class="pw-foot">
+      <button class="btn bd" onclick="removePasswordProtectionConfirm()">Remove Password</button>
+      <button class="btn bs" onclick="closePwViewModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/xlsx.mini.min.js"></script>
 <script>
 const CATALOG = [
@@ -704,41 +934,82 @@ const CATALOG = [
   { file:'fortisiem-bomgen.html', label:'FortiSIEM', cat:'Management' },
   { file: 'fortisoar-bomgen.html', label: 'FortiSOAR', cat: 'Management' },
   { file:'fortiflex-bomgen.html', label:'FortiFlex', cat:'Licensing' },
+  { file:'asku.html', label:'Pricing Dataset Search', cat:'Pricing', pricingOnly:true },
   { file:'custom-sku-bomgen.html', label:'Search & Custom Entry', cat:'Catalog Search' },
   //{ file:'placeholder-bomgen.html',  label:'Placeholder',    cat:'Demo' },
 ];
 
 let cart = [], seq = 0, activeNav = null;
 let savedProjects = [];
+let bomDirty = false;
 let spvFilter = '';
 let spRevExpanded = {}; // projectKey -> boolean, tracks which revision lists are expanded
 // cart entries are either product-entries {id, product, label, rows, meta}
 // or group-header entries {id, _type:'group', label, note}
 
 // ── PERSISTENCE ───────────────────────────────────────────────────────────────
-function savePiData() {
+async function savePiData() {
   try {
-    localStorage.setItem('fortibom_pi', JSON.stringify({
-      cust:  document.getElementById('pi-cust').value,
-      opp:   document.getElementById('pi-opp').value,
-      eng:   document.getElementById('pi-eng').value,
-      date:  document.getElementById('pi-date').value,
-      term:  document.getElementById('pi-term').value,
-      notes: document.getElementById('pi-notes').value
-    }));
+    const data = {
+      eng:          document.getElementById('pi-eng').value,
+      date:         document.getElementById('pi-date').value,
+      term:         document.getElementById('pi-term').value,
+      readOnly:     isReadOnly(),
+      passwordHash: bomPasswordHash,
+      passwordSalt: _pwSalt,
+    };
+    if (_activeKey) {
+      await _encryptCurrentFields();
+      Object.assign(data, _encBlobsCache);
+    } else if (bomPasswordHash && _encBlobsCache) {
+      Object.assign(data, _encBlobsCache);
+    } else {
+      data.cust  = document.getElementById('pi-cust').value;
+      data.opp   = document.getElementById('pi-opp').value;
+      data.notes = document.getElementById('pi-notes').value;
+    }
+    localStorage.setItem('fortibom_pi', JSON.stringify(data));
   } catch(e) {}
 }
-function loadPiData() {
+async function loadPiData() {
   try {
     const raw = localStorage.getItem('fortibom_pi');
     if (!raw) return;
     const d = JSON.parse(raw);
-    if (d.cust  !== undefined) document.getElementById('pi-cust').value  = d.cust;
-    if (d.opp   !== undefined) document.getElementById('pi-opp').value   = d.opp;
     if (d.eng   !== undefined) document.getElementById('pi-eng').value   = d.eng;
     if (d.date  !== undefined) document.getElementById('pi-date').value  = d.date;
     if (d.term  !== undefined) document.getElementById('pi-term').value  = d.term;
-    if (d.notes !== undefined) document.getElementById('pi-notes').value = d.notes;
+    if (d.passwordHash) {
+      bomPasswordHash = d.passwordHash;
+      _pwSalt = d.passwordSalt || '';
+      if (d.cust_enc) {
+        _encBlobsCache = { cust_enc: d.cust_enc, opp_enc: d.opp_enc||'', notes_enc: d.notes_enc||'' };
+        const stored = JSON.parse(localStorage.getItem('fortibom_pw_plain') || 'null');
+        if (stored && stored.hash === bomPasswordHash && _pwSalt) {
+          try {
+            _activeKey = await deriveKey(stored.plain, _pwSalt);
+            await _decryptIntoFields(_activeKey, _encBlobsCache);
+            bomUnlocked = true;
+          } catch { _activeKey = null; bomUnlocked = false; }
+        } else {
+          bomUnlocked = false;
+        }
+      } else {
+        if (d.cust  !== undefined) document.getElementById('pi-cust').value  = d.cust;
+        if (d.opp   !== undefined) document.getElementById('pi-opp').value   = d.opp;
+        if (d.notes !== undefined) document.getElementById('pi-notes').value = d.notes;
+        bomUnlocked = isCreator(bomPasswordHash);
+      }
+    } else {
+      if (d.cust  !== undefined) document.getElementById('pi-cust').value  = d.cust;
+      if (d.opp   !== undefined) document.getElementById('pi-opp').value   = d.opp;
+      if (d.notes !== undefined) document.getElementById('pi-notes').value = d.notes;
+    }
+    if (d.readOnly) {
+      document.getElementById('pi-readonly').checked = true;
+      toggleReadOnly(true);
+    }
+    updateLockUI();
   } catch(e) {}
 }
 function saveCart() {
@@ -797,7 +1068,7 @@ function updateSavedBadge() {
 }
 
 // ── ICONS ──────────────────────────────────────────────────────────────────
-function icon(file) {
+function iconSvg(file) {
   if (file.startsWith('fortigate'))   return `<svg class="ni-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h8M5 9.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
   if (file.startsWith('fortiswitch')) return `<svg class="ni-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/><circle cx="11" cy="9" r="1" fill="currentColor"/></svg>`;
   if (file.startsWith('fortiap'))     return `<svg class="ni-icon" viewBox="0 0 18 18" fill="none"><path d="M9 11a3 3 0 0 1 0-6M9 11a3 3 0 0 0 0-6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 13.5A6 6 0 0 1 3 8M12 13.5A6 6 0 0 0 15 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/></svg>`;
@@ -805,6 +1076,49 @@ function icon(file) {
   if (file.startsWith('fortianal') || file.startsWith('fortimanag')) return `<svg class="ni-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
   return `<svg class="ni-icon" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 9h6M9 6v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
 }
+const FORTI_ICON_NAMES = {
+  'fortigate-bomgen.html':           'FortiGate',
+  'fortiadc-bomgen.html':            'FortiADC',
+  'fortiddos-bomgen.html':           'FortiDDoS',
+  'fortideceptor-bomgen.html':       'FortiDeceptor',
+  'fortipam-bomgen.html':            'FortiPAM',
+  'fortiproxy-bomgen.html':          'FortiProxy',
+  'fortisandbox-bomgen.html':        'FortiSandbox',
+  'fortiweb-bomgen.html':            'FortiWeb',
+  'fortiappsec-bomgen.html':         'FortiAppSec',
+  'forticnapp-bomgen.html':          'FortiCNAPP',
+  'fortisase-bomgen.html':           'FortiSASE',
+  'fortimail-bomgen.html':           'FortiMail',
+  'fortimail-workspace-bomgen.html': 'FortiMail',
+  'fortiap-bomgen.html':             'FortiAP',
+  'fortiextender-bomgen.html':       'FortiExtender',
+  'fortipresence-bomgen.html':       'FortiPresence',
+  'fortiswitch-bomgen.html':         'FortiSwitch',
+  'forticlient-bomgen.html':         'FortiClient',
+  'fortidlp-bomgen.html':            'FortiDLP',
+  'fortiedr-bomgen.html':            'FortiEDR',
+  'fortiauthenticator-bomgen.html':  'FortiAuthenticator',
+  'fortinac-bomgen.html':            'FortiNAC',
+  'fortianalyzer-bomgen.html':       'FortiAnalyzer',
+  'fortimanager-bomgen.html':        'FortiManager',
+  'fortiaiops-bomgen.html':          'FortiAIOps',
+  'fortimonitor-bomgen.html':        'FortiMonitor',
+  'fortirecon-bomgen.html':          'FortiRecon',
+  'fortisiem-bomgen.html':           'FortiSIEM',
+  'fortisoar-bomgen.html':           'FortiSOAR',
+  'fortiflex-bomgen.html':           'FortiFlex',
+};
+function icon(file) {
+  const name = FORTI_ICON_NAMES[file];
+  if (!name) return iconSvg(file);
+  return `<img class="ni-icon" src="forti-icons/${name}-white.svg" data-file="${file}">`;
+}
+document.addEventListener('error', e => {
+  const img = e.target;
+  if (img.tagName === 'IMG' && img.dataset.file) {
+    img.outerHTML = iconSvg(img.dataset.file);
+  }
+}, true);
 
 // ── NAV BUILD ────────────────────────────────────────────────────────────────
 async function buildNav() {
@@ -815,7 +1129,11 @@ async function buildNav() {
   let any = false;
   for (const [cat, prods] of Object.entries(groups)) {
     const items = [];
-    for (const p of prods) { if (await exists(`products/${p.file}`)) { items.push(p); any=true; } }
+    for (const p of prods) {
+      if (!await exists(`products/${p.file}`)) continue;
+      if (p.pricingOnly) { const pd = await getPricingIDB(); if (!pd?.data?.rows?.length) continue; }
+      items.push(p); any=true;
+    }
     if (!items.length) continue;
     const lbl = document.createElement('div'); lbl.className='nsl'; lbl.textContent=cat; lbl.style.paddingTop='14px'; c.appendChild(lbl);
     for (const p of items) {
@@ -895,28 +1213,46 @@ function showAbout() {
   const ws = document.getElementById('ws');
   ws.style.display = 'flex';
   ws.innerHTML = `
-    <svg class="wl" viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="8" fill="#EE3124"/><path d="M12 16h32v6H12zM12 25h20v6H12zM12 34h32v6H12z" fill="white"/></svg>
-    <h2>FabricBOM v1.0.1b</h2>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;opacity:0.4;">
+      <svg style="width:28px;height:28px;flex-shrink:0;" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="4" fill="#EE3124"/><path d="M6 8h16v3H6zM6 12.5h10v3H6zM6 17h16v3H6z" fill="white"/></svg>
+      <span style="font-size:22px;font-weight:700;letter-spacing:.01em;"><span style="color:var(--forti-red);">Fabric</span><span style="color:#2A2F3A;">BOM</span></span>
+    </div>
+    <span style="font-size:12px;color:var(--forti-text-muted);margin-bottom:8px;">v1.0.1d</span>
     <p>Cross-product Bill of Materials generator for Fortinet deployments. Build BOMs per product, then combine them into a Project BOM.</p>
     <div class="hint" style="max-width:380px;text-align:left;">
       <strong style="color:#4A5168;display:block;margin-bottom:4px;">Disclaimer</strong>
       FabricBOM is not an officially sanctioned Fortinet product. Always validate output against the official Fortinet product ordering guides.
     </div>
-    <a href="https://github.com/msalty/FabricBOM/issues" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--forti-red);text-decoration:none;">Report an issue on GitHub →</a>`;
+    <a href="https://github.com/msalty/FabricBOM/issues" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--forti-red);text-decoration:none;">Report an issue on GitHub →</a>
+    <span style="font-size:11px;color:var(--forti-text-muted);margin-top:6px;">Fortinet product icons sourced from <a href="https://icons.fortinet.com/" target="_blank" rel="noopener noreferrer" style="color:var(--forti-red);text-decoration:none;">icons.fortinet.com</a>.</span>`;
 }
 
 // ── postMessage RECEIVER ─────────────────────────────────────────────────────
+let _skuEditId = null;
+
 window.addEventListener('message', e => {
   if (!e.data) return;
   if (e.data.type === 'FORTIBOM_CLOSE') { closeSkuModal(); return; }
   if (e.data.type !== 'FORTIBOM_ADD') return;
   const { product, label, rows, meta } = e.data;
-  cart.push({ id:++seq, product, label, rows, meta });
-  updateBadges();
-  renderGroups();
-  saveCart();
-  toast(`✓ Added to Project BOM: ${label}`);
-  if (cart.length === 1) showPBV();
+  if (_skuEditId !== null) {
+    const idx = cart.findIndex(c => c.id === _skuEditId);
+    if (idx !== -1) cart[idx] = { ...cart[idx], product, label, rows, meta };
+    _skuEditId = null;
+    closeSkuModal();
+    renderGroups();
+    saveCart();
+    markDirty();
+    toast(`✓ Updated: ${label || 'Custom SKU group'}`);
+  } else {
+    cart.push({ id:++seq, product, label, rows, meta });
+    updateBadges();
+    renderGroups();
+    saveCart();
+    markDirty();
+    toast(`✓ Added to Project BOM: ${label || 'Custom SKU group'}`);
+    if (cart.length === 1) showPBV();
+  }
 });
 
 // ── CART UI ──────────────────────────────────────────────────────────────────
@@ -932,7 +1268,20 @@ function updateBadges() {
   n > 0 ? navProj.classList.add('live') : navProj.classList.remove('live');
 }
 
-function removeFromCart(id) { cart = cart.filter(c=>c.id!==id); updateBadges(); renderGroups(); saveCart(); }
+function updateSaveIndicator() {
+  const cls = cart.length === 0 ? '' : (bomDirty ? 'save-dot dirty' : 'save-dot saved');
+  const title = cart.length === 0 ? '' : (bomDirty ? 'Unsaved changes' : 'Saved');
+  ['bom-save-dot','nav-bom-save-dot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = cls || 'save-dot';
+    el.title = title;
+  });
+}
+function markDirty() { bomDirty = true; updateSaveIndicator(); }
+function markSaved() { bomDirty = false; updateSaveIndicator(); }
+
+function removeFromCart(id) { cart = cart.filter(c=>c.id!==id); updateBadges(); renderGroups(); saveCart(); markDirty(); }
 
 function toggleDetail(btn) {
   const row = btn.closest('tr');
@@ -949,14 +1298,23 @@ function updateQty(entryId, rowIdx, rawVal) {
   const num = parseInt(rawVal, 10);
   entry.rows[rowIdx].qty = (rawVal === '' || rawVal === null) ? undefined : (!isNaN(num) && num >= 0 ? num : entry.rows[rowIdx].qty);
   saveCart();
+  markDirty();
   renderGroups();
+}
+function updateNote(entryId, rowIdx, value) {
+  const entry = cart.find(e => e.id === entryId);
+  if (!entry) return;
+  entry.rows[rowIdx].note = value.trim();
+  saveCart();
+  markDirty();
 }
 function updateEntryLabel(id, value) {
   const entry = cart.find(c => c.id === id);
   if (!entry) return;
   const v = value.trim();
-  if (v) entry.label = v;
+  entry.label = v;
   saveCart();
+  markDirty();
   renderGroups();
 }
 function updateSectionLabel(entryId, rowIdx, value) {
@@ -964,9 +1322,10 @@ function updateSectionLabel(entryId, rowIdx, value) {
   if (!entry || !entry.rows || entry.rows[rowIdx] === undefined) return;
   entry.rows[rowIdx].section = value.trim();
   saveCart();
+  markDirty();
   renderGroups();
 }
-function clearCart() { if (!confirm('Clear all items from the Project BOM?')) return; cart=[]; seq=0; if (location.hash.startsWith('#bom=')) history.replaceState(null, '', location.pathname); updateBadges(); renderGroups(); saveCart(); }
+function clearCart() { if (!confirm('Clear all items from the Project BOM?')) return; cart=[]; seq=0; if (location.hash.startsWith('#bom=')) history.replaceState(null, '', location.pathname); updateBadges(); renderGroups(); saveCart(); markSaved(); }
 function newProject() {
   if (cart.length && !confirm('Start a new project? The current BOM and project info will be cleared.')) return;
   cart=[]; seq=0;
@@ -977,12 +1336,18 @@ function newProject() {
   document.getElementById('pi-date').value  = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pi-term').value  = 'DD';
   document.getElementById('pi-notes').value = '';
+  document.getElementById('pi-readonly').checked = false;
+  toggleReadOnly(false);
+  bomPasswordHash = ''; bomUnlocked = false; _sessionUnlockPlain = '';
+  _activeKey = null; _pwSalt = ''; _encBlobsCache = null;
+  localStorage.removeItem('fortibom_pw_plain');
+  setLockedState(false);
   savePiData();
   const card = document.getElementById('proj-info-card');
   card.classList.remove('view-mode');
   document.getElementById('pi-edit-btn').classList.remove('active');
   document.getElementById('pi-edit-label').textContent = 'View';
-  updateBadges(); renderGroups(); saveCart();
+  updateBadges(); renderGroups(); saveCart(); markSaved();
   showPBV();
 }
 
@@ -1019,6 +1384,7 @@ function setKind(newKind) {
   }
   closeKindPopover();
   saveCart();
+  markDirty();
   renderGroups();
 }
 
@@ -1035,9 +1401,9 @@ document.addEventListener('click', e => {
 async function renderGroups() {
   let priceMap = null;
   try {
-    const pricingDataset = await getDataset(TOOLBOX_KEY_PRICING);
-    if (pricingDataset && pricingDataset.data && pricingDataset.data.rows && pricingDataset.data.rows.length) {
-      priceMap = new Map(pricingDataset.data.rows.map(r => [r.sku, r]));
+    const pricingRaw = await getPricingIDB();
+    if (pricingRaw && pricingRaw.data && pricingRaw.data.rows && pricingRaw.data.rows.length) {
+      priceMap = new Map(pricingRaw.data.rows.map(r => [r['SKU'], r['Price']]));
     }
   } catch(e) { /* pricing unavailable */ }
   const hasPricing = priceMap !== null;
@@ -1047,15 +1413,45 @@ async function renderGroups() {
   if (!cart.length) {
     c.innerHTML = '';
     ec.style.display = 'flex';
+    document.getElementById('bom-stats').style.display = 'none';
     document.getElementById('project-total').style.display = 'none';
     return;
   }
   ec.style.display = 'none';
+  document.getElementById('bom-stats').style.display = '';
   let totL=0, totQ=0;
   let grandTotal=0, grandTotalValid=false;
+
+  // Pre-compute per-group pricing totals (items between each group header and the next)
+  const groupTotals = {};
+  if (hasPricing) {
+    let curGrpId = null, curTotal = 0, curValid = false;
+    for (const entry of cart) {
+      if (entry._type === 'group') {
+        if (curGrpId !== null) groupTotals[curGrpId] = { total: curTotal, valid: curValid };
+        curGrpId = entry.id; curTotal = 0; curValid = false;
+      } else {
+        for (const r of rowsWithTerm(entry.rows)) {
+          if (r.section !== undefined) continue;
+          const ek = r._kindOverride !== undefined ? r._kindOverride : r.kind;
+          if (ek === 'excl') continue;
+          const lp = priceMap.get(r.sku || '');
+          const lpn = lp ? parseFloat(String(lp).replace(/[^0-9.]/g, '')) : NaN;
+          const tot = (!isNaN(lpn) && typeof r.qty === 'number') ? lpn * r.qty : NaN;
+          if (!isNaN(tot)) { curTotal += tot; curValid = true; }
+        }
+      }
+    }
+    if (curGrpId !== null) groupTotals[curGrpId] = { total: curTotal, valid: curValid };
+  }
+
   c.innerHTML = '';
   for (const entry of cart) {
     if (entry._type === 'group') {
+      const gt = hasPricing && entry.showPricing ? groupTotals[entry.id] : null;
+      const groupPriceHtml = (gt && gt.valid)
+        ? `<span class="bgr-price">$${gt.total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`
+        : '';
       const el = document.createElement('div');
       el.className = 'bom-group-row';
       el.dataset.id = entry.id;
@@ -1068,9 +1464,10 @@ async function renderGroups() {
           <svg class="bgr-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="6" rx="1" stroke="#EE3124" stroke-width="1.3"/><path d="M4 7h6" stroke="#EE3124" stroke-width="1.3" stroke-linecap="round"/></svg>
           <input type="text" class="label-input bgr-label" value="${h(entry.label)}" onchange="updateEntryLabel(${entry.id},this.value)">
           ${entry.note ? `<span class="bgr-note">${h(entry.note)}</span>` : ''}
+          ${groupPriceHtml}
         </div>
         <div class="bgr-actions">
-          <button class="bgr-btn" onclick="openEditGroup(${entry.id})">Edit</button>
+          <button class="bgr-btn" onclick="openEditGroup(${entry.id})" title="Edit group header"><svg viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2L3 10H1V8L7.5 1.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg></button>
           <button class="bgr-btn del" onclick="removeFromCart(${entry.id})">✕</button>
         </div>`;
       addDragListeners(el);
@@ -1081,18 +1478,24 @@ async function renderGroups() {
       const rows = displayRows.map((r, i) => {
         if (r.section!==undefined) return `<tr class="sr"><td colspan="${colSpan}"><input type="text" class="label-input" value="${h(r.section)}" onchange="updateSectionLabel(${entry.id},${i},this.value)"></td></tr>`;
         lines++; if (typeof r.qty==='number') qty+=r.qty;
-        const bm={req:'<span class="br br-r">Required</span>',mand:'<span class="br br-m">Mandatory</span>',opt:'<span class="br br-o">Optional</span>',inc:'<span class="br br-o">Included</span>',excl:'<span class="br br-ex">Excluded</span>',note:''};
-        const effectiveKind = r._kindOverride !== undefined ? r._kindOverride : r.kind;
+        const bm={req:'<span class="br br-r">Required</span>',mand:'<span class="br br-m">Mandatory</span>',opt:'<span class="br br-o">Optional</span>',inc:'<span class="br br-o">Included</span>',excl:'<span class="br br-ex">Excluded</span>',attn:'<span class="br br-attn">Attention</span>',note:''};
+        // Compute pricing first so auto-ATTENTION can use it
+        let listPrice, listPriceNum = NaN;
+        if (hasPricing) {
+          listPrice = priceMap.get(r.sku || '');
+          listPriceNum = listPrice ? parseFloat(String(listPrice).replace(/[^0-9.]/g, '')) : NaN;
+        }
+        // Auto-select ATTENTION when pricing is loaded and the SKU has no valid price (unless user set an override)
+        const baseKind = r._kindOverride !== undefined ? r._kindOverride : r.kind;
+        const effectiveKind = (r._kindOverride === undefined && hasPricing && r.sku && isNaN(listPriceNum)) ? 'attn' : baseKind;
         const isExcluded = effectiveKind === 'excl';
         let priceCells = '';
         if (hasPricing) {
-          const pricingRow     = resolvePricingRow(priceMap, r.sku || '', getCurrentTerm());
-          const listPriceNum   = (pricingRow && typeof pricingRow.price === 'number') ? pricingRow.price : NaN;
-          const listPriceDisplay = formatListPriceDisplay(pricingRow);
           const totalNum = (!isNaN(listPriceNum) && typeof r.qty === 'number') ? listPriceNum * r.qty : NaN;
           if (!isExcluded && !isNaN(totalNum)) { grandTotal += totalNum; grandTotalValid = true; }
           const totalDisplay = isExcluded ? '$0.00' : (!isNaN(totalNum) ? '$'+totalNum.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '');
-          priceCells = `<td class="nc" style="text-align:right;white-space:nowrap;">${listPriceDisplay ? h(listPriceDisplay) : ''}</td><td class="nc" style="text-align:right;white-space:nowrap;">${totalDisplay}</td>`;
+          const listPriceDisplay = !isNaN(listPriceNum) ? '$'+listPriceNum.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : (listPrice ? h(listPrice) : '');
+          priceCells = `<td class="nc" style="text-align:right;white-space:nowrap;">${listPriceDisplay}</td><td class="nc" style="text-align:right;white-space:nowrap;">${totalDisplay}</td>`;
         }
         const detailRows = [];
         if (r.desc) detailRows.push(`<tr><td class="det-k">Description</td><td class="det-v nc">${h(r.desc)}</td></tr>`);
@@ -1102,7 +1505,7 @@ async function renderGroups() {
         const detailTr = detailRows.length ? `<tr class="bom-detail"><td colspan="100"><table class="det-tbl"><tbody>${detailRows.join('')}</tbody></table></td></tr>` : '';
         const evenCls = lines%2===0 ? ' class="bt-even"' : '';
         const typeCell = `<button class="type-btn" onclick="openKindPopover(event,${entry.id},${i})" title="Click to change type">${bm[effectiveKind]||'<span class=\\"type-empty\\">—</span>'}<span class="type-hint">▾</span></button>`;
-        return `<tr${evenCls}>${expCell}<td><span class="sk">${h(r.sku||'')}</span></td><td class="nc col-desc"><span class="note-clamp" title="${h(r.desc||'')}">${h(r.desc||'')}</span></td><td class="qc"><input type="number" class="qty-input" value="${r.qty??''}" min="0" onchange="updateQty(${entry.id},${i},this.value)"></td><td class="col-type">${typeCell}</td><td class="nc col-notes"><span class="note-clamp" title="${h(r.note||'')}">${h(r.note||'')}</span></td>${priceCells}</tr>${detailTr}`;
+        return `<tr${evenCls}>${expCell}<td><span class="sk">${h(r.sku||'')}</span></td><td class="nc col-desc"><span class="note-clamp" title="${h(r.desc||'')}">${h(r.desc||'')}</span></td><td class="qc"><input type="number" class="qty-input" value="${r.qty??''}" min="0" onchange="updateQty(${entry.id},${i},this.value)"></td><td class="col-type">${typeCell}</td><td class="nc col-notes"><textarea class="note-input" rows="3" placeholder="Add note…" onchange="updateNote(${entry.id},${i},this.value)" title="${h(r.note||'')}">${h(r.note||'')}</textarea></td>${priceCells}</tr>${detailTr}`;
       }).join('');
       totL+=lines; totQ+=qty;
       const el = document.createElement('div');
@@ -1115,6 +1518,7 @@ async function renderGroups() {
           </div>
           <div style="flex:1;min-width:0;"><input type="text" class="label-input bgp" value="${h(entry.label)}" onchange="updateEntryLabel(${entry.id},this.value)"><div class="bgm">${lines} line item${lines!==1?'s':''} · ${qty.toLocaleString()} units/licenses</div></div>
           ${entry.product !== 'Custom SKU' ? `<span class="bg-tag">${h(entry.product)}</span>` : ''}
+          <button class="bg-edit" onclick="openSkuModalForEdit(${entry.id})" title="Edit rows"><svg viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2L3 10H1V8L7.5 1.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg></button>
           <button class="bg-del" onclick="removeFromCart(${entry.id})">✕</button>
         </div>
         <div class="bt-wrap"><table class="bt"><thead><tr>
@@ -1141,6 +1545,7 @@ async function renderGroups() {
   } else {
     ptEl.style.display = 'none';
   }
+  if (isReadOnly()) applyReadOnlyToDOM();
 }
 
 // ── DRAG-TO-REORDER ──────────────────────────────────────────────────────────
@@ -1156,6 +1561,7 @@ function _doDrop(targetId) {
   dragSrcId = null;
   renderGroups();
   saveCart();
+  markDirty();
 }
 
 function _topItem(node) {
@@ -1167,10 +1573,11 @@ function _topItem(node) {
 function addDragListeners(el) {
   // ── Mouse / HTML5 drag ──
   el.addEventListener('mousedown', e => {
+    if (isReadOnly()) { el.draggable = false; return; }
     el.draggable = !!e.target.closest('.drag-handle');
   });
   el.addEventListener('dragstart', e => {
-    if (!el.draggable) { e.preventDefault(); return; }
+    if (!el.draggable || isReadOnly()) { e.preventDefault(); return; }
     dragSrcId = Number(el.dataset.id);
     el.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
@@ -1192,7 +1599,7 @@ function addDragListeners(el) {
 
   // ── Touch drag (mobile) ──
   el.addEventListener('touchstart', e => {
-    if (!e.target.closest('.drag-handle')) return;
+    if (isReadOnly() || !e.target.closest('.drag-handle')) return;
     e.preventDefault();
     dragSrcId = Number(el.dataset.id);
     el.classList.add('dragging');
@@ -1240,6 +1647,7 @@ function openAddGroup() {
   document.getElementById('grp-ok').textContent = 'Add Group';
   document.getElementById('grp-label').value = '';
   document.getElementById('grp-note').value = '';
+  document.getElementById('grp-show-pricing').checked = false;
   document.getElementById('grp-modal').classList.add('on');
   setTimeout(() => document.getElementById('grp-label').focus(), 60);
 }
@@ -1252,6 +1660,7 @@ function openEditGroup(id) {
   document.getElementById('grp-ok').textContent = 'Save';
   document.getElementById('grp-label').value = entry.label;
   document.getElementById('grp-note').value = entry.note || '';
+  document.getElementById('grp-show-pricing').checked = !!entry.showPricing;
   document.getElementById('grp-modal').classList.add('on');
   setTimeout(() => document.getElementById('grp-label').focus(), 60);
 }
@@ -1265,16 +1674,18 @@ function saveGroupRow() {
   const label = document.getElementById('grp-label').value.trim();
   if (!label) { document.getElementById('grp-label').focus(); return; }
   const note = document.getElementById('grp-note').value.trim();
+  const showPricing = document.getElementById('grp-show-pricing').checked;
   if (editingGroupId !== null) {
     const entry = cart.find(c => c.id === editingGroupId);
-    if (entry) { entry.label = label; entry.note = note; }
+    if (entry) { entry.label = label; entry.note = note; entry.showPricing = showPricing; }
   } else {
-    cart.push({ id: ++seq, _type: 'group', label, note });
+    cart.push({ id: ++seq, _type: 'group', label, note, showPricing });
     updateBadges();
   }
   closeGroupModal();
   renderGroups();
   saveCart();
+  markDirty();
   toast(editingGroupId !== null ? '✓ Group updated' : '✓ Group header added');
 }
 
@@ -1291,33 +1702,6 @@ function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 // changes — it just triggers a re-render; renderGroups reads the current term.
 function getCurrentTerm() {
   return document.getElementById('pi-term').value; // 'DD', '12', '36', or '60'
-}
-
-function resolvePricingRow(priceMap, sku, term) {
-  if (!priceMap || !sku) return null;
-
-  const exact = priceMap.get(sku);
-  if (exact) return exact;
-
-  const skuText = String(sku);
-  if (term === 'DD' || !/-DD$/i.test(skuText)) {
-    return null;
-  }
-
-  return priceMap.get(skuText.replace(/-DD$/i, `-${term}`)) || null;
-}
-
-function formatListPriceDisplay(pricingRow) {
-  if (!pricingRow) return '';
-  const rawDisplay = typeof pricingRow.priceDisplay === 'string' ? pricingRow.priceDisplay.trim() : '';
-  if (rawDisplay && rawDisplay !== '-') return rawDisplay;
-  if (typeof pricingRow.price === 'number' && !isNaN(pricingRow.price)) {
-    return '$' + pricingRow.price.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
-  return '';
 }
 
 function applyTermToSku(sku, term) {
@@ -1360,6 +1744,7 @@ function saveProject() {
   savedProjects.unshift(snapshot);
   saveSaved();
   updateSavedBadge();
+  markSaved();
   toast(`✓ Project saved: "${meta.cust || 'Unnamed'}"`);
 }
 
@@ -1485,16 +1870,22 @@ function loadSavedProject(id) {
   if (cart.length && !confirm(`Load "${snap.meta.cust || 'this project'}"? Your current Project BOM will be replaced.`)) return;
   cart = JSON.parse(JSON.stringify(snap.cart));
   seq  = snap.seq;
-  document.getElementById('pi-cust').value  = snap.meta.cust  || '';
-  document.getElementById('pi-opp').value   = snap.meta.opp   || '';
+  // skip cust/opp/notes when encrypted — applyPasswordHashFromMeta handles decryption
+  if (!snap.meta.cust_enc) document.getElementById('pi-cust').value  = snap.meta.cust  || '';
+  if (!snap.meta.cust_enc) document.getElementById('pi-opp').value   = snap.meta.opp   || '';
+  if (!snap.meta.cust_enc) document.getElementById('pi-notes').value = snap.meta.notes || '';
+  if (snap.meta.cust_enc)  { document.getElementById('pi-cust').value = ''; document.getElementById('pi-opp').value = ''; document.getElementById('pi-notes').value = ''; }
   document.getElementById('pi-eng').value   = snap.meta.eng   || '';
   document.getElementById('pi-date').value  = snap.meta.date  || '';
-  document.getElementById('pi-notes').value = snap.meta.notes || '';
   document.getElementById('pi-term').value  = snap.meta.term  || 'DD';
+  _sessionUnlockPlain = '';
+  _restoreReadOnly(snap.meta);
+  applyPasswordHashFromMeta(snap.meta);
   updateBadges();
   renderGroups();
   saveCart();
   savePiData();
+  markSaved();
   toast(`✓ Loaded: "${snap.meta.cust || 'Unnamed'}"`);
   initPiMode();
   showPBV();
@@ -1529,21 +1920,30 @@ function deleteProjectGroup(projectKey) {
 
 // ── EXPORT ───────────────────────────────────────────────────────────────────
 function getMeta() {
-  return {
-    cust:  document.getElementById('pi-cust').value.trim()||'Unnamed Project',
-    opp:   document.getElementById('pi-opp').value.trim(),
-    eng:   document.getElementById('pi-eng').value.trim(),
-    date:  document.getElementById('pi-date').value.trim(),
-    notes: document.getElementById('pi-notes').value.trim(),
-    term:  document.getElementById('pi-term').value,
+  const m = {
+    cust:         document.getElementById('pi-cust').value.trim()||'Unnamed Project',
+    opp:          document.getElementById('pi-opp').value.trim(),
+    eng:          document.getElementById('pi-eng').value.trim(),
+    date:         document.getElementById('pi-date').value.trim(),
+    notes:        document.getElementById('pi-notes').value.trim(),
+    term:         document.getElementById('pi-term').value,
+    readOnly:     isReadOnly(),
+    passwordHash: bomPasswordHash,
+    passwordSalt: _pwSalt,
   };
+  if (_encBlobsCache) {
+    m.cust_enc  = _encBlobsCache.cust_enc;
+    m.opp_enc   = _encBlobsCache.opp_enc;
+    m.notes_enc = _encBlobsCache.notes_enc;
+  }
+  return m;
 }
 // ── URL SHARING ───────────────────────────────────────────────────────────────
 function serializeBOM() {
   const m = getMeta();
   const items = cart.map(entry => {
     if (entry._type === 'group') {
-      return { g: 1, l: entry.label, n: entry.note || '' };
+      return { g: 1, l: entry.label, n: entry.note || '', sp: entry.showPricing ? 1 : 0 };
     }
     const rows = entry.rows.map(r =>
       r.section !== undefined
@@ -1552,21 +1952,25 @@ function serializeBOM() {
     );
     return { p: entry.product, l: entry.label, r: rows };
   });
-  return JSON.stringify({
-    v: 1,
-    m: { c: m.cust, o: m.opp, e: m.eng, d: m.date, n: m.notes, t: m.term },
-    i: items
-  });
+  const mj = m.cust_enc
+    ? { c_e: m.cust_enc, o_e: m.opp_enc||'', n_e: m.notes_enc||'', e: m.eng, d: m.date, t: m.term, ro: m.readOnly ? 1 : 0, ph: m.passwordHash||'', ps: m.passwordSalt||'' }
+    : { c: m.cust, o: m.opp, e: m.eng, d: m.date, n: m.notes, t: m.term, ro: m.readOnly ? 1 : 0, ph: m.passwordHash||'' };
+  return JSON.stringify({ v: 1, m: mj, i: items });
 }
 
 function deserializeBOM(json) {
   const obj = JSON.parse(json);
   if (!obj || obj.v !== 1) throw new Error('Unknown BOM version');
   const m = obj.m || {};
-  const meta = { cust: m.c||'', opp: m.o||'', eng: m.e||'', date: m.d||'', notes: m.n||'', term: m.t||'DD' };
+  const meta = {
+    cust: m.c_e ? '' : (m.c||''), opp: m.o_e ? '' : (m.o||''),
+    eng: m.e||'', date: m.d||'', notes: m.n_e ? '' : (m.n||''),
+    term: m.t||'DD', readOnly: !!m.ro, passwordHash: m.ph||'', passwordSalt: m.ps||'',
+    ...(m.c_e ? { cust_enc: m.c_e, opp_enc: m.o_e||'', notes_enc: m.n_e||'' } : {}),
+  };
   const items = (obj.i || []).map(item => {
     if (item.g) {
-      return { _type: 'group', label: item.l || '', note: item.n || '' };
+      return { _type: 'group', label: item.l || '', note: item.n || '', showPricing: !!item.sp };
     }
     const rows = (item.r || []).map(r =>
       Array.isArray(r)
@@ -1598,12 +2002,98 @@ function shareBOM() {
   history.replaceState(null, '', '#bom=' + compressed);
 }
 
+function shareHyperlink() {
+  closeCopyMenu();
+  if (!cart.length) { toast('Nothing to share — add items first'); return; }
+  let compressed;
+  try {
+    compressed = LZString.compressToEncodedURIComponent(serializeBOM());
+  } catch(e) {
+    toast('Could not generate share URL: ' + e.message);
+    return;
+  }
+  const url = location.origin + location.pathname + '#bom=' + compressed;
+  const displayName = getMeta().cust;
+  const html = `<a href="${url}">${displayName.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}</a>`;
+  history.replaceState(null, '', '#bom=' + compressed);
+  if (navigator.clipboard && navigator.clipboard.write) {
+    const item = new ClipboardItem({
+      'text/html': new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([url], { type: 'text/plain' })
+    });
+    navigator.clipboard.write([item]).then(
+      () => toast('✓ Hyperlink copied to clipboard'),
+      () => clipboardWrite(url, '✓ Share URL copied (hyperlink unavailable)')
+    );
+  } else {
+    clipboardWrite(url, '✓ Share URL copied (hyperlink unavailable)');
+  }
+}
+
+function backupProjects() {
+  if (!savedProjects.length) { toast('No saved projects to back up'); return; }
+
+  // Collect the most recent revision of each project (savedProjects is newest-first)
+  const seen = new Set();
+  const primaries = [];
+  savedProjects.forEach(p => {
+    const key = p.projectKey || p.id;
+    if (!seen.has(key)) { seen.add(key); primaries.push(p); }
+  });
+
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+
+  const base = location.origin + location.pathname;
+
+  const lines = [`# FabricBOM backup ${ts}`, ''];
+  primaries.forEach(p => {
+    const m = p.meta || {};
+    const label = [m.cust, m.opp].filter(Boolean).join(' / ') || 'Untitled';
+    const saveDate = new Date(p.savedAt).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    const displayName = `${label} - ${saveDate}`;
+    try {
+      const items = (p.cart || []).map(entry => {
+        if (entry._type === 'group') {
+          return { g: 1, l: entry.label, n: entry.note || '', sp: entry.showPricing ? 1 : 0 };
+        }
+        const rows = (entry.rows || []).map(r =>
+          r.section !== undefined
+            ? { s: r.section }
+            : [r.sku || '', r.desc || '', r.qty ?? null, r.kind || '', r.note || '', r._kindOverride || '']
+        );
+        return { p: entry.product, l: entry.label, r: rows };
+      });
+      const json = JSON.stringify({ v: 1, m: { c: m.cust||'', o: m.opp||'', e: m.eng||'', d: m.date||'', n: m.notes||'', t: m.term||'DD' }, i: items });
+      const compressed = LZString.compressToEncodedURIComponent(json);
+      const url = base + '#bom=' + compressed;
+      lines.push(`* [${displayName}](${url})`);
+    } catch(e) {
+      lines.push(`* ${displayName} *(URL generation failed)*`);
+    }
+  });
+  lines.push('');
+
+  const md = lines.join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8;' }));
+  a.download = `FabricBOM-Backup-${ts}.md`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
+  toast(`✓ Backup downloaded (${primaries.length} project${primaries.length !== 1 ? 's' : ''})`);
+}
+
 function exportCSV() {
   const p = getMeta();
   const termLabel = {DD:'Co-term (-DD)',12:'1 Year (-12)',36:'3 Years (-36)',60:'5 Years (-60)'}[p.term];
+  const metaFields = p.cust_enc
+    ? [`Customer_enc:${p.cust_enc}`,`Opportunity_enc:${p.opp_enc||''}`,`Notes_enc:${p.notes_enc||''}`,`Engineer:${p.eng}`,`Date:${p.date}`,`Term:${termLabel}`,`ReadOnly:${p.readOnly?'true':''}`,`PasswordHash:${p.passwordHash||''}`,`PasswordSalt:${p.passwordSalt||''}`]
+    : [`Customer:${p.cust}`,`Opportunity:${p.opp}`,`Engineer:${p.eng}`,`Date:${p.date}`,`Term:${termLabel}`,`ReadOnly:${p.readOnly?'true':''}`,`PasswordHash:${p.passwordHash||''}`];
   const rows = [
     ['FabricBOM Project Export'],
-    [`Customer:${p.cust}`,`Opportunity:${p.opp}`,`Engineer:${p.eng}`,`Date:${p.date}`,`Term:${termLabel}`],
+    metaFields,
     [],
     ['Product Group','Part Number','Description','Qty','Type','Notes'],
   ];
@@ -1622,8 +2112,8 @@ function exportCSV() {
   const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
-  a.download=`FabricBOM_${p.cust.replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); toast('✓ CSV exported');
+  a.download=`FabricBOM_${p.cust.replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.fbom`;
+  a.click(); toast('✓ FabricBOM exported');
 }
 // ── COPY / EXPORT DROPDOWN ───────────────────────────────────────────────────
 function toggleCopyMenu(e) {
@@ -1647,6 +2137,7 @@ function toggleAddMenu(e) {
 }
 function closeAddMenu() { document.getElementById('add-menu').classList.remove('on'); }
 function openSkuModal() {
+  _skuEditId = null;
   const frame = document.getElementById('sku-frame');
   if (!frame.src.includes('custom-sku-bomgen-mobile.html')) {
     frame.src = 'products/custom-sku-bomgen-mobile.html';
@@ -1655,7 +2146,24 @@ function openSkuModal() {
   }
   document.getElementById('sku-modal').classList.add('on');
 }
+function openSkuModalForEdit(entryId) {
+  const entry = cart.find(c => c.id === entryId);
+  if (!entry) return;
+  _skuEditId = entryId;
+  const frame = document.getElementById('sku-frame');
+  const doLoad = () => {
+    try { frame.contentWindow.loadForEdit({ label: entry.label, rows: entry.rows }); } catch(_) {}
+  };
+  if (!frame.src.includes('custom-sku-bomgen-mobile.html')) {
+    frame.src = 'products/custom-sku-bomgen-mobile.html';
+    frame.addEventListener('load', function onLoad() { frame.removeEventListener('load', onLoad); doLoad(); });
+  } else {
+    doLoad();
+  }
+  document.getElementById('sku-modal').classList.add('on');
+}
 function closeSkuModal() {
+  _skuEditId = null;
   document.getElementById('sku-modal').classList.remove('on');
 }
 document.getElementById('sku-modal').addEventListener('click', function(e) {
@@ -1667,7 +2175,7 @@ async function toggleProjectMenu(e) {
   if (menu.classList.contains('on')) { menu.classList.remove('on'); return; }
   const btn = e.currentTarget;
   try {
-    const pricing = await getDataset(TOOLBOX_KEY_PRICING);
+    const pricing = await getPricingIDB();
     const sfdc = document.getElementById('project-sfdc-section');
     if (sfdc) sfdc.style.display = (pricing && pricing.data && pricing.data.rows && pricing.data.rows.length) ? '' : 'none';
   } catch(_) {}
@@ -1814,11 +2322,34 @@ function parseCSV(text) {
   // Row 1: meta
   const metaRow = lines[1] || [];
   function mval(cell) { return cell ? cell.replace(/^[^:]+:/,'').trim() : ''; }
-  const meta = { cust:mval(metaRow[0]), opp:mval(metaRow[1]), eng:mval(metaRow[2]), date:mval(metaRow[3]), term:'DD' };
-  const termLine = mval(metaRow[4]);
-  if (termLine.includes('1 Year')) meta.term='12';
-  else if (termLine.includes('3 Year')) meta.term='36';
-  else if (termLine.includes('5 Year')) meta.term='60';
+  const meta = { cust:'', opp:'', eng:'', date:'', term:'DD', readOnly:false, passwordHash:'', passwordSalt:'' };
+  const encrypted = metaRow[0] && metaRow[0].startsWith('Customer_enc:');
+  if (encrypted) {
+    // fields: Customer_enc, Opportunity_enc, Notes_enc, Engineer, Date, Term, ReadOnly, PasswordHash, PasswordSalt
+    meta.cust_enc  = mval(metaRow[0]);
+    meta.opp_enc   = mval(metaRow[1]);
+    meta.notes_enc = mval(metaRow[2]);
+    meta.eng       = mval(metaRow[3]);
+    meta.date      = mval(metaRow[4]);
+    const termLine = mval(metaRow[5]);
+    if (termLine.includes('1 Year')) meta.term='12';
+    else if (termLine.includes('3 Year')) meta.term='36';
+    else if (termLine.includes('5 Year')) meta.term='60';
+    if (mval(metaRow[6]).toLowerCase() === 'true') meta.readOnly = true;
+    meta.passwordHash = mval(metaRow[7]);
+    meta.passwordSalt = mval(metaRow[8]);
+  } else {
+    meta.cust = mval(metaRow[0]);
+    meta.opp  = mval(metaRow[1]);
+    meta.eng  = mval(metaRow[2]);
+    meta.date = mval(metaRow[3]);
+    const termLine = mval(metaRow[4]);
+    if (termLine.includes('1 Year')) meta.term='12';
+    else if (termLine.includes('3 Year')) meta.term='36';
+    else if (termLine.includes('5 Year')) meta.term='60';
+    if (mval(metaRow[5]).toLowerCase() === 'true') meta.readOnly = true;
+    if (metaRow[6]) meta.passwordHash = mval(metaRow[6]);
+  }
   // Data rows start at index 4 (after header row at index 3)
   // Parse all items in order (product groups and group headers interleaved)
   const items = [];
@@ -1855,15 +2386,25 @@ function parseCSV(text) {
   return { ok:true, meta, items, prodCount, grpCount };
 }
 
+function _restoreReadOnly(meta) {
+  const ro = !!meta.readOnly;
+  document.getElementById('pi-readonly').checked = ro;
+  toggleReadOnly(ro);
+}
+
 function doImport() {
   if (!pendingImport) return;
   const { meta, items, prodCount, grpCount } = pendingImport;
-  // Restore project info fields
-  if (meta.cust) document.getElementById('pi-cust').value = meta.cust;
-  if (meta.opp)  document.getElementById('pi-opp').value  = meta.opp;
+  // Restore project info fields (skip cust/opp/notes when encrypted — applyPasswordHashFromMeta handles decryption)
+  if (!meta.cust_enc && meta.cust) document.getElementById('pi-cust').value = meta.cust;
+  if (!meta.cust_enc && meta.opp)  document.getElementById('pi-opp').value  = meta.opp;
   if (meta.eng)  document.getElementById('pi-eng').value  = meta.eng;
   if (meta.date) document.getElementById('pi-date').value = meta.date;
   if (meta.term) document.getElementById('pi-term').value = meta.term;
+  if (meta.cust_enc) { document.getElementById('pi-cust').value = ''; document.getElementById('pi-opp').value = ''; document.getElementById('pi-notes').value = ''; }
+  _sessionUnlockPlain = '';
+  _restoreReadOnly(meta);
+  applyPasswordHashFromMeta(meta);
   // Rebuild cart preserving order
   cart = [];
   seq = 0;
@@ -1878,6 +2419,7 @@ function doImport() {
   renderGroups();
   saveCart();
   savePiData();
+  markDirty();
   closeImport();
   const parts = [];
   if (prodCount) parts.push(`${prodCount} product group${prodCount!==1?'s':''}`);
@@ -1892,16 +2434,21 @@ let _pendingSharedBOM = null;
 
 function applySharedBOM(parsed) {
   const { meta, items } = parsed;
-  if (meta.cust)  document.getElementById('pi-cust').value  = meta.cust;
-  if (meta.opp)   document.getElementById('pi-opp').value   = meta.opp;
+  // skip cust/opp/notes when encrypted — applyPasswordHashFromMeta handles decryption
+  if (!meta.cust_enc && meta.cust)  document.getElementById('pi-cust').value  = meta.cust;
+  if (!meta.cust_enc && meta.opp)   document.getElementById('pi-opp').value   = meta.opp;
+  if (!meta.cust_enc && meta.notes) document.getElementById('pi-notes').value = meta.notes;
+  if (meta.cust_enc) { document.getElementById('pi-cust').value = ''; document.getElementById('pi-opp').value = ''; document.getElementById('pi-notes').value = ''; }
   if (meta.eng)   document.getElementById('pi-eng').value   = meta.eng;
   if (meta.date)  document.getElementById('pi-date').value  = meta.date;
-  if (meta.notes) document.getElementById('pi-notes').value = meta.notes;
   if (meta.term)  document.getElementById('pi-term').value  = meta.term;
+  _sessionUnlockPlain = '';
+  _restoreReadOnly(meta);
+  applyPasswordHashFromMeta(meta);
   cart = []; seq = 0;
   for (const item of items) {
     if (item._type === 'group') {
-      cart.push({ id: ++seq, _type: 'group', label: item.label, note: item.note || '' });
+      cart.push({ id: ++seq, _type: 'group', label: item.label, note: item.note || '', showPricing: !!item.showPricing });
     } else {
       cart.push({ id: ++seq, product: item.product, label: item.label, rows: item.rows, meta: {} });
     }
@@ -1910,6 +2457,7 @@ function applySharedBOM(parsed) {
   renderGroups();
   saveCart();
   savePiData();
+  markDirty();
   initPiMode();
 }
 
@@ -1967,102 +2515,246 @@ function checkBOMFragment() {
   }
 }
 
-// ── PRICING (toolbox_shared IndexedDB via shared adapter) ─────────────────────
+// ── PRICING (IndexedDB — toolbox_shared) ─────────────────────────────────────
+let _sharedDb = null;
 
-async function parsePricingXLSX(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        if (typeof XLSX === 'undefined') {
-          resolve({ ok: false, error: 'Workbook parser (SheetJS) is not loaded. Check your internet connection and reload.' });
-          return;
-        }
-        const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+const PRICING_REQUIRED_HEADERS = [
+  'Comments','Identifier','Product Family Group','Product','Product Type','Item','SKU',
+  'Description #1','Description #2','Price','Category','Fx Translated Price','UPC Code',
+  'FED','GSA','COO','Single Pack Weight (lbs.)','Single Pack Length (in.)',
+  'Single Pack Width (in.)','Single Pack Height (in.)','Case Pack Quantity',
+  'Case Pack Weight (lbs.)','Case Pack Length (in.)','Case Pack Width (in.)',
+  'Case Pack Height (in.)','Ground Pallet Quantity','Ground Pallet Weight (lbs.)',
+  'Ground Pallet Length (in.)','Ground Pallet Width (in.)','Ground Pallet Height (in.)',
+  'Air Pallet Quantity','Air Pallet Weight (lbs.)','Air Pallet Length (in.)',
+  'Air Pallet Width (in.)','Air Pallet Height (in.)','AutoStart','E-Rate','Pillar','Term (Month)'
+];
 
-        // Read cover sheet label from C7 if present
-        let coverLabel = null;
-        const coverName = wb.SheetNames.find(n => /^(cover\s?sheet|coversheet|cover)$/i.test(n.trim()));
-        if (coverName) {
-          const cws = wb.Sheets[coverName];
-          const c7  = cws && cws['C7'];
-          if (c7 && c7.v) coverLabel = String(c7.v).trim() || null;
-        }
-
-        // Target sheet: 'DataSet' if present, else first sheet
-        const sheetName = wb.SheetNames.find(n => /^dataset$/i.test(n.trim())) || wb.SheetNames[0];
-        const ws = wb.Sheets[sheetName];
-        const allRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-        // Detect header row: first row within first 30 that has a SKU synonym and a description synonym
-        let headerRowIdx = -1;
-        let headerRow    = null;
-        for (let i = 0; i < Math.min(allRows.length, 30); i++) {
-          const cells = allRows[i].map(c => _pnNormalKey(String(c)));
-          const hasSku  = PRICING_HEADER_MAP.sku.some(s => cells.includes(_pnNormalKey(s)));
-          const hasDesc = PRICING_HEADER_MAP.description1.some(s => cells.includes(_pnNormalKey(s)));
-          if (hasSku && hasDesc) { headerRowIdx = i; headerRow = allRows[i].map(c => String(c).trim()); break; }
-        }
-
-        if (headerRowIdx === -1) {
-          resolve({ ok: false, error: 'Could not find a pricing header row. The sheet must contain at least a SKU column and a Description column.' });
-          return;
-        }
-
-        const dataRows = [];
-        for (let i = headerRowIdx + 1; i < allRows.length; i++) {
-          const cells = allRows[i];
-          if (cells.every(c => String(c).trim() === '')) continue;
-          const obj = {};
-          headerRow.forEach((hdr, idx) => { if (hdr) obj[hdr] = String(cells[idx] !== undefined ? cells[idx] : '').trim(); });
-          dataRows.push(obj);
-        }
-
-        if (!dataRows.length) {
-          resolve({ ok: false, error: 'No data rows found after the header row.' });
-          return;
-        }
-
-        const normalizedRows = normalizePricingRows(dataRows);
-        if (!normalizedRows.length) {
-          resolve({ ok: false, error: 'No valid pricing rows found. Ensure the sheet has non-empty SKU values.' });
-          return;
-        }
-
-        resolve({ ok: true, normalizedRows, label: coverLabel, sheetName });
-      } catch (err) {
-        resolve({ ok: false, error: 'Could not parse workbook: ' + err.message });
-      }
+function openSharedDB() {
+  if (_sharedDb) return Promise.resolve(_sharedDb);
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('toolbox_shared', 2);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (db.objectStoreNames.contains('datasets')) db.deleteObjectStore('datasets');
+      db.createObjectStore('datasets', { keyPath: 'key' });
     };
-    reader.onerror = () => resolve({ ok: false, error: 'Could not read file.' });
-    reader.readAsArrayBuffer(file);
+    req.onsuccess = e => { _sharedDb = e.target.result; resolve(_sharedDb); };
+    req.onerror = e => reject(e.target.error);
   });
+}
+async function savePricingIDB(record) {
+  const db = await openSharedDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('datasets', 'readwrite');
+    tx.objectStore('datasets').put(record);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+async function getPricingIDB() {
+  const db = await openSharedDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('datasets', 'readonly');
+    const req = tx.objectStore('datasets').get('pricing');
+    req.onsuccess = e => resolve(e.target.result || null);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+async function deletePricingIDB() {
+  const db = await openSharedDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('datasets', 'readwrite');
+    tx.objectStore('datasets').delete('pricing');
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function parsePricingLine(line) {
+  const cells = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else { cur += c; }
+    } else {
+      if (c === '"') { inQ = true; }
+      else if (c === ',') { cells.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+  }
+  cells.push(cur);
+  return cells;
+}
+
+function validatePricingHeaders(headers) {
+  if (headers.length !== PRICING_REQUIRED_HEADERS.length) {
+    return `Expected ${PRICING_REQUIRED_HEADERS.length} columns, found ${headers.length}.`;
+  }
+  for (let i = 0; i < PRICING_REQUIRED_HEADERS.length; i++) {
+    if (headers[i] !== PRICING_REQUIRED_HEADERS[i]) {
+      return `Column ${i + 1} mismatch: expected "${PRICING_REQUIRED_HEADERS[i]}", found "${headers[i]}".`;
+    }
+  }
+  return null;
+}
+
+function parsePricingCSV(text) {
+  // Split into logical CSV lines respecting quoted fields that may contain newlines
+  const rawLines = [];
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let lineBuf = '', inQ = false;
+  for (let i = 0; i < normalized.length; i++) {
+    const c = normalized[i];
+    if (c === '"') {
+      if (inQ && normalized[i + 1] === '"') { lineBuf += '""'; i++; }
+      else { inQ = !inQ; lineBuf += c; }
+    } else if (c === '\n' && !inQ) {
+      rawLines.push(lineBuf); lineBuf = '';
+    } else {
+      lineBuf += c;
+    }
+  }
+  rawLines.push(lineBuf);
+  let name = '', effectiveDate = '', headerRowIdx = -1, foundDate = false;
+
+  for (let i = 0; i < Math.min(rawLines.length, 30); i++) {
+    const cells = parsePricingLine(rawLines[i]);
+    const first = cells[0].trim();
+    if (first.startsWith('Effective Date:')) {
+      effectiveDate = first.replace('Effective Date:', '').trim();
+      foundDate = true;
+      continue;
+    }
+    // Name row: before effective date, first cell non-empty, all others empty
+    if (!name && !foundDate && first && cells.slice(1).every(c => !c.trim())) {
+      name = first;
+      continue;
+    }
+    // Header row: first cell is "Comments" and row contains "SKU"
+    const lc = cells.map(c => c.trim().toLowerCase());
+    if (lc[0] === 'comments' && lc.includes('sku')) {
+      headerRowIdx = i;
+      break;
+    }
+  }
+
+  if (headerRowIdx === -1) {
+    return { ok: false, error: 'Could not find the pricing header row. Please verify this is a Fortinet price list CSV.' };
+  }
+
+  const headers = parsePricingLine(rawLines[headerRowIdx]).map(h => h.trim());
+  const headerErr = validatePricingHeaders(headers);
+  if (headerErr) return { ok: false, error: 'Header validation failed: ' + headerErr };
+
+  const rows = [];
+  for (let i = headerRowIdx + 1; i < rawLines.length; i++) {
+    if (!rawLines[i].trim()) continue;
+    const cells = parsePricingLine(rawLines[i]);
+    if (cells.every(c => !c.trim())) continue;
+    const row = {};
+    headers.forEach((hdr, idx) => { row[hdr] = (cells[idx] || '').trim(); });
+    if (row['Price']) {
+      const stripped = row['Price'].replace(/[^0-9.]/g, '');
+      if (stripped !== '') row['Price'] = stripped;
+    }
+    rows.push(row);
+  }
+
+  if (!rows.length) {
+    return { ok: false, error: 'No pricing data rows found after the header row.' };
+  }
+
+  return { ok: true, name: name || 'Fortinet Price List', effectiveDate: effectiveDate || '', headers, rows };
+}
+
+function parsePricingXLSX(arrayBuffer, filename) {
+  try {
+    const wb = XLSX.read(arrayBuffer, { type: 'array' });
+    const sheetName = wb.SheetNames.find(n => n === 'DataSet') ||
+                      wb.SheetNames.find(n => /^dataset$/i.test(n));
+    if (!sheetName) {
+      return { ok: false, error: 'Could not find the "DataSet" tab in the Excel file.' };
+    }
+
+    const allRows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+    if (!allRows.length) return { ok: false, error: 'The DataSet tab is empty.' };
+
+    // Scan preamble rows for metadata and header row (name/date may be in any column)
+    let name = '', effectiveDate = '', headerRowIdx = -1;
+    for (let i = 0; i < Math.min(allRows.length, 40); i++) {
+      const cells = allRows[i].map(c => String(c || '').trim());
+      // Check every cell for metadata
+      for (const cell of cells) {
+        if (cell.startsWith('Effective Date:')) {
+          effectiveDate = effectiveDate || cell.replace('Effective Date:', '').trim();
+        } else if (!name && /price\s*list/i.test(cell)) {
+          name = cell;
+        }
+      }
+      // Header row: first non-empty cell is "Comments" and row contains "SKU"
+      const firstNonEmpty = cells.find(c => c);
+      if (firstNonEmpty === 'Comments' && cells.includes('SKU')) {
+        headerRowIdx = i;
+        break;
+      }
+    }
+
+    if (headerRowIdx === -1) {
+      return { ok: false, error: 'Could not find the pricing header row in the DataSet tab. Expected a row starting with "Comments" and containing "SKU".' };
+    }
+
+    // Strip trailing empty columns before validating
+    const headers = allRows[headerRowIdx].map(h => String(h || '').trim());
+    while (headers.length && !headers[headers.length - 1]) headers.pop();
+
+    const headerErr = validatePricingHeaders(headers);
+    if (headerErr) return { ok: false, error: 'Header validation failed: ' + headerErr };
+
+    const rows = [];
+    for (let i = headerRowIdx + 1; i < allRows.length; i++) {
+      const rowArr = allRows[i];
+      if (rowArr.every(c => !String(c).trim())) continue;
+      const row = {};
+      headers.forEach((hdr, idx) => { row[hdr] = String(rowArr[idx] ?? ''); });
+      rows.push(row);
+    }
+
+    if (!rows.length) return { ok: false, error: 'No data rows found in the DataSet tab.' };
+
+    return { ok: true, name: name || 'Fortinet Price List', effectiveDate: effectiveDate || '', headers, rows };
+  } catch(e) {
+    return { ok: false, error: 'Could not parse Excel file: ' + e.message };
+  }
 }
 
 async function renderPricingSection() {
   const el = document.getElementById('pricing-content');
   if (!el) return;
   try {
-    const dataset = await getDataset(TOOLBOX_KEY_PRICING);
-    if (!dataset) {
+    const record = await getPricingIDB();
+    if (!record) {
       el.innerHTML = `
         <div id="pricing-drop" onclick="document.getElementById('pricing-file').click()"
              ondragover="pricingDragOver(event)" ondragleave="pricingDragLeave(event)" ondrop="pricingDrop(event)">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="opacity:.35"><rect x="4" y="4" width="24" height="24" rx="3" stroke="#6B7589" stroke-width="1.5"/><path d="M10 16h12M16 10v12" stroke="#6B7589" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop a Fortinet Pricing Workbook (.xlsx) here or click to browse</div>
-          <p>The price list label will be read automatically from the Cover Sheet tab (cell C7) when present.</p>
+          <div style="font-weight:600;color:var(--c-text);margin-top:8px;">Drop a Fortinet Pricing CSV or XLSX here or click to browse</div>
+          <p>Drop the exported CSV or the actual Fortinet price list XLSX. The name and effective date are read automatically.</p>
         </div>`;
     } else {
-      const src      = dataset.source || {};
-      const rowCount = ((dataset.meta && dataset.meta.rowCount) || 0).toLocaleString();
-      const when     = src.importedAt ? new Date(src.importedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '';
+      const d = record.data;
+      const when = new Date(d.uploadedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+      const rowCount = record.meta.rowCount.toLocaleString();
+      const srcLabel = record.source && record.source.type === 'xlsx' ? 'XLSX' : 'CSV';
       el.innerHTML = `
         <div class="sp-list">
           <div class="sp-card">
             <div class="sp-accent"></div>
             <div class="sp-body">
-              <div class="sp-name">${h(src.label || 'Fortinet Price List')}</div>
-              <div class="sp-meta">${rowCount} items &middot; Imported ${when}</div>
+              <div class="sp-name">${h(d.name)}</div>
+              <div class="sp-meta">Effective: ${h(d.effectiveDate || '—')} &middot; ${rowCount} items &middot; ${srcLabel} uploaded ${when}</div>
             </div>
             <div class="sp-actions">
               <button class="btn bd" onclick="deletePricing()">
@@ -2085,30 +2777,42 @@ function pricingFileChosen(inp) { if(inp.files[0]) handlePricingFile(inp.files[0
 
 function handlePricingFile(file) {
   const el = document.getElementById('pricing-content');
-  if (el) el.innerHTML = `<div style="padding:20px;text-align:center;font-size:13px;color:var(--c-text2);">Processing pricing workbook…</div>`;
-  parsePricingXLSX(file).then(async result => {
-    if (!result.ok) { toast('⚠ ' + result.error); renderPricingSection(); return; }
-    const envelope = buildPricingEnvelope(result.normalizedRows, {
-      app:       'FabricBOM',
-      format:    'xlsx',
-      label:     result.label,
-      importedAt: new Date().toISOString(),
-    });
+  if (el) el.innerHTML = `<div style="padding:20px;text-align:center;font-size:13px;color:var(--c-text2);">Processing pricing data…</div>`;
+  const isXlsx = /\.xlsx$/i.test(file.name);
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const parsed = isXlsx
+      ? parsePricingXLSX(ev.target.result, file.name)
+      : parsePricingCSV(ev.target.result);
+    if (!parsed.ok) { toast('⚠ ' + parsed.error); renderPricingSection(); return; }
+    const record = {
+      key: 'pricing',
+      version: 1,
+      source: { type: isXlsx ? 'xlsx' : 'csv', filename: file.name, importedAt: new Date().toISOString() },
+      data: { ok: true, name: parsed.name, effectiveDate: parsed.effectiveDate, headers: parsed.headers, rows: parsed.rows, uploadedAt: new Date().toISOString() },
+      meta: { rowCount: parsed.rows.length, headerCount: parsed.headers.length, effectiveDate: parsed.effectiveDate, datasetName: parsed.name }
+    };
     try {
-      await saveDataset(TOOLBOX_KEY_PRICING, envelope);
-      toast(`✓ Pricing saved: ${result.normalizedRows.length.toLocaleString()} items`);
+      await savePricingIDB(record);
+      toast(`✓ Pricing saved: "${parsed.name}"`);
       renderPricingSection();
     } catch(e) {
       toast('⚠ Could not save pricing data: ' + e.message);
       renderPricingSection();
     }
-  });
+  };
+  reader.onerror = () => { toast('⚠ Could not read file.'); renderPricingSection(); };
+  if (isXlsx) {
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.readAsText(file);
+  }
 }
 
 async function deletePricing() {
   if (!confirm('Delete the saved pricing data?')) return;
   try {
-    await deleteDataset(TOOLBOX_KEY_PRICING);
+    await deletePricingIDB();
     toast('✓ Pricing data deleted');
     renderPricingSection();
   } catch(e) {
@@ -2128,13 +2832,21 @@ function piAutoLink(text) {
 }
 
 function updatePiView() {
+  const locked = !!(bomPasswordHash && !bomUnlocked);
   const cust  = document.getElementById('pi-cust').value.trim();
-  const opp   = document.getElementById('pi-opp').value.trim();
+  const opp   = locked ? '' : document.getElementById('pi-opp').value.trim();
   const eng   = document.getElementById('pi-eng').value.trim();
   const date  = document.getElementById('pi-date').value.trim();
   const term  = document.getElementById('pi-term').value;
-  const notes = document.getElementById('pi-notes').value.trim();
+  const notes = locked ? '' : document.getElementById('pi-notes').value.trim();
   const termLabel = PI_TERM_LABELS[term] || term;
+
+  const lockSvg = `<svg width="10" height="12" viewBox="0 0 11 13" fill="none" style="flex-shrink:0;opacity:.55"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="currentColor"/></svg>`;
+  const lockedField = (label, fullRow=false) =>
+    `<div class="pi-vf${fullRow?' full':''}">
+      <span class="pi-vl">${label}</span>
+      <span class="pi-vv empty" style="display:inline-flex;align-items:center;gap:4px;">${lockSvg} Password required</span>
+    </div>`;
 
   const field = (label, value, cls='', fullRow=false) => {
     const isEmpty = !value;
@@ -2145,20 +2857,63 @@ function updatePiView() {
     </div>`;
   };
 
-  const custField = `<div class="pi-vf full cust-row">
-    <span class="pi-vl">Customer / Opportunity</span>
-    <span class="pi-vv pi-cust-val${!cust?' empty':''}">${cust ? piAutoLink(cust) : 'Unnamed Project'}</span>
-  </div>`;
+  const hasCust  = document.getElementById('pi-cust').value.trim();
+  const hasOpp   = document.getElementById('pi-opp').value.trim();
+  const hasNotes = document.getElementById('pi-notes').value.trim();
+
+  const custField = locked && hasCust
+    ? `<div class="pi-vf full cust-row">
+        <span class="pi-vl">Customer / Opportunity</span>
+        <span class="pi-vv empty" style="display:inline-flex;align-items:center;gap:4px;">${lockSvg} Password required</span>
+      </div>`
+    : `<div class="pi-vf full cust-row">
+        <span class="pi-vl">Customer / Opportunity</span>
+        <span class="pi-vv pi-cust-val${!cust?' empty':''}">${cust ? piAutoLink(cust) : 'Unnamed Project'}</span>
+      </div>`;
 
   let html = `<div class="pi-vg">${custField}`;
-  if (opp)   html += field('Opportunity ID', opp);
+  if (locked && hasOpp)    html += lockedField('Opportunity ID');
+  else if (opp)            html += field('Opportunity ID', opp);
   if (eng)   html += field('SE / Engineer', eng);
   if (date)  html += field('Date', date);
   html += field('Support / License Term', termLabel);
-  if (notes) html += field('Project Scope / Notes', notes, '', true);
+  if (locked && hasNotes)  html += lockedField('Project Scope / Notes', true);
+  else if (notes)          html += field('Project Scope / Notes', notes, '', true);
   html += '</div>';
 
   document.getElementById('pi-view').innerHTML = html;
+  updatePiSummary();
+}
+
+function updatePiSummary() {
+  const locked = !!(bomPasswordHash && !bomUnlocked);
+  const cust  = document.getElementById('pi-cust').value.trim();
+  const opp   = locked ? '' : document.getElementById('pi-opp').value.trim();
+  const eng   = document.getElementById('pi-eng').value.trim();
+  const date  = document.getElementById('pi-date').value.trim();
+  const term  = document.getElementById('pi-term').value;
+  const termLabel = PI_TERM_LABELS[term] || term;
+
+  const chip = (lbl, val) => val ? `<div class="pi-sum-divider"></div><div class="pi-sum-chip"><span class="pi-sum-lbl">${lbl}</span><span class="pi-sum-val">${h(val)}</span></div>` : '';
+
+  const lockSvg = `<svg width="10" height="12" viewBox="0 0 11 13" fill="none" style="flex-shrink:0;opacity:.55"><rect x="1.5" y="5.5" width="8" height="7" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="5.5" cy="9" r="1" fill="currentColor"/></svg>`;
+  let html;
+  if (locked && cust) {
+    html = `<span class="pi-sum-cust empty" style="display:inline-flex;align-items:center;gap:4px;" title="Password required">${lockSvg} Password required</span>`;
+  } else {
+    const custDisplay = cust || 'Unnamed Project';
+    html = `<span class="pi-sum-cust${!cust?' empty':''}" title="${h(custDisplay)}">${h(custDisplay)}</span>`;
+  }
+  html += chip('Opportunity', opp);
+  html += chip('Engineer', eng);
+  html += chip('Date', date);
+  if (term !== 'DD') html += chip('Term', termLabel);
+
+  document.getElementById('pi-summary').innerHTML = html;
+}
+
+function togglePiExpand() {
+  document.getElementById('proj-info-card').classList.toggle('pi-expanded');
 }
 
 function togglePiEdit() {
@@ -2168,14 +2923,17 @@ function togglePiEdit() {
   const isView = card.classList.contains('view-mode');
   if (isView) {
     card.classList.remove('view-mode');
+    card.classList.remove('pi-expanded');
     btn.classList.remove('active');
     label.textContent = 'View';
   } else {
     updatePiView();
     card.classList.add('view-mode');
+    card.classList.remove('pi-expanded');
     btn.classList.add('active');
     label.textContent = 'Edit';
   }
+  updateLockUI();
 }
 
 function clearPiFields() {
@@ -2186,11 +2944,18 @@ function clearPiFields() {
   document.getElementById('pi-date').value  = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pi-term').value  = 'DD';
   document.getElementById('pi-notes').value = '';
+  document.getElementById('pi-readonly').checked = false;
+  toggleReadOnly(false);
+  bomPasswordHash = ''; bomUnlocked = false; _sessionUnlockPlain = '';
+  _activeKey = null; _pwSalt = ''; _encBlobsCache = null;
+  localStorage.removeItem('fortibom_pw_plain');
+  setLockedState(false);
   savePiData();
   const card  = document.getElementById('proj-info-card');
   const btn   = document.getElementById('pi-edit-btn');
   const label = document.getElementById('pi-edit-label');
   card.classList.remove('view-mode');
+  card.classList.remove('pi-expanded');
   btn.classList.remove('active');
   label.textContent = 'View';
 }
@@ -2208,37 +2973,454 @@ function initPiMode() {
   if (hasPiData()) {
     updatePiView();
     card.classList.add('view-mode');
+    card.classList.remove('pi-expanded');
     btn.classList.add('active');
     label.textContent = 'Edit';
   } else {
     card.classList.remove('view-mode');
+    card.classList.remove('pi-expanded');
     btn.classList.remove('active');
     label.textContent = 'View';
   }
+  if (bomPasswordHash) setLockedState(!bomUnlocked);
+  updateLockUI();
+}
+
+// ── PASSWORD PROTECTION ───────────────────────────────────────────────────────
+let bomPasswordHash = '';
+let bomUnlocked = false;
+let _setupPasswordPlain = '';
+let _unlockModalMode = '';
+let _sessionUnlockPlain = '';
+let _pwViewVisible = false;
+let _activeKey = null;       // AES-GCM CryptoKey — in memory only, never persisted
+let _pwSalt = '';            // PBKDF2 salt hex — public, stored alongside hash
+let _encBlobsCache = null;   // { cust_enc, opp_enc, notes_enc }
+
+// ── Crypto helpers ────────────────────────────────────────────────────────────
+function _b2h(buf) { return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function _h2b(hex) { const a=new Uint8Array(hex.length/2); for(let i=0;i<a.length;i++) a[i]=parseInt(hex.slice(i*2,i*2+2),16); return a; }
+
+function genSalt() { return _b2h(crypto.getRandomValues(new Uint8Array(16))); }
+
+async function hashPassword(pw) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return _b2h(buf);
+}
+
+async function deriveKey(pw, saltHex) {
+  const keyMat = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt:_h2b(saltHex), iterations:100000, hash:'SHA-256' },
+    keyMat, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
+}
+
+async function encryptField(key, plaintext) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
+  return _b2h(iv) + ':' + _b2h(new Uint8Array(ct));
+}
+
+async function decryptField(key, encHex) {
+  if (!encHex || !encHex.includes(':')) return '';
+  try {
+    const [ivHex, ctHex] = encHex.split(':');
+    const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:_h2b(ivHex) }, key, _h2b(ctHex));
+    return new TextDecoder().decode(pt);
+  } catch { return ''; }
+}
+
+async function _encryptCurrentFields() {
+  if (!_activeKey) return;
+  _encBlobsCache = {
+    cust_enc:  await encryptField(_activeKey, document.getElementById('pi-cust').value),
+    opp_enc:   await encryptField(_activeKey, document.getElementById('pi-opp').value),
+    notes_enc: await encryptField(_activeKey, document.getElementById('pi-notes').value),
+  };
+}
+
+async function _decryptIntoFields(key, blobs) {
+  const [cust, opp, notes] = await Promise.all([
+    decryptField(key, blobs.cust_enc  || ''),
+    decryptField(key, blobs.opp_enc   || ''),
+    decryptField(key, blobs.notes_enc || ''),
+  ]);
+  document.getElementById('pi-cust').value  = cust;
+  document.getElementById('pi-opp').value   = opp;
+  document.getElementById('pi-notes').value = notes;
+}
+
+// ── Creator check / visible password ─────────────────────────────────────────
+function isCreator(hash) {
+  try {
+    const stored = JSON.parse(localStorage.getItem('fortibom_pw_plain') || 'null');
+    return !!(stored && stored.hash === hash);
+  } catch { return false; }
+}
+
+function getVisiblePassword() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('fortibom_pw_plain') || 'null');
+    if (stored && stored.hash === bomPasswordHash) return stored.plain;
+  } catch {}
+  return _sessionUnlockPlain || '';
+}
+
+// ── Lock UI and state ─────────────────────────────────────────────────────────
+function updateLockUI() {
+  const card = document.getElementById('proj-info-card');
+  const isLocked = card.classList.contains('bom-locked');
+  const hasPassword = !!bomPasswordHash;
+  const inEditMode = !card.classList.contains('view-mode');
+
+  const lockBtn = document.getElementById('pw-lock-btn');
+  lockBtn.style.display = (hasPassword && !isLocked && inEditMode) ? 'inline-flex' : 'none';
+
+  const unlockBtn = document.getElementById('pw-unlock-btn');
+  unlockBtn.style.display = isLocked ? 'inline-flex' : 'none';
+}
+
+function setLockedState(locked) {
+  const card = document.getElementById('proj-info-card');
+  if (locked) {
+    card.classList.add('bom-locked');
+  } else {
+    card.classList.remove('bom-locked');
+  }
+  updatePiView();
+  updatePiSummary();
+  updateLockUI();
+}
+
+async function applyPasswordHashFromMeta(meta) {
+  bomPasswordHash = meta.passwordHash || '';
+  _pwSalt = meta.passwordSalt || '';
+
+  if (meta.cust_enc || meta.opp_enc || meta.notes_enc) {
+    _encBlobsCache = { cust_enc: meta.cust_enc||'', opp_enc: meta.opp_enc||'', notes_enc: meta.notes_enc||'' };
+  }
+
+  if (bomPasswordHash) {
+    const stored = JSON.parse(localStorage.getItem('fortibom_pw_plain') || 'null');
+    if (stored && stored.hash === bomPasswordHash && _pwSalt) {
+      try {
+        _activeKey = await deriveKey(stored.plain, _pwSalt);
+        if (_encBlobsCache) await _decryptIntoFields(_activeKey, _encBlobsCache);
+        bomUnlocked = true;
+        setLockedState(false);
+      } catch {
+        bomUnlocked = false;
+        _activeKey = null;
+        setLockedState(true);
+      }
+    } else {
+      bomUnlocked = false;
+      _activeKey = null;
+      _sessionUnlockPlain = '';
+      setLockedState(true);
+    }
+  } else {
+    bomUnlocked = false;
+    setLockedState(false);
+  }
+}
+
+// ── Password Setup Modal ──────────────────────────────────────────────────────
+function openPasswordSetupModal() {
+  _setupPasswordPlain = '';
+  document.getElementById('pw-setup-reveal').style.display = 'none';
+  document.getElementById('pw-setup-gen-btn').style.display = 'inline-flex';
+  document.getElementById('pw-setup-confirm-btn').style.display = 'none';
+  document.getElementById('pw-setup-modal').classList.add('on');
+}
+
+function closePasswordSetupModal() {
+  document.getElementById('pw-setup-modal').classList.remove('on');
+  _setupPasswordPlain = '';
+}
+
+function generateAndShowSetupPassword() {
+  _setupPasswordPlain = generatePassword();
+  document.getElementById('pw-setup-val').textContent = _setupPasswordPlain;
+  document.getElementById('pw-setup-reveal').style.display = 'flex';
+  document.getElementById('pw-setup-gen-btn').style.display = 'none';
+  document.getElementById('pw-setup-confirm-btn').style.display = 'inline-flex';
+}
+
+function generatePassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const arr = new Uint8Array(14);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, b => chars[b % chars.length]).join('');
+}
+
+function copySetupPassword() {
+  if (_setupPasswordPlain) clipboardWrite(_setupPasswordPlain, '✓ Password copied');
+}
+
+async function confirmPasswordSetup() {
+  if (!_setupPasswordPlain) return;
+  _pwSalt = genSalt();
+  _activeKey = await deriveKey(_setupPasswordPlain, _pwSalt);
+  bomPasswordHash = await hashPassword(_setupPasswordPlain);
+  bomUnlocked = true;
+  localStorage.setItem('fortibom_pw_plain', JSON.stringify({ plain: _setupPasswordPlain, hash: bomPasswordHash, salt: _pwSalt }));
+  await _encryptCurrentFields();
+  await savePiData();
+  updateLockUI();
+  closePasswordSetupModal();
+  toast('✓ Password protection enabled');
+}
+
+function skipPasswordSetup() {
+  closePasswordSetupModal();
+}
+
+// ── Password Unlock Modal ─────────────────────────────────────────────────────
+function openPwUnlockModal(mode) {
+  _unlockModalMode = mode || 'view';
+  const inp = document.getElementById('pw-unlock-input');
+  inp.value = '';
+  inp.classList.remove('error');
+  document.getElementById('pw-unlock-err').classList.remove('on');
+  document.getElementById('pw-unlock-modal').classList.add('on');
+  setTimeout(() => inp.focus(), 80);
+}
+
+function closePwUnlockModal() {
+  document.getElementById('pw-unlock-modal').classList.remove('on');
+  _unlockModalMode = '';
+}
+
+async function attemptUnlock() {
+  const inp = document.getElementById('pw-unlock-input');
+  const val = inp.value;
+  if (!val) { inp.classList.add('error'); return; }
+  const hash = await hashPassword(val);
+  if (hash === bomPasswordHash) {
+    try {
+      _activeKey = await deriveKey(val, _pwSalt);
+      if (_encBlobsCache) await _decryptIntoFields(_activeKey, _encBlobsCache);
+      bomUnlocked = true;
+      _sessionUnlockPlain = val;
+      setLockedState(false);
+      closePwUnlockModal();
+      if (_unlockModalMode === 'disable-ro') {
+        document.getElementById('pi-readonly').checked = false;
+        toggleReadOnly(false);
+        removePasswordProtection();
+        toast('✓ BOM unlocked — read-only removed');
+      } else {
+        toast('✓ BOM unlocked');
+      }
+      updateLockUI();
+    } catch {
+      inp.classList.add('error');
+      document.getElementById('pw-unlock-err').textContent = 'Decryption failed — try again.';
+      document.getElementById('pw-unlock-err').classList.add('on');
+    }
+  } else {
+    inp.classList.add('error');
+    document.getElementById('pw-unlock-err').classList.add('on');
+    inp.select();
+  }
+}
+
+function removePasswordProtection() {
+  bomPasswordHash = '';
+  bomUnlocked = false;
+  _sessionUnlockPlain = '';
+  _activeKey = null;
+  _pwSalt = '';
+  _encBlobsCache = null;
+  localStorage.removeItem('fortibom_pw_plain');
+  savePiData();
+  setLockedState(false);
+  updateLockUI();
+}
+
+// ── Password View Modal ───────────────────────────────────────────────────────
+function openPwViewModal() {
+  _pwViewVisible = false;
+  const pw = getVisiblePassword();
+  document.getElementById('pw-view-val').textContent = pw ? '••••••••••••••' : '(not available in this session)';
+  const toggleBtn = document.getElementById('pw-view-toggle');
+  const copyBtn   = document.getElementById('pw-view-copy');
+  toggleBtn.style.display = pw ? 'inline-flex' : 'none';
+  copyBtn.style.display   = pw ? 'inline-flex' : 'none';
+  toggleBtn.textContent = 'Show';
+  document.getElementById('pw-view-modal').classList.add('on');
+}
+
+function closePwViewModal() {
+  document.getElementById('pw-view-modal').classList.remove('on');
+  _pwViewVisible = false;
+}
+
+function togglePwVisibility() {
+  const pw = getVisiblePassword();
+  if (!pw) return;
+  _pwViewVisible = !_pwViewVisible;
+  document.getElementById('pw-view-val').textContent = _pwViewVisible ? pw : '••••••••••••••';
+  document.getElementById('pw-view-toggle').textContent = _pwViewVisible ? 'Hide' : 'Show';
+}
+
+function copyViewPassword() {
+  const pw = getVisiblePassword();
+  if (pw) clipboardWrite(pw, '✓ Password copied');
+}
+
+function removePasswordProtectionConfirm() {
+  if (!confirm('Remove password protection?\n\nAnyone who already has the .fbom or share URL can still unlock it using the old password.')) return;
+  removePasswordProtection();
+  closePwViewModal();
+  toast('✓ Password protection removed');
+}
+
+// ── RO change handler (intercepts checkbox) ───────────────────────────────────
+function handleReadOnlyChange(cb) {
+  if (cb.checked) {
+    toggleReadOnly(true);
+    if (!bomPasswordHash) {
+      openPasswordSetupModal();
+    }
+  } else {
+    if (bomPasswordHash && !bomUnlocked) {
+      cb.checked = true;
+      openPwUnlockModal('disable-ro');
+    } else {
+      toggleReadOnly(false);
+      if (bomPasswordHash) removePasswordProtection();
+    }
+  }
+}
+
+
+// ── READ ONLY MODE ────────────────────────────────────────────────────────────
+function isReadOnly() {
+  const cb = document.getElementById('pi-readonly');
+  return cb ? cb.checked : false;
+}
+
+function applyReadOnlyToDOM() {
+  const bgc = document.getElementById('bgc');
+  if (!bgc) return;
+  bgc.querySelectorAll('.qty-input, .note-input, .label-input').forEach(el => {
+    el.readOnly = true;
+    el.tabIndex = -1;
+  });
+  bgc.querySelectorAll('.type-btn').forEach(el => { el.disabled = true; });
+}
+
+function removeReadOnlyFromDOM() {
+  const bgc = document.getElementById('bgc');
+  if (!bgc) return;
+  bgc.querySelectorAll('.qty-input, .note-input, .label-input').forEach(el => {
+    el.readOnly = false;
+    el.removeAttribute('tabindex');
+  });
+  bgc.querySelectorAll('.type-btn').forEach(el => { el.disabled = false; });
+}
+
+function toggleReadOnly(checked) {
+  const pbv  = document.getElementById('pbv');
+  const card = document.getElementById('proj-info-card');
+  const piInputIds = ['pi-cust','pi-opp','pi-eng','pi-date','pi-notes'];
+
+  if (checked) {
+    pbv.classList.add('bom-readonly');
+    card.classList.add('pi-readonly');
+    piInputIds.forEach(id => { document.getElementById(id).disabled = true; });
+    document.getElementById('pi-term').disabled = true;
+    applyReadOnlyToDOM();
+  } else {
+    pbv.classList.remove('bom-readonly');
+    card.classList.remove('pi-readonly');
+    piInputIds.forEach(id => { document.getElementById(id).disabled = false; });
+    document.getElementById('pi-term').disabled = false;
+    removeReadOnlyFromDOM();
+  }
+  savePiData();
 }
 
 // ── TOAST ────────────────────────────────────────────────────────────────────
 let tt=null;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');if(tt)clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3000);}
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-loadPiData();
-if (!document.getElementById('pi-date').value) {
-  document.getElementById('pi-date').value = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+// ── DEMO BOM LINK ────────────────────────────────────────────────────────────
+// The demo URL is fetched at runtime from the canonical deployment so it does
+// not live in this repo. The link only renders at the original URL; This is so
+// the demo link can be taken offline anytime immediately with no edits to this page.
+function initDemoLink() {
+  if (location.hostname !== 'msalty.github.io') return;
+  const CONFIG_URL = 'https://gist.githubusercontent.com/msalty/ca8f0f5f11d9c11d3296b90371360de0/raw/43bc90a56e875cf8e8a4a250f3b9356dbd931e7f/demobom.json';
+  fetch(CONFIG_URL, { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : null)
+    .then(cfg => {
+      if (!cfg || !cfg.url) return;
+      document.querySelectorAll('.demo-bom-link').forEach(a => {
+        a.href = cfg.url;
+        const lbl = a.querySelector('.demo-bom-label');
+        if (cfg.label && lbl) lbl.textContent = cfg.label;
+        a.style.display = 'inline-flex';
+      });
+    })
+    .catch(() => {});
 }
-loadCart();
-loadSaved();
-updateBadges();
-updateSavedBadge();
-renderGroups();
-if (cart.length) showPBV();
-buildNav();
-checkBOMFragment();
-initPiMode();
-['pi-cust','pi-opp','pi-eng','pi-date','pi-notes'].forEach(id => {
-  document.getElementById(id).addEventListener('input', savePiData);
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async () => {
+  await loadPiData();
+  initDemoLink();
+  if (!document.getElementById('pi-date').value) {
+    document.getElementById('pi-date').value = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  }
+  loadCart();
+  loadSaved();
+  updateBadges();
+  updateSavedBadge();
+  renderGroups();
+  updateSaveIndicator();
+  if (cart.length) showPBV();
+  buildNav();
+  checkBOMFragment();
+  initPiMode();
+  ['pi-cust','pi-opp','pi-eng','pi-date','pi-notes'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => { savePiData(); if (cart.length) markDirty(); });
+  });
+  document.getElementById('pi-term').addEventListener('change', () => { savePiData(); if (cart.length) markDirty(); });
+})();
+
+// ── PROJECT BREADCRUMB (shows customer when Project Information scrolls behind #ch) ──
+function updateProjBreadcrumb() {
+  const ch   = document.getElementById('ch');
+  const pbv  = document.getElementById('pbv');
+  const card = document.getElementById('proj-info-card');
+  const locked = !!(bomPasswordHash && !bomUnlocked);
+  const cust = locked ? '' : document.getElementById('pi-cust').value.trim();
+  const onPBV = pbv && pbv.style.display !== 'none';
+  let show = false;
+  if (onPBV && cust && card) {
+    show = card.getBoundingClientRect().bottom <= ch.getBoundingClientRect().bottom;
+  }
+  if (show) {
+    document.getElementById('bc-proj').textContent = cust;
+    ch.classList.add('has-proj');
+  } else {
+    ch.classList.remove('has-proj');
+  }
+}
+document.getElementById('pbv').addEventListener('scroll', updateProjBreadcrumb, {passive:true});
+document.getElementById('pi-cust').addEventListener('input', updateProjBreadcrumb);
+window.addEventListener('resize', updateProjBreadcrumb);
+updateProjBreadcrumb();
+['showPBV','loadProduct','showAbout'].forEach(fn => {
+  const orig = window[fn];
+  if (typeof orig === 'function') {
+    window[fn] = function(){ const r = orig.apply(this, arguments); updateProjBreadcrumb(); return r; };
+  }
 });
-document.getElementById('pi-term').addEventListener('change', savePiData);
 
 // Ensure view mode content is populated before printing regardless of current state
 window.addEventListener('beforeprint', updatePiView);
