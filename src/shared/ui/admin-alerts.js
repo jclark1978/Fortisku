@@ -1,6 +1,5 @@
 import { loadPersisted as loadSkuPersisted } from "../data/storage.js";
-import { loadLifecycleRssPersisted as loadHardwarePersisted } from "../../features/hardware-lifecycle/storage.js";
-import { loadSoftwareLifecyclePersisted as loadSoftwarePersisted } from "../../features/software-lifecycle/storage.js";
+import { getSharedDataset } from "../data/shared-storage.js";
 
 const ALERTS_EVENT = "fortisku:requirements-changed";
 
@@ -24,14 +23,14 @@ const REQUIRED_DATASETS = [
     title: "Hardware LifeCycle Feed Required",
     description: "Refresh the Hardware LifeCycle RSS feed so lifecycle lookups have local data to search.",
     href: "hardware-lifecycle/",
-    loadPersisted: loadHardwarePersisted
+    loadPersisted: () => getSharedDataset("hardware_lifecycle")
   },
   {
     key: "software-lifecycle",
     title: "Software LifeCycle Feed Required",
     description: "Refresh the Software LifeCycle RSS feed so lifecycle lookups have local data to search.",
     href: "software-lifecycle/",
-    loadPersisted: loadSoftwarePersisted
+    loadPersisted: () => getSharedDataset("software_lifecycle")
   }
 ];
 

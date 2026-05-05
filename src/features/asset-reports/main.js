@@ -1,11 +1,15 @@
 import { initThemeToggle } from "../../shared/ui/theme.js";
 import { initToolboxNav } from "../../shared/ui/nav.js";
-import { loadLifecycleRssPersisted } from "../hardware-lifecycle/storage.js";
+import { getSharedDataset, saveSharedDataset, deleteSharedDataset } from "../../shared/data/shared-storage.js";
+import { buildAssetReportsDataset } from "../../shared/data/asset-reports-mapper.js";
+import { notifyAdminRequirementsChanged } from "../../shared/ui/admin-alerts.js";
 import { buildAssetReportWorkbook, buildOutputFilename, inspectAssetWorkbook } from "./workbook.js";
 import { initAssetReportUI } from "./ui.js";
 
 let inspectedWorkbook = null;
 const LIFECYCLE_MAX_AGE_DAYS = 30;
+const ASSET_REPORTS_KEY = "asset_reports";
+const HARDWARE_LIFECYCLE_KEY = "hardware_lifecycle";
 
 const ui = initAssetReportUI({
   onFileSelected: handleFileSelected,
@@ -23,6 +27,13 @@ async function handleFileSelected(file) {
   ui.setLoading(true);
   try {
     inspectedWorkbook = await inspectAssetWorkbook(file);
+    try {
+      await saveSharedDataset(ASSET_REPORTS_KEY, buildAssetReportsDataset(inspectedWorkbook));
+    } catch (error) {
+      throw new Error("Failed to save the shared asset report dataset.", { cause: error });
+    }
+    notifyAdminRequirementsChanged();
+
     const lifecycleSummary = await loadLifecycleSummary(inspectedWorkbook.assetCounts);
     inspectedWorkbook = {
       ...inspectedWorkbook,
@@ -90,23 +101,26 @@ async function handleBuild({ customerName }) {
 
 function handleClear() {
   inspectedWorkbook = null;
+  deleteSharedDataset(ASSET_REPORTS_KEY)
+    .then(() => notifyAdminRequirementsChanged())
+    .catch((error) => console.warn("Failed to clear shared asset report dataset", error));
   ui.reset();
 }
 
 async function loadFreshHardwareLifecycleRows() {
   try {
-    const persisted = await loadLifecycleRssPersisted();
+    const persisted = await getSharedDataset(HARDWARE_LIFECYCLE_KEY);
     return validateLifecyclePersistence(persisted).rows;
   } catch (error) {
     throw normalizeLifecycleStorageError(
       error,
-      "Update Hardware LifeCycle data before generating the report. The stored lifecycle data could not be read."
+      "Update Hardware LifeCycle data before generating the report. The shared lifecycle data could not be read."
     );
   }
 }
 
-function parseLifecycleUpdatedAt(meta) {
-  const value = meta?.updatedAt || meta?.feedUpdatedAt;
+function parseLifecycleUpdatedAt(source) {
+  const value = source?.importedAt || source?.effectiveDate;
   if (!value) {
     return null;
   }
@@ -116,13 +130,17 @@ function parseLifecycleUpdatedAt(meta) {
 }
 
 function validateLifecyclePersistence(persisted) {
-  if (!persisted?.rows?.length) {
-    throw new Error("Update Hardware LifeCycle data before generating the report. No lifecycle RSS data is stored yet.");
+  if (persisted?.key !== HARDWARE_LIFECYCLE_KEY || persisted.version !== 1) {
+    throw new Error("Update Hardware LifeCycle data before generating the report. The shared lifecycle dataset version is unsupported.");
   }
 
-  const refreshedAt = parseLifecycleUpdatedAt(persisted.meta);
+  if (!persisted?.data?.rows?.length) {
+    throw new Error("Update Hardware LifeCycle data before generating the report. No shared lifecycle RSS data is stored yet.");
+  }
+
+  const refreshedAt = parseLifecycleUpdatedAt(persisted.source);
   if (!refreshedAt) {
-    throw new Error("Update Hardware LifeCycle data before generating the report. The stored lifecycle refresh date is unavailable.");
+    throw new Error("Update Hardware LifeCycle data before generating the report. The shared lifecycle refresh date is unavailable.");
   }
 
   const ageInDays = (Date.now() - refreshedAt.getTime()) / 86400000;
@@ -131,12 +149,15 @@ function validateLifecyclePersistence(persisted) {
     throw new Error(`Update Hardware LifeCycle data before generating the report. The stored lifecycle data is ${roundedAge} day${roundedAge === 1 ? "" : "s"} old.`);
   }
 
-  return persisted;
+  return {
+    ...persisted,
+    rows: collapseHardwareLifecycleMilestones(persisted.data.rows)
+  };
 }
 
 async function loadLifecycleSummary(assetCounts) {
   try {
-    const persisted = await loadLifecycleRssPersisted();
+    const persisted = await getSharedDataset(HARDWARE_LIFECYCLE_KEY);
     const valid = validateLifecyclePersistence(persisted);
     const mergedAssetCounts = mergeLifecycleDates(assetCounts, valid.rows);
     return {
@@ -172,6 +193,43 @@ function mergeLifecycleDates(assetCounts, lifecycleRows) {
       endOfSupportDate: lifecycle?.endOfSupportDate || ""
     };
   }).sort(compareAssetCountsByEndOfOrderDate);
+}
+
+function collapseHardwareLifecycleMilestones(rows) {
+  const byProduct = new Map();
+
+  for (const row of rows || []) {
+    const product = String(row?.product || "").trim();
+    if (!product) {
+      continue;
+    }
+
+    const key = normalizeLifecycleKey(product);
+    const existing = byProduct.get(key) || {
+      product,
+      category: row?.details || "",
+      endOfOrderDate: "",
+      lastServiceExtensionDate: "",
+      endOfSupportDate: ""
+    };
+
+    if (!existing.category && row?.details) {
+      existing.category = row.details;
+    }
+
+    const milestone = String(row?.milestone || "").trim().toLowerCase();
+    if (milestone === "end of order") {
+      existing.endOfOrderDate = row.date || "";
+    } else if (milestone === "last service extension") {
+      existing.lastServiceExtensionDate = row.date || "";
+    } else if (milestone === "end of support") {
+      existing.endOfSupportDate = row.date || "";
+    }
+
+    byProduct.set(key, existing);
+  }
+
+  return Array.from(byProduct.values());
 }
 
 function normalizeLifecycleKey(value) {
