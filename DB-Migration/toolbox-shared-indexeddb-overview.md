@@ -119,7 +119,7 @@ Every record stored in the `datasets` object store must conform to the following
 |-----------|--------|-------------|
 | `key`     | string | Unique identifier for this dataset. Must match a reserved key defined in the dataset's spec. |
 | `version` | number | Schema version of this record's shape. Starts at `1`. Increment when the record structure changes. Independent of the IndexedDB database version. |
-| `source`  | object | Describes how the data was imported. Must include at minimum: `type`, `filename`, and `importedAt`. |
+| `source`  | object | Describes how the data was imported. Must include at minimum: `importedAt`. Additional required fields are defined by the dataset specification. |
 | `data`    | object | Contains the dataset content. Structure is defined by the individual dataset specification. |
 | `meta`    | object | Contains summary counts and display metadata. Structure is defined by the individual dataset specification. |
 
@@ -127,13 +127,16 @@ Every record stored in the `datasets` object store must conform to the following
 
 ```javascript
 source: {
-  type: string,         // How the data was imported (e.g. "csv", "xlsx")
-  filename: string | null,
   importedAt: string    // ISO 8601 timestamp
 }
 ```
 
-Valid values for `type` are defined by each dataset's specification document.
+Dataset specifications may require additional source fields such as:
+
+- `type` / `filename` for workbook-style imports
+- `app` / `format` / `label` / `effectiveDate` for feed-style imports
+
+Valid source fields and values are defined by each dataset's specification document.
 
 ---
 
@@ -146,6 +149,8 @@ Each dataset is identified by a unique string key stored in the `key` field. Key
 | Key       | Dataset                        | Specification Document                        |
 |-----------|--------------------------------|-----------------------------------------------|
 | `pricing` | Fortinet Official Price List   | `toolbox-shared-pricing-dataset-spec.md`      |
+| `hardware_lifecycle` | Fortinet Hardware Lifecycle RSS | `toolbox-shared-hardware-lifecycle-dataset-spec.md` |
+| `asset_reports` | Asset Report Inventory Workbook | `toolbox-shared-asset-reports-dataset-spec.md` |
 
 ### Rules
 
@@ -251,3 +256,5 @@ Each dataset record contains its own `version` field. This tracks the schema ver
 | Document                                      | Dataset Key | Description                        |
 |-----------------------------------------------|-------------|------------------------------------|
 | `toolbox-shared-pricing-dataset-spec.md`      | `pricing`   | Fortinet Official Price List data  |
+| `toolbox-shared-hardware-lifecycle-dataset-spec.md` | `hardware_lifecycle` | Fortinet Hardware LifeCycle RSS milestone data |
+| `toolbox-shared-asset-reports-dataset-spec.md` | `asset_reports` | Asset Report inventory workbook data |
