@@ -133,6 +133,22 @@
             <p class="status-message ds-card-status" id="ds-pricing-status" role="status" aria-live="polite"></p>
           </div>
 
+          <!-- Asset Reports -->
+          <div class="ds-card" id="ds-card-asset_reports">
+            <div class="ds-card-header">
+              <span class="ds-card-title">Asset Reports</span>
+              <span class="ds-badge ds-badge--empty" id="ds-ar-badge">No data</span>
+              <span class="spinner" id="ds-ar-spinner" hidden>Processing...</span>
+            </div>
+            <p class="ds-description">Asset inventory workbook data imported from Asset Report Cleanup.</p>
+            <div class="ds-meta" id="ds-ar-meta"></div>
+            <div class="ds-actions">
+              <a class="ui-btn ui-btn--primary" href="../asset-reports/">Open Asset Reports</a>
+              <button type="button" class="ui-btn ui-btn--secondary secondary" id="ds-ar-clear-btn" disabled>Clear shared data</button>
+            </div>
+            <p class="status-message ds-card-status" id="ds-ar-status" role="status" aria-live="polite"></p>
+          </div>
+
           <!-- Hardware LifeCycle -->
           <div class="ds-card" id="ds-card-hardware_lifecycle">
             <div class="ds-card-header">

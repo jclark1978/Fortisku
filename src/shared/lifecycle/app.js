@@ -46,6 +46,14 @@ export function startLifecycleApp(config) {
         rowsById = new Map(rows.map((row) => [row.id, row]));
         miniSearch = search.loadIndex(persisted.indexJSON);
         meta = persisted.meta;
+        if (shared) {
+          try {
+            await saveSharedDataset(shared.key, shared.buildDataset(rows, meta));
+            notifyAdminRequirementsChanged();
+          } catch (err) {
+            console.warn("Failed to publish restored lifecycle dataset", err);
+          }
+        }
         const storedBytes = meta?.storedBytes ?? storage.estimateSizeBytes(rows, persisted.indexJSON);
         ui.renderDatasetReady(meta, storedBytes);
         ui.enableSearch(true);

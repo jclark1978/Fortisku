@@ -38,6 +38,7 @@ const POPUP_HEIGHT = 720;
 initToolboxNav({ current: "data-sources", basePath: "../" });
 initThemeToggle();
 initPricingCard();
+initAssetReportsCard();
 initLifecycleCard({
   prefix: "hw",
   feedUrl: "https://support.fortinet.com/rss/Hardware.xml",
@@ -138,6 +139,21 @@ async function handlePricingImport(file) {
   } finally {
     setCardLoading("pricing", false);
   }
+}
+
+function initAssetReportsCard() {
+  const clearBtn = document.getElementById("ds-ar-clear-btn");
+  clearBtn.addEventListener("click", async () => {
+    clearBtn.disabled = true;
+    try {
+      await deleteSharedDataset("asset_reports");
+      updateCardStatus("asset_reports", null);
+      notifyAdminRequirementsChanged();
+    } catch (err) {
+      console.error("Failed to clear shared asset report dataset", err);
+      clearBtn.disabled = false;
+    }
+  });
 }
 
 // ── LIFECYCLE (shared factory) ─────────────────────────────────────────────
@@ -353,6 +369,7 @@ function setCardLoading(key, loading) {
 
 function keyToPrefix(key) {
   if (key === "pricing") return "pricing";
+  if (key === "asset_reports") return "ar";
   if (key === "hardware_lifecycle") return "hw";
   if (key === "software_lifecycle") return "sw";
   return key;
