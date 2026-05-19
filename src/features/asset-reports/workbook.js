@@ -139,7 +139,7 @@ function mapRow(row, headerMap) {
   const unitExpirationDate = parseDateValue(row[headerMap.get("unitExpirationDate")]);
   const registrationDate = parseDateValue(row[headerMap.get("registrationDate")]);
 
-  if (!serialNumber || !productModel || !description || !unitExpirationDate || !registrationDate) {
+  if (!serialNumber || !productModel || !unitExpirationDate) {
     return null;
   }
 
